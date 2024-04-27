@@ -1,0 +1,11 @@
+@font-face {
+    font-family: Shantell Sans;
+    src: url("../assets/font/ShantellSans.ttf");
+}
+body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    background-color: #222;
+}

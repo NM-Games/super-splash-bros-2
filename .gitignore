@@ -1,0 +1,5 @@
+/dist
+/node_modules
+
+# We have the old game in this repo for copying some parts, but pushing it is unnecessary
+/game-33

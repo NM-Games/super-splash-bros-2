@@ -1,0 +1,32 @@
+{
+  "name": "supersplashbros2",
+  "version": "1.0.0",
+  "description": "Super Splash Bros 2 - the one and only Super Splash Bros successor!",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NM-Games/super-splash-bros-2.git"
+  },
+  "keywords": [
+    "super",
+    "splash",
+    "bros",
+    "game"
+  ],
+  "author": "N&M Games",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/NM-Games/super-splash-bros-2/issues"
+  },
+  "homepage": "https://github.com/NM-Games/super-splash-bros-2#readme",
+  "devDependencies": {
+    "electron": "^30.0.1",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}
