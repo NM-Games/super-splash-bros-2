@@ -1,4 +1,5 @@
 const image = require("./image");
+const colors = require("./colors");
 
 /** @type {HTMLCanvasElement} */
 let canvas;
@@ -16,7 +17,7 @@ const init = () => {
     canvas = document.querySelector("canvas");
     c = canvas.getContext("2d");
 
-    update();
+    addEventListener("load", update);
     addEventListener("resize", update);
 };
 
@@ -43,32 +44,57 @@ const clear = () => {
     c.clearRect(0, 0, width(), height());
 };
 
-// const roundedRectangle = (x, y, w, h, r) => {
-//     c.beginPath();
-//     c.moveTo(x, y + r);
-//     c.quadraticCurveTo(x, y, x + r, y);
-//     c.lineTo(x + w - r, y);
-//     c.quadraticCurveTo(x + w, y, x + w, y + r);
-//     c.lineTo(x + w, y + h - r);
-//     c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-//     c.lineTo(x + r, y + h);
-//     c.quadraticCurveTo(x, y + h, x, y + h - r);
-//     c.closePath();
-// };
-
 const draw = {
-    /**
-     * Fill a rectangle on the screen
-     * @param {string | CanvasGradient | CanvasPattern} color
-     * @param {number} x
-     * @param {number} y
-     * @param {number} w
-     * @param {number} h
-     */
     fill: {
-        rect: (color, x, y, w, h) => {
+        /**
+         * Fill a rectangle on the screen.
+         * @param {string | CanvasGradient | CanvasPattern} color
+         * @param {number} x
+         * @param {number} y
+         * @param {number} w
+         * @param {number} h
+         * @param {number} r
+         */
+        rect: (color, x, y, w, h, r = 0) => {
             c.fillStyle = color;
-            c.fillRect(x, y, w, h);
+            c.beginPath();
+            c.moveTo(x, y + r);
+            c.quadraticCurveTo(x, y, x + r, y);
+            c.lineTo(x + w - r, y);
+            c.quadraticCurveTo(x + w, y, x + w, y + r);
+            c.lineTo(x + w, y + h - r);
+            c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            c.lineTo(x + r, y + h);
+            c.quadraticCurveTo(x, y + h, x, y + h - r);
+            c.closePath();
+            c.fill();
+        }
+    },
+    stroke: {
+        /**
+         * Stroke a rectangle on the screen.
+         * @param {string | CanvasGradient | CanvasPattern} color
+         * @param {number} x
+         * @param {number} y
+         * @param {number} w
+         * @param {number} h
+         * @param {number} lw
+         * @param {number} r
+         */
+        rect: (color, x, y, w, h, lw = 2, r = 0) => {
+            c.strokeStyle = color;
+            c.lineWidth = lw;
+            c.beginPath();
+            c.moveTo(x, y + r);
+            c.quadraticCurveTo(x, y, x + r, y);
+            c.lineTo(x + w - r, y);
+            c.quadraticCurveTo(x + w, y, x + w, y + r);
+            c.lineTo(x + w, y + h - r);
+            c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            c.lineTo(x + r, y + h);
+            c.quadraticCurveTo(x, y + h, x, y + h - r);
+            c.closePath();
+            c.stroke();
         }
     },
     /**
@@ -117,15 +143,18 @@ const draw = {
         c.fillText(text, x, y);
     },
     /**
-     * Draw a button on the screen
-     * @param {string} text 
-     * @param {number} x 
-     * @param {number} y 
-     * @param {number} w 
-     * @param {number} h 
-     * @param {boolean} hovering 
+     * Draw a button on the screen.
+     * @param {string} text
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @param {number} scale
+     * @param {boolean} hovering
+     * @param {boolean} active
      */
-    button: (text, x, y, w, h, hovering = false) => {
+    button: (text, x, y, w, h, scale = 1, hovering = false, active = false) => {
+        c.filter = (active) ? "brightness(100)" : "none";
         draw.croppedImage(
             image.buttons,
             0,
@@ -137,7 +166,24 @@ const draw = {
             w,
             h
         );
-        draw.text(text, x, y, "white", 32, "Shantell Sans", "", "center", "middle");
+        c.filter = "none";
+        draw.text(text, x, y, (active) ? colors.ui.primary : "white", 32 * scale, "Shantell Sans", "", "center", "middle");
+    },
+    /**
+     * Draw an input field on the screen.
+     * @param {string} value
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} size
+     * @param {boolean} focused
+     * @param {boolean} trailingChar
+     */
+    input: (value, x, y, w, size, focused, trailingChar) => {
+        const h = size + 16;
+        draw.fill.rect(colors.ui.primary, x - w / 2, y - h / 2, w, h, 6);
+        draw.stroke.rect((focused) ? "white" : colors.ui.secondary, x - w / 2, y - h / 2, w, h, 3, 6);
+        draw.text(value + (focused && trailingChar ? "_":""), x - w / 2 + 8, y + 4, "white", size, "Shantell Sans", "", "left", "middle");
     }
 }
 

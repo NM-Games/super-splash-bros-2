@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog, globalShortcut } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, globalShortcut } = require("electron");
 const { join } = require("path");
 
 const network = require("./network");
@@ -32,9 +32,11 @@ app.on("ready", () => {
         window.setTitle("Super Splash Bros 2");
         window.loadFile(join(__dirname, "window", "index.html"));
         window.setIcon(join(__dirname, "assets", "img", "icon.png"));
-        window.webContents.openDevTools();
+        // window.webContents.openDevTools();
     
         window.on("ready-to-show", () => window.show());
+
+        ipcMain.on("quit", () => app.quit());
 
         globalShortcut.register("F11", () => {
             window.setFullScreen(!window.isFullScreen());
