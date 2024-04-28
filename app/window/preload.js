@@ -2,7 +2,7 @@ const { ipcRenderer } = require("electron");
 
 const c = require("./canvas");
 const image = require("./image");
-const colors = require("./colors");
+const theme = require("./theme");
 const Button = require("./elements/Button");
 const Input = require("./elements/Input");
 
@@ -33,10 +33,28 @@ const state = {
     }
 };
 
+const generateBackgroundSprites = () => {
+    const sprites = [];
+    let spriteX = 50;
+    while (spriteX < 20000) {
+        sprites.push({
+            visible: false,
+            x: spriteX,
+            y: 900,
+            amplitude: Math.random() * 250 + 300,
+            offset: Math.floor(Math.random() * 300),
+            type: Math.floor(Math.random() * 4),
+            facing: Math.round(Math.random())
+        });
+        spriteX += Math.random() * 100 + 200;
+    }
+    return sprites;
+};
+
+const backgroundSprites = generateBackgroundSprites();
+
 let frames = 0;
 let waterX = 0;
-/** @type {"daylight" | "sunset" | "night"} */
-let theme = "daylight";
 
 Button.items = [
     // Main menu
@@ -144,7 +162,7 @@ Button.items = [
         text: "◂ Previous",
         state: state.SETTINGS,
         x: {screenFactor: 1/5, offset: -Button.width / 4 - 20},
-        y: {screenFactor: 0, offset: 450},
+        y: {screenFactor: 0, offset: 470},
         width: Button.width / 2,
         height: Button.height / 2,
         onclick: () => {
@@ -155,7 +173,7 @@ Button.items = [
         text: "Next ▸",
         state: state.SETTINGS,
         x: {screenFactor: 1/5, offset: Button.width / 4 + 20},
-        y: {screenFactor: 0, offset: 450},
+        y: {screenFactor: 0, offset: 470},
         width: Button.width / 2,
         height: Button.height / 2,
         onclick: () => {
@@ -167,7 +185,7 @@ Button.items = [
         text: "◂ Previous",
         state: state.SETTINGS,
         x: {screenFactor: 1/5, offset: -Button.width / 4 - 20},
-        y: {screenFactor: 0, offset: 600},
+        y: {screenFactor: 0, offset: 650},
         width: Button.width / 2,
         height: Button.height / 2,
         onclick: () => {
@@ -178,11 +196,24 @@ Button.items = [
         text: "Next ▸",
         state: state.SETTINGS,
         x: {screenFactor: 1/5, offset: Button.width / 4 + 20},
-        y: {screenFactor: 0, offset: 600},
+        y: {screenFactor: 0, offset: 650},
         width: Button.width / 2,
         height: Button.height / 2,
         onclick: () => {
             // todo: switch superpowers
+        }
+    }),
+    new Button({
+        id: "Fullscreen",
+        text: "Fullscreen",
+        state: state.SETTINGS,
+        x: {screenFactor: 1/2, offset: 0},
+        y: {screenFactor: 0, offset: 280},
+        width: Button.width,
+        height: Button.height,
+        onclick: function() {
+            ipcRenderer.send("toggle-fullscreen");
+            this.hovering = false;
         }
     }),
 ];
@@ -204,11 +235,22 @@ Input.items = [
         y: {screenFactor: 0, offset: 280},
         width: Button.width + 50,
         size: 20
+    }),
+    new Input({
+        name: "Control-MoveLeft",
+        state: state.SETTINGS,
+        x: {screenFactor: 4/5, offset: 200},
+        y: {screenFactor: 0, offset: 250},
+        width: 50,
     })
 ];
 
 addEventListener("DOMContentLoaded", () => {
     c.init();
+
+    ipcRenderer.on("fullscreen-status", (_e, enabled) => {
+        Button.getButtonById("Fullscreen").text = `Fullscreen: ${enabled ? "ON":"OFF"}`;
+    });
 
     addEventListener("mousemove", (e) => {
         for (const button of Button.items) {
@@ -269,13 +311,26 @@ addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        for (const sprite of backgroundSprites) {
+            sprite.y = Math.sin((frames + sprite.offset) / 40) * sprite.amplitude + c.height();
+            if (sprite.y > c.height()) {
+                sprite.visible = true;
+                sprite.type = Math.floor(Math.random() * 4);
+                sprite.facing = Math.round(Math.random());
+            }
+        }
+
         waterX -= 1;
         if (waterX < -image.water.width) waterX = 0;
     };
 
     const draw = () => {
         c.clear();
-        c.draw.fill.rect(colors.theme[theme].primary, 0, 0, c.width(), c.height());
+        c.draw.fill.rect(theme.getBackgroundColor().primary, 0, 0, c.width(), c.height());
+
+        for (const sprite of backgroundSprites) {
+            if (sprite.visible) c.draw.croppedImage(image.sprites, sprite.type * 128, sprite.facing * 128, 128, 128, sprite.x, sprite.y, 96, 96);
+        }
 
         let watersX = 0;
         while (watersX < c.width()) {
@@ -285,13 +340,28 @@ addEventListener("DOMContentLoaded", () => {
         c.draw.image(image.water, waterX + watersX, c.height() - 100);
 
         if (state.current === state.MAIN_MENU) c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.changeX, 25, image.logo.width, image.logo.height);
-        else if (state.current === state.LOCAL_GAME_MENU) c.draw.text("LOCAL MODE", c.width(0.5) + state.changeX, 80, (theme === "night") ? colors.text.light : colors.text.dark, 58, "Shantell Sans", "bold", "center");
-        else if (state.current === state.LAN_GAME_MENU) c.draw.text("LAN MODE", c.width(0.5) + state.changeX, 80, (theme === "night") ? colors.text.light : colors.text.dark, 58, "Shantell Sans", "bold", "center");
-        else if (state.current === state.SETTINGS) {
-            c.draw.text("SETTINGS", c.width(0.5) + state.changeX, 80, (theme === "night") ? colors.text.light : colors.text.dark, 58, "Shantell Sans", "bold", "center");
-            c.draw.text("APPEARANCE", c.width(0.2) + state.changeX, 180, (theme === "night") ? colors.text.light : colors.text.dark, 32, "Shantell Sans", "bold", "center");
-            c.draw.text("GRAPHICS", c.width(0.5) + state.changeX, 180, (theme === "night") ? colors.text.light : colors.text.dark, 32, "Shantell Sans", "bold", "center");
-            c.draw.text("CONTROLS", c.width(0.8) + state.changeX, 180, (theme === "night") ? colors.text.light : colors.text.dark, 32, "Shantell Sans", "bold", "center");
+        else if (state.current === state.LOCAL_GAME_MENU) {
+            c.draw.text("LOCAL MODE", c.width(0.5) + state.changeX, 80, theme.getTextColor(), 58, "Shantell Sans", "bold", "center");
+        } else if (state.current === state.LAN_GAME_MENU) {
+            c.draw.text("LAN MODE", c.width(0.5) + state.changeX, 80, theme.getTextColor(), 58, "Shantell Sans", "bold", "center");
+        } else if (state.current === state.SETTINGS) {
+            c.draw.text("SETTINGS", c.width(0.5) + state.changeX, 80, theme.getTextColor(), 58, "Shantell Sans", "bold", "center");
+
+            c.draw.text("APPEARANCE", c.width(0.2) + state.changeX, 180, theme.getTextColor(), 32, "Shantell Sans", "bold", "center");
+            c.draw.text("GRAPHICS", c.width(0.5) + state.changeX, 180, theme.getTextColor(), 32, "Shantell Sans", "bold", "center");
+            c.draw.text("CONTROLS", c.width(0.8) + state.changeX, 180, theme.getTextColor(), 32, "Shantell Sans", "bold", "center");
+
+            c.draw.text("Player name:", c.width(0.2) - Button.width / 2 - 25 + state.changeX, 250, theme.getTextColor(), 24, "Shantell Sans", "", "left");
+            c.draw.text("Preferred color:", c.width(0.2) - Button.width / 2 - 25 + state.changeX, 345, theme.getTextColor(), 24, "Shantell Sans", "", "left");
+            c.draw.text("Superpower:", c.width(0.2) - Button.width / 2 - 25 + state.changeX, 525, theme.getTextColor(), 24, "Shantell Sans", "", "left");
+
+            c.draw.text("Move left", c.width(0.8) - Button.width / 2 - 25 + state.changeX, 250, theme.getTextColor(), 24, "Shantell Sans", "", "left");
+            c.draw.text("Move right", c.width(0.8) - Button.width / 2 - 25 + state.changeX, 310, theme.getTextColor(), 24, "Shantell Sans", "", "left");
+            c.draw.text("Jump", c.width(0.8) - Button.width / 2 - 25 + state.changeX, 310, theme.getTextColor(), 24, "Shantell Sans", "", "left");
+            c.draw.text("Attack", c.width(0.8) - Button.width / 2 - 25 + state.changeX, 310, theme.getTextColor(), 24, "Shantell Sans", "", "left");
+            c.draw.text("Launch rocket", c.width(0.8) - Button.width / 2 - 25 + state.changeX, 310, theme.getTextColor(), 24, "Shantell Sans", "", "left");
+            c.draw.text("Activate superpower", c.width(0.8) - Button.width / 2 - 25 + state.changeX, 310, theme.getTextColor(), 24, "Shantell Sans", "", "left");
+            c.draw.text("Game menu", c.width(0.8) - Button.width / 2 - 25 + state.changeX, 310, theme.getTextColor(), 24, "Shantell Sans", "", "left");
         }
 
         for (const button of Button.items) {

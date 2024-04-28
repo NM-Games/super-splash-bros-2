@@ -10,6 +10,23 @@ class Button {
     /** @type {Button[]} */
     static items = [];
 
+    /**
+     * Get the button based on its ID, given in the constructor.
+     * @param {string} id
+     * @returns {Button}
+     */
+    static getButtonById(id) {
+        let output = null;
+        for (const button of Button.items) {
+            if (button.id === id) {
+                output = button;
+                break;
+            }
+        }
+        return output;
+    }
+
+    id;
     text;
     state;
     #x;
@@ -25,6 +42,7 @@ class Button {
      * @constructor
      * Create a new button for menu screens.
      * @param {{
+     *  id: string,
      *  text: string,
      *  state: number,
      *  x: {screenFactor: number, offset: number},
@@ -35,6 +53,7 @@ class Button {
      * }} options
      */
     constructor(options) {
+        this.id = options.id ?? "";
         this.text = options.text;
         this.state = options.state;
         this.#x = options.x;

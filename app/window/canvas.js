@@ -1,5 +1,5 @@
 const image = require("./image");
-const colors = require("./colors");
+const theme = require("./theme");
 
 /** @type {HTMLCanvasElement} */
 let canvas;
@@ -167,7 +167,7 @@ const draw = {
             h
         );
         c.filter = "none";
-        draw.text(text, x, y, (active) ? colors.ui.primary : "white", 32 * scale, "Shantell Sans", "", "center", "middle");
+        draw.text(text, x, y, (active) ? theme.colors.ui.primary : "white", 32 * scale, "Shantell Sans", "", "center", "middle");
     },
     /**
      * Draw an input field on the screen.
@@ -181,8 +181,8 @@ const draw = {
      */
     input: (value, x, y, w, size, focused, trailingChar) => {
         const h = size + 16;
-        draw.fill.rect(colors.ui.primary, x - w / 2, y - h / 2, w, h, 6);
-        draw.stroke.rect((focused) ? "white" : colors.ui.secondary, x - w / 2, y - h / 2, w, h, 3, 6);
+        draw.fill.rect(theme.colors.ui.primary, x - w / 2, y - h / 2, w, h, 6);
+        draw.stroke.rect((focused) ? "white" : theme.colors.ui.secondary, x - w / 2, y - h / 2, w, h, 3, 6);
         draw.text(value + (focused && trailingChar ? "_":""), x - w / 2 + 8, y + 4, "white", size, "Shantell Sans", "", "left", "middle");
     }
 }

@@ -15,6 +15,10 @@ app.on("ready", () => {
         return;
     }
 
+    const toggleFullScreen = () => {
+        window.setFullScreen(!window.isFullScreen());
+    };
+
     network.isPortAvailable(network.port).then(() => {
         window = new BrowserWindow({
             width: 1250,
@@ -34,12 +38,20 @@ app.on("ready", () => {
         window.setIcon(join(__dirname, "assets", "img", "icon.png"));
         // window.webContents.openDevTools();
     
-        window.on("ready-to-show", () => window.show());
+        window.on("ready-to-show", () => {
+            window.webContents.send("fullscreen-status", window.isFullScreen());
+            window.show();
+        });
 
         ipcMain.on("quit", () => app.quit());
-
-        globalShortcut.register("F11", () => {
-            window.setFullScreen(!window.isFullScreen());
+        
+        ipcMain.on("toggle-fullscreen", toggleFullScreen);
+        globalShortcut.register("F11", toggleFullScreen);
+        window.on("enter-full-screen", () => {
+            window.webContents.send("fullscreen-status", true);
+        });
+        window.on("leave-full-screen", () => {
+            window.webContents.send("fullscreen-status", false);
         });
     }).catch((err) => {
         dialog.showErrorBox("Cannot start Super Splash Bros 2", `${err}: The Super Splash Bros 2 port, ${network.port}, is already in use.`);

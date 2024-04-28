@@ -15,7 +15,6 @@ class Input {
     value;
     hovering;
     focused;
-    placeholder;
     
     /**
      * Get the value of an input based on its name, given in the constructor.
@@ -57,7 +56,6 @@ class Input {
      *  y: {screenFactor: number, offset: number},
      *  width: number,
      *  size: number,
-     *  placeholder: string,
      *  maxLength: number,
      *  numbersOnly: boolean
      * }} options
@@ -74,7 +72,6 @@ class Input {
         this.hovering = false;
         this.focused = false;
         this.value = "";
-        this.placeholder = options.placeholder ?? "";
 
         addEventListener("keydown", (e) => {
             if (!this.focused || (e.key.length === 1 && isNaN(e.key) && this.numbersOnly)) return;
