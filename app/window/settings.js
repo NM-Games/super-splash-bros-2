@@ -6,9 +6,13 @@ const filePath = (platform() === "win32")
     ? join(homedir(), "AppData", "Roaming", "ssb2settings.json")
     : join(homedir(), ".ssb2settings.json");
 
+const generatePlayerName = () => {
+    return "Splasher" + ("000" + Math.ceil(Math.random() * 9999)).slice(-4);
+};
+
 const template = {
     appearance: {
-        playerName: "Splasher" + ("000" + Math.ceil(Math.random() * 9999)).slice(-4),
+        playerName: generatePlayerName(),
         preferredColor: 0,
         superpower: 0
     },
@@ -65,4 +69,4 @@ const init = () => {
     }
 };
 
-module.exports = {filePath, template, init, get, set};
+module.exports = {init, get, set, filePath, template, generatePlayerName};

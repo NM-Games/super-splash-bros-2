@@ -9,6 +9,7 @@ const { width, height } = require("../canvas");
 
 class Input {
     static size = 32;
+    static hoveringOn = false;
     static keybindsInvalid = false;
     /** @type {Input[]} */
     static items = [];

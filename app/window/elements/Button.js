@@ -7,6 +7,7 @@ const { width, height } = require("../canvas");
 class Button {
     static width = 300;
     static height = 100;
+    static hoveringOn = false;
     /** @type {Button[]} */
     static items = [];
 

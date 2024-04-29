@@ -299,6 +299,7 @@ Input.items = [
         width: Button.width + 50,
         size: 25,
         onblur: function() {
+            if (this.value.trim().length === 0) this.value = settings.generatePlayerName();
             config.appearance.playerName = this.value;
             settings.set(config);
         }
@@ -490,8 +491,18 @@ addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        let hoverings = {button: 0, input: 0};
+        for (const button of Button.items) {
+            if (button.hovering) hoverings.button++;
+        }
+        for (const input of Input.items) {
+            if (input.hovering) hoverings.input++;
+        }
+
         waterX -= Number(config.graphics.waterFlow);
         if (waterX < -image.water.width) waterX = 0;
+
+        document.body.style.cursor = (hoverings.button > 0) ? "pointer" : (hoverings.input > 0) ? "text" : "default";
     };
 
     const draw = () => {
