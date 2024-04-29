@@ -68,6 +68,7 @@ class Input {
         else if (keybind === " ") return "Space";
         else if (keybind === "Escape") return "Esc";
         else if (keybind === "Control") return "Ctrl";
+        else if (keybind === "AltGraph") return "AltGr";
         else if (keybind.length === 1) return keybind.toUpperCase();
         else return keybind;
     };
