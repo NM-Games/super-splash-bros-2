@@ -291,9 +291,13 @@ Input.items = [
         id: "Username",
         state: state.SETTINGS,
         x: {screenFactor: 1/5, offset: 0},
-        y: {screenFactor: 0, offset: 280},
+        y: {screenFactor: 0, offset: 285},
         width: Button.width + 50,
-        size: 20
+        size: 25,
+        onblur: function() {
+            config.appearance.playerName = this.value;
+            settings.set(config);
+        }
     }),
     new Input({
         id: "Keybind-MoveLeft",
@@ -438,7 +442,11 @@ addEventListener("DOMContentLoaded", () => {
                 break;
             }
         }
-        for (const input of Input.items) input.focused = (input.hovering && !state.changing);
+        for (const input of Input.items) {
+            const oldFocused = input.focused;
+            input.focused = (input.hovering && !state.changing);
+            if (oldFocused && !input.focused) input.onblur();
+        }
     });
     addEventListener("mouseup", (_e) => {
         for (const button of Button.items) {
