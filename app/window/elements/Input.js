@@ -3,6 +3,9 @@
  * 
  * @callback KeybindCallback
  * @param {string} key
+ * 
+ * @callback TabCallback
+ * @param {boolean} shift
  */
 
 const { width, height } = require("../canvas");
@@ -26,7 +29,10 @@ class Input {
     value;
     hovering;
     focused;
+    disabled;
     onblur;
+    ontab;
+    onemptybackspace;
     onkeybindselected;
     onmaxlengthreached;
     
@@ -88,6 +94,8 @@ class Input {
      *  maxLength?: number,
      *  numbersOnly?: boolean
      *  onblur?: EmptyCallback,
+     *  ontab?: TabCallback,
+     *  onemptybackspace?: EmptyCallback,
      *  onkeybindselected?: KeybindCallback,
      *  onmaxlengthreached?: EmptyCallback
      * }} options
@@ -103,14 +111,20 @@ class Input {
         this.maxLength = options.maxLength ?? 16;
         this.numbersOnly = options.numbersOnly ?? false;
         this.onblur = options.onblur ?? function() {};
+        this.ontab = options.ontab ?? function() {};
+        this.onemptybackspace = options.onemptybackspace ?? function() {};
         this.onkeybindselected = options.onkeybindselected ?? function() {};
         this.onmaxlengthreached = options.onmaxlengthreached ?? function() {};
         this.hovering = false;
         this.focused = false;
+        this.disabled = false;
         this.value = "";
 
         addEventListener("keydown", (e) => {
-            if (!this.focused || (e.key.length === 1 && isNaN(e.key) && this.numbersOnly)) return;
+            if (!this.focused || (e.key.length === 1 && (isNaN(e.key) || e.key === " ") && this.numbersOnly)) return;
+
+            if (e.key === "Tab") this.ontab(e.shiftKey);
+            else if (e.key === "Backspace" && this.value.length === 0) this.onemptybackspace();
 
             if (this.keybind) {
                 this.value = Input.displayKeybind(e.key);

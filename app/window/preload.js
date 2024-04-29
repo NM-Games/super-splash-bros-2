@@ -1,9 +1,10 @@
-const { ipcRenderer } = require("electron");
+const { ipcRenderer, ipcMain } = require("electron");
 
 const c = require("./canvas");
 const image = require("./image");
 const theme = require("./theme");
 const settings = require("./settings");
+const { port } = require("../network");
 const Button = require("./elements/Button");
 const Input = require("./elements/Input");
 
@@ -12,11 +13,13 @@ const state = {
     MAIN_MENU: 0,
     LOCAL_GAME_MENU: 1,
     LAN_GAME_MENU: 2,
-    PLAYING_FREEPLAY: 3,
-    PLAYING_LOCAL: 4,
-    PLAYING_LAN: 5,
-    SETTINGS: 6,
-    ABOUT: 7,
+    WAITING_LOCAL: 3,
+    WAITING_LAN: 4,
+    PLAYING_FREEPLAY: 5,
+    PLAYING_LOCAL: 6,
+    PLAYING_LAN: 7,
+    SETTINGS: 8,
+    ABOUT: 9,
 
     current: 0,
     changing: false,
@@ -33,6 +36,28 @@ const state = {
         state.changeVX = (inverted) ? 150 : -150;
         state.changing = true;
     }
+};
+
+/**
+ * Enable or disable the connect elements in the LAN mode menu.
+ * @param {boolean} to
+ */
+const setConnectElementsState = (to) => {
+    Button.getButtonById("Connect").hovering =
+    Button.getButtonById("CreateGame").hovering =
+    Button.getButtonById("LANModeBack").hovering =
+    Input.getInputById("IP-1").hovering =
+    Input.getInputById("IP-2").hovering =
+    Input.getInputById("IP-3").hovering =
+    Input.getInputById("IP-4").hovering = false;
+
+    Button.getButtonById("Connect").disabled =
+    Button.getButtonById("CreateGame").disabled =
+    Button.getButtonById("LANModeBack").disabled =
+    Input.getInputById("IP-1").disabled =
+    Input.getInputById("IP-2").disabled =
+    Input.getInputById("IP-3").disabled =
+    Input.getInputById("IP-4").disabled = to;
 };
 
 /**
@@ -59,6 +84,9 @@ const generateBackgroundSprites = () => {
 const backgroundSprites = generateBackgroundSprites();
 const config = {appearance: {}, graphics: {}, controls: {}};
 
+/** @type {WebSocket} */
+let ws;
+let wsConnectMessage = {text: "", color: null};
 let frames = 0;
 let waterX = 0;
 
@@ -139,6 +167,7 @@ Button.items = [
     }),
     // LAN mode menu
     new Button({
+        id: "LANModeBack",
         text: "◂ Back",
         state: state.LAN_GAME_MENU,
         x: {screenFactor: 0, offset: Button.width / 3 + 20},
@@ -148,6 +177,75 @@ Button.items = [
         onclick: function() {
             this.hovering = false;
             state.change(state.MAIN_MENU, true);
+        }
+    }),
+    new Button({
+        id: "CreateGame",
+        text: "Create a game",
+        state: state.LAN_GAME_MENU,
+        x: {screenFactor: 1/2, offset: 0},
+        y: {screenFactor: 1/4, offset: 20},
+        width: Button.width,
+        height: Button.height,
+        onclick: function() {
+            ipcRenderer.send("start-gameserver");
+            ipcRenderer.on("gameserver-created", () => {
+                ws = new WebSocket(`ws://127.0.0.1:${port}`);
+                ws.addEventListener("open", () => {
+                    state.change(state.WAITING_LAN, false);
+                });
+            });
+        }
+    }),
+    new Button({
+        id: "Connect",
+        text: "Connect",
+        state: state.LAN_GAME_MENU,
+        x: {screenFactor: 1/2, offset: 0},
+        y: {screenFactor: 1/2, offset: Button.height + 100},
+        width: Button.width,
+        height: Button.height,
+        onclick: function() {
+            const ip = [
+                Input.getInputById("IP-1").value,
+                Input.getInputById("IP-2").value,
+                Input.getInputById("IP-3").value,
+                Input.getInputById("IP-4").value
+            ];
+            let error = 0;
+            for (let i=0; i<ip.length; i++) {
+                ip[i] = parseInt(ip[i]);
+                if (isNaN(ip[i]) || ip[i] < 0 || ip[i] >= 255) error++;
+            }
+
+            if (error > 0) {
+                wsConnectMessage.text = "Invalid IP address!";
+                wsConnectMessage.color = "#e00";
+            } else {
+                setConnectElementsState(true);
+                wsConnectMessage.text = "Connecting...";
+                wsConnectMessage.color = null;
+
+                ws = new WebSocket(`ws://${ip.join(".")}:${port}`);
+                const connectionTimeout = setTimeout(() => {
+                    setConnectElementsState(false);
+                    wsConnectMessage.text = "Connection timed out!";
+                    wsConnectMessage.color = "#e00";
+                    ws = undefined;
+                }, 10000);
+
+                ws.addEventListener("open", (e) => {
+                    clearTimeout(connectionTimeout);
+                    state.change(state.WAITING_LAN, false);
+                    setConnectElementsState(false);
+                });
+                ws.addEventListener("error", (err) => {
+                    clearTimeout(connectionTimeout);
+                    wsConnectMessage.text = "Connection error!";
+                    wsConnectMessage.color = "#e00";
+                    setConnectElementsState(false);
+                });
+            }
         }
     }),
     // Settings menu
@@ -278,18 +376,81 @@ Button.items = [
             this.hovering = false;
             state.change(state.SETTINGS, true);
         }
-    })    
+    })
 ];
 
 Input.items = [
     new Input({
         id: "IP-1",
         state: state.LAN_GAME_MENU,
-        x: {screenFactor: 1/2, offset: -300},
+        x: {screenFactor: 1/2, offset: -180},
         y: {screenFactor: 1/2, offset: 100},
-        width: 175,
+        width: 100,
         maxLength: 3,
-        numbersOnly: true
+        numbersOnly: true,
+        onmaxlengthreached: function() {
+            this.focused = false;
+            setTimeout(() => Input.getInputById("IP-2").focused = true, 10);
+        },
+        ontab: function(shift) {
+            if (!shift) this.onmaxlengthreached();
+        }
+    }),
+    new Input({
+        id: "IP-2",
+        state: state.LAN_GAME_MENU,
+        x: {screenFactor: 1/2, offset: -60},
+        y: {screenFactor: 1/2, offset: 100},
+        width: 100,
+        maxLength: 3,
+        numbersOnly: true,
+        onmaxlengthreached: function() {
+            this.focused = false;
+            setTimeout(() => Input.getInputById("IP-3").focused = true, 10);
+        },
+        onemptybackspace: function() {
+            this.focused = false;
+            Input.getInputById("IP-1").focused = true;   
+        },
+        ontab: function(shift) {
+            (shift) ? this.onemptybackspace() : this.onmaxlengthreached();
+        }
+    }),
+    new Input({
+        id: "IP-3",
+        state: state.LAN_GAME_MENU,
+        x: {screenFactor: 1/2, offset: 60},
+        y: {screenFactor: 1/2, offset: 100},
+        width: 100,
+        maxLength: 3,
+        numbersOnly: true,
+        onmaxlengthreached: function() {
+            this.focused = false;
+            setTimeout(() => Input.getInputById("IP-4").focused = true, 10);
+        },
+        onemptybackspace: function() {
+            this.focused = false;
+            Input.getInputById("IP-2").focused = true;   
+        },
+        ontab: function(shift) {
+            (shift) ? this.onemptybackspace() : this.onmaxlengthreached();
+        }
+    }),
+    new Input({
+        id: "IP-4",
+        state: state.LAN_GAME_MENU,
+        x: {screenFactor: 1/2, offset: 180},
+        y: {screenFactor: 1/2, offset: 100},
+        width: 100,
+        maxLength: 3,
+        numbersOnly: true,
+        onemptybackspace: function() {
+            this.focused = false;
+            Input.getInputById("IP-3").focused = true;   
+        },
+        ontab: function(shift) {
+            if (shift) this.onemptybackspace();
+        }
     }),
     new Input({
         id: "Username",
@@ -427,7 +588,7 @@ addEventListener("DOMContentLoaded", () => {
             }
 
             button.hovering = (e.clientX > button.getX() - button.width / 2 && e.clientX < button.getX() + button.width / 2
-             && e.clientY > button.getY() - button.height / 2 && e.clientY < button.getY() + button.height / 2 && !state.changing);
+             && e.clientY > button.getY() - button.height / 2 && e.clientY < button.getY() + button.height / 2 && !button.disabled && !state.changing);
         }
         for (const input of Input.items) {
             if (input.state !== state.current) {
@@ -436,7 +597,7 @@ addEventListener("DOMContentLoaded", () => {
             }
 
             input.hovering = (e.clientX > input.getX() - input.width / 2 && e.clientX < input.getX() + input.width / 2
-             && e.clientY > input.getY() - input.getH(0.5) && e.clientY < input.getY() + input.getH(0.5) && !state.changing);
+             && e.clientY > input.getY() - input.getH(0.5) && e.clientY < input.getY() + input.getH(0.5) && !input.disabled && !state.changing);
         }
     });
 
@@ -525,6 +686,9 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text("LOCAL MODE", c.width(0.5) + state.changeX, 80, theme.getTextColor(), 58, "Shantell Sans", "bold", "center");
         } else if (state.current === state.LAN_GAME_MENU) {
             c.draw.text("LAN MODE", c.width(0.5) + state.changeX, 80, theme.getTextColor(), 58, "Shantell Sans", "bold", "center");
+            c.draw.text("...or join a game on this network:", c.width(0.5) + state.changeX, c.height(0.5) - 50, theme.getTextColor(), 32, "Shantell Sans", "bold", "center");
+            c.draw.text("IP address:", c.width(0.5) - 230 + state.changeX, c.height(0.5) + 60, theme.getTextColor(), 24, "Shantell Sans", "", "left");
+            c.draw.text(wsConnectMessage.text, c.width(0.5) + state.changeX, c.height(0.5) + Button.height + 180, wsConnectMessage.color ?? theme.getTextColor(), 30, "Shantell Sans", "bold", "center");
         } else if (state.current === state.SETTINGS) {
             c.draw.text("SETTINGS", c.width(0.5) + state.changeX, 80, theme.getTextColor(), 58, "Shantell Sans", "bold", "center");
 

@@ -148,7 +148,7 @@ const draw = {
      * @param {number} offsetX
      */
     button: (button, offsetX) => {
-        c.filter = (button.active) ? "brightness(100)" : "none";
+        c.filter = (button.disabled) ? "grayscale(1)" : (button.active) ? "brightness(100)" : "none";
         draw.croppedImage(
             image.buttons,
             0,
@@ -175,6 +175,7 @@ const draw = {
         const y = input.getY();
         const w = input.width;
         const h = input.getH();
+        c.filter = (input.disabled) ? "grayscale(1)" : "none";
         draw.fill.rect(theme.colors.ui.primary, x - w / 2, y - h / 2, w, h, 6);
         draw.stroke.rect((input.focused) ? "white" : theme.colors.ui.secondary, x - w / 2, y - h / 2, w, h, 3, 6);
         draw.text(
@@ -188,6 +189,7 @@ const draw = {
             (input.keybind) ? "center":"left", 
             "middle"
         );
+        c.filter = "none";
     }
 }
 

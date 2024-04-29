@@ -38,6 +38,7 @@ class Button {
     onclick;
     hovering;
     active;
+    disabled;
 
     /**
      * @constructor
@@ -65,6 +66,7 @@ class Button {
         this.onclick = options.onclick ?? function() {};
         this.hovering = false;
         this.active = false;
+        this.disabled = false;
     }
 
     /**

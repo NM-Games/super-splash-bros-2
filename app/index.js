@@ -53,6 +53,11 @@ app.on("ready", () => {
         window.on("leave-full-screen", () => {
             window.webContents.send("fullscreen-status", false);
         });
+
+        ipcMain.on("start-gameserver", () => {
+            gameserver.start();
+            gameserver.game.on("listening", () => window.webContents.send("gameserver-created"));
+        });
     }).catch((err) => {
         dialog.showErrorBox("Cannot start Super Splash Bros 2", `${err}: The Super Splash Bros 2 port, ${network.port}, is already in use.`);
         app.exit(2);
