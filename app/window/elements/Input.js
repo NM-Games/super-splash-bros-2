@@ -1,7 +1,15 @@
+/**
+ * @callback EmptyCallback
+ * 
+ * @callback KeybindCallback
+ * @param {string} key
+ */
+
 const { width, height } = require("../canvas");
 
 class Input {
     static size = 32;
+    static keybindsInvalid = false;
     /** @type {Input[]} */
     static items = [];
 
@@ -17,6 +25,9 @@ class Input {
     value;
     hovering;
     focused;
+    onblur;
+    onkeybindselected;
+    onmaxlengthreached;
     
     /**
      * Get an input based on its ID, given in the constructor.
@@ -74,6 +85,9 @@ class Input {
      *  keybind?: boolean,
      *  maxLength?: number,
      *  numbersOnly?: boolean
+     *  onblur?: EmptyCallback,
+     *  onkeybindselected?: KeybindCallback,
+     *  onmaxlengthreached?: EmptyCallback
      * }} options
      */
     constructor(options) {
@@ -86,6 +100,9 @@ class Input {
         this.keybind = options.keybind ?? false;
         this.maxLength = options.maxLength ?? 16;
         this.numbersOnly = options.numbersOnly ?? false;
+        this.onblur = options.onblur ?? function() {};
+        this.onkeybindselected = options.onkeybindselected ?? function() {};
+        this.onmaxlengthreached = options.onmaxlengthreached ?? function() {};
         this.hovering = false;
         this.focused = false;
         this.value = "";
@@ -95,13 +112,27 @@ class Input {
 
             if (this.keybind) {
                 this.value = Input.displayKeybind(e.key);
-                this.focused = false;
+                
+                const inputs = Input.items.map((item) => item.keybind ? item.value : null);
+                while (inputs.indexOf(null) > -1) inputs.splice(inputs.indexOf(null), 1);
+                const uniques = inputs.filter((item, index, array) => array.indexOf(item) === index);
+                
+                if (uniques.length !== inputs.length) Input.keybindsInvalid = true; else {
+                    Input.keybindsInvalid = (uniques.length !== inputs.length);
+                    this.onkeybindselected(e.key);
+                    this.focused = false;
+                    this.onblur();
+                }
             } else {
                 if (e.key.length === 1) this.value += e.key;
                 else if (e.key === "Backspace") this.value = this.value.slice(0, -1);
-                else if (e.key === "Escape" || e.key == "Enter") this.focused = false;
+                else if (e.key === "Escape" || e.key == "Enter") {
+                    this.focused = false;
+                    this.onblur();
+                }
             }
 
+            if (this.value.length >= this.maxLength) this.onmaxlengthreached();
             this.value = this.value.slice(0, this.maxLength);
         });
     }

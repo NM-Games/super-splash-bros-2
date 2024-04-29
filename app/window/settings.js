@@ -18,12 +18,12 @@ const template = {
         menuSprites: true
     },
     controls: {
-        moveLeft: "A",
-        moveRight: "D",
-        jump: "W",
+        moveLeft: "a",
+        moveRight: "d",
+        jump: "w",
         attack: " ",
-        launchRocket: "E",
-        activateSuperpower: "Q",
+        launchRocket: "e",
+        activateSuperpower: "q",
         gameMenu: "Escape"
     }
 };

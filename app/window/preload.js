@@ -301,7 +301,11 @@ Input.items = [
         x: {screenFactor: 4/5, offset: 150},
         y: {screenFactor: 0, offset: 240},
         width: 100,
-        keybind: true
+        keybind: true,
+        onkeybindselected: (key) => {
+            config.controls.moveLeft = key;
+            settings.set(config);
+        }
     }),
     new Input({
         id: "Keybind-MoveRight",
@@ -309,7 +313,11 @@ Input.items = [
         x: {screenFactor: 4/5, offset: 150},
         y: {screenFactor: 0, offset: 300},
         width: 100,
-        keybind: true
+        keybind: true,
+        onkeybindselected: (key) => {
+            config.controls.moveRight = key;
+            settings.set(config);
+        }
     }),
     new Input({
         id: "Keybind-Jump",
@@ -317,7 +325,11 @@ Input.items = [
         x: {screenFactor: 4/5, offset: 150},
         y: {screenFactor: 0, offset: 360},
         width: 100,
-        keybind: true
+        keybind: true,
+        onkeybindselected: (key) => {
+            config.controls.jump = key;
+            settings.set(config);
+        }
     }),
     new Input({
         id: "Keybind-Attack",
@@ -325,7 +337,11 @@ Input.items = [
         x: {screenFactor: 4/5, offset: 150},
         y: {screenFactor: 0, offset: 420},
         width: 100,
-        keybind: true
+        keybind: true,
+        onkeybindselected: (key) => {
+            config.controls.attack = key;
+            settings.set(config);
+        }
     }),
     new Input({
         id: "Keybind-LaunchRocket",
@@ -333,7 +349,11 @@ Input.items = [
         x: {screenFactor: 4/5, offset: 150},
         y: {screenFactor: 0, offset: 480},
         width: 100,
-        keybind: true
+        keybind: true,
+        onkeybindselected: (key) => {
+            config.controls.launchRocket = key;
+            settings.set(config);
+        }
     }),
     new Input({
         id: "Keybind-ActivateSuperpower",
@@ -341,7 +361,11 @@ Input.items = [
         x: {screenFactor: 4/5, offset: 150},
         y: {screenFactor: 0, offset: 540},
         width: 100,
-        keybind: true
+        keybind: true,
+        onkeybindselected: (key) => {
+            config.controls.activateSuperpower = key;
+            settings.set(config);
+        }
     }),
     new Input({
         id: "Keybind-GameMenu",
@@ -349,7 +373,11 @@ Input.items = [
         x: {screenFactor: 4/5, offset: 150},
         y: {screenFactor: 0, offset: 600},
         width: 100,
-        keybind: true
+        keybind: true,
+        onkeybindselected: (key) => {
+            config.controls.gameMenu = key;
+            settings.set(config);
+        }
     }),
 ];
 
@@ -493,12 +521,12 @@ addEventListener("DOMContentLoaded", () => {
         for (const button of Button.items) {
             if (button.state !== state.current) continue;
 
-            c.draw.button(button.text, button.getX() + state.changeX, button.getY(), button.width, button.height, button.scale, button.hovering, button.active);
+            c.draw.button(button, state.changeX);
         }
         for (const input of Input.items) {
             if (input.state !== state.current) continue;
 
-            c.draw.input(input.value, input.getX() + state.changeX, input.getY(), input.width, input.size, input.focused, (frames % 40 < 20 && !input.keybind));
+            c.draw.input(input, state.changeX, Input.keybindsInvalid, (frames % 40 < 20 && !input.keybind));
         }
     };
     

@@ -144,46 +144,40 @@ const draw = {
     },
     /**
      * Draw a button on the screen.
-     * @param {string} text
-     * @param {number} x
-     * @param {number} y
-     * @param {number} w
-     * @param {number} h
-     * @param {number} scale
-     * @param {boolean} hovering
-     * @param {boolean} active
+     * @param {import("./elements/Button")} button
+     * @param {number} offsetX
      */
-    button: (text, x, y, w, h, scale = 1, hovering = false, active = false) => {
-        c.filter = (active) ? "brightness(100)" : "none";
+    button: (button, offsetX) => {
+        c.filter = (button.active) ? "brightness(100)" : "none";
         draw.croppedImage(
             image.buttons,
             0,
-            Number(hovering) * (image.buttons.height / 2),
+            Number(button.hovering) * (image.buttons.height / 2),
             image.buttons.width,
             image.buttons.height / 2,
-            x - w / 2,
-            y - h / 2,
-            w,
-            h
+            button.getX() + offsetX - button.width / 2,
+            button.getY() - button.height / 2,
+            button.width,
+            button.height
         );
         c.filter = "none";
-        draw.text(text, x, y, (active) ? theme.colors.ui.primary : "white", 32 * scale, "Shantell Sans", "", "center", "middle");
+        draw.text(button.text, button.getX() + offsetX, button.getY(), (button.active) ? theme.colors.ui.primary : "white", 32 * button.scale, "Shantell Sans", "", "center", "middle");
     },
     /**
      * Draw an input field on the screen.
-     * @param {string} value
-     * @param {number} x
-     * @param {number} y
-     * @param {number} w
-     * @param {number} size
-     * @param {boolean} focused
+     * @param {import("./elements/Input")} input
+     * @param {number} offsetX
+     * @param {boolean} invalid
      * @param {boolean} trailingChar
      */
-    input: (value, x, y, w, size, focused, trailingChar) => {
-        const h = size + 16;
+    input: (input, offsetX, invalid, trailingChar) => {
+        const x = input.getX() + offsetX;
+        const y = input.getY();
+        const w = input.width;
+        const h = input.getH();
         draw.fill.rect(theme.colors.ui.primary, x - w / 2, y - h / 2, w, h, 6);
-        draw.stroke.rect((focused) ? "white" : theme.colors.ui.secondary, x - w / 2, y - h / 2, w, h, 3, 6);
-        draw.text(value + (focused && trailingChar ? "_":""), x - w / 2 + 8, y + 4, "white", size, "Shantell Sans", "", "left", "middle");
+        draw.stroke.rect((input.focused) ? "white" : theme.colors.ui.secondary, x - w / 2, y - h / 2, w, h, 3, 6);
+        draw.text(input.value + (input.focused && trailingChar ? "_":""), x - w / 2 + 8, y + 4, (invalid && input.keybind) ? "#e00" : "white", input.size, "Shantell Sans", "", "left", "middle");
     }
 }
 

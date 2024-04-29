@@ -49,7 +49,7 @@ class Button {
      *  y: {screenFactor: number, offset: number},
      *  width?: number,
      *  height?: number,
-     *  onclick: EmptyCallback | null
+     *  onclick?: EmptyCallback
      * }} options
      */
     constructor(options) {
@@ -61,7 +61,7 @@ class Button {
         this.width = options.width ?? Button.width;
         this.height = options.height ?? Button.height;
         this.scale = Math.min(1, this.width * 1.3 / Button.width);
-        this.onclick = options.onclick;
+        this.onclick = options.onclick ?? function() {};
         this.hovering = false;
         this.active = false;
     }
