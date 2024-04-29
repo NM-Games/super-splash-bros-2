@@ -184,7 +184,8 @@ Button.items = [
         width: Button.width / 2,
         height: Button.height / 2,
         onclick: () => {
-            // todo: switch superpowers
+            if (config.appearance.preferredColor-- <= 0) config.appearance.preferredColor = 7;
+            settings.set(config);
         }
     }),
     new Button({
@@ -195,7 +196,8 @@ Button.items = [
         width: Button.width / 2,
         height: Button.height / 2,
         onclick: () => {
-            // todo: switch superpowers
+            if (config.appearance.preferredColor++ >= 7) config.appearance.preferredColor = 0;
+            settings.set(config);
         }
     }),
     // for the superpower switch:
@@ -520,6 +522,7 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text("Player name:", c.width(0.2) - Button.width / 2 - 25 + state.changeX, 250, theme.getTextColor(), 24, "Shantell Sans", "", "left");
             c.draw.text("Preferred color:", c.width(0.2) - Button.width / 2 - 25 + state.changeX, 345, theme.getTextColor(), 24, "Shantell Sans", "", "left");
             c.draw.text("Superpower:", c.width(0.2) - Button.width / 2 - 25 + state.changeX, 525, theme.getTextColor(), 24, "Shantell Sans", "", "left");
+            c.draw.croppedImage(image.sprites, config.appearance.preferredColor * 128, 0, 128, 128, c.width(0.2) - 32 + state.changeX, 360, 64, 64);
 
             const keybinds = ["Move left", "Move right", "Jump", "Attack", "Launch rocket", "Activate superpower", "Game menu"];
             for (let i=0; i<keybinds.length; i++)
