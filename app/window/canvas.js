@@ -177,7 +177,17 @@ const draw = {
         const h = input.getH();
         draw.fill.rect(theme.colors.ui.primary, x - w / 2, y - h / 2, w, h, 6);
         draw.stroke.rect((input.focused) ? "white" : theme.colors.ui.secondary, x - w / 2, y - h / 2, w, h, 3, 6);
-        draw.text(input.value + (input.focused && trailingChar ? "_":""), x - w / 2 + 8, y + 4, (invalid && input.keybind) ? "#e00" : "white", input.size, "Shantell Sans", "", "left", "middle");
+        draw.text(
+            input.value + (input.focused && trailingChar ? "_":""),
+            x - (input.keybind ? 0 : w / 2 - 8),
+            y + 4,
+            (invalid && input.keybind) ? "#e00" : "white",
+            input.size,
+            "Shantell Sans",
+            "",
+            (input.keybind) ? "center":"left", 
+            "middle"
+        );
     }
 }
 

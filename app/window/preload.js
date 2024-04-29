@@ -209,7 +209,8 @@ Button.items = [
         width: Button.width / 2,
         height: Button.height / 2,
         onclick: () => {
-            // todo: switch superpowers
+            if (config.appearance.superpower-- <= 0) config.appearance.superpower = 7;
+            settings.set(config);
         }
     }),
     new Button({
@@ -220,7 +221,8 @@ Button.items = [
         width: Button.width / 2,
         height: Button.height / 2,
         onclick: () => {
-            // todo: switch superpowers
+            if (config.appearance.superpower++ >= 7) config.appearance.superpower = 0;
+            settings.set(config);
         }
     }),
     new Button({
@@ -522,7 +524,12 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text("Player name:", c.width(0.2) - Button.width / 2 - 25 + state.changeX, 250, theme.getTextColor(), 24, "Shantell Sans", "", "left");
             c.draw.text("Preferred color:", c.width(0.2) - Button.width / 2 - 25 + state.changeX, 345, theme.getTextColor(), 24, "Shantell Sans", "", "left");
             c.draw.text("Superpower:", c.width(0.2) - Button.width / 2 - 25 + state.changeX, 525, theme.getTextColor(), 24, "Shantell Sans", "", "left");
-            c.draw.croppedImage(image.sprites, config.appearance.preferredColor * 128, 0, 128, 128, c.width(0.2) - 32 + state.changeX, 360, 64, 64);
+            
+            const colors = ["Yellow", "Green", "Red", "Blue", "Orange", "Cyan", "Purple", "Gray"];
+            const superpowers = ["Squash", "Shield", "Poop Bomb", "Invisibility", "Power Rockets", "Regeneration", "Knockback", "Strength"];
+            c.draw.croppedImage(image.sprites, config.appearance.preferredColor * 128, 0, 128, 128, c.width(0.2) - 80 + state.changeX, 360, 64, 64);
+            c.draw.text(colors[config.appearance.preferredColor], c.width(0.2) + state.changeX, 396, theme.getTextColor(), 28, "Shantell Sans", "bold", "left", "middle"); 
+            c.draw.text(superpowers[config.appearance.superpower], c.width(0.2), 576 + state.changeX, theme.getTextColor(), 28, "Shantell Sans", "bold", "left", "middle"); 
 
             const keybinds = ["Move left", "Move right", "Jump", "Attack", "Launch rocket", "Activate superpower", "Game menu"];
             for (let i=0; i<keybinds.length; i++)
