@@ -3,6 +3,7 @@ const { ipcRenderer } = require("electron");
 const c = require("./canvas");
 const image = require("./image");
 const theme = require("./theme");
+const settings = require("./settings");
 const Button = require("./elements/Button");
 const Input = require("./elements/Input");
 
@@ -15,6 +16,7 @@ const state = {
     PLAYING_LOCAL: 4,
     PLAYING_LAN: 5,
     SETTINGS: 6,
+    ABOUT: 7,
 
     current: 0,
     changing: false,
@@ -33,6 +35,9 @@ const state = {
     }
 };
 
+/**
+ * Generate sprites for in menu backgrounds.
+ */
 const generateBackgroundSprites = () => {
     const sprites = [];
     let spriteX = 50;
@@ -52,6 +57,7 @@ const generateBackgroundSprites = () => {
 };
 
 const backgroundSprites = generateBackgroundSprites();
+const config = {appearance: {}, graphics: {}, controls: {}};
 
 let frames = 0;
 let waterX = 0;
@@ -66,7 +72,7 @@ Button.items = [
         width: Button.width,
         height: Button.height,
         onclick: function() {
-            this.hovegamering = false;
+            this.hovering = false;
             state.change(state.LOCAL_GAME_MENU, false);
         }
     }),
@@ -157,6 +163,18 @@ Button.items = [
             state.change(state.MAIN_MENU, true);
         }
     }),
+    new Button({
+        text: "About...",
+        state: state.SETTINGS,
+        x: {screenFactor: 1, offset: -Button.width / 3 - 20},
+        y: {screenFactor: 0, offset: Button.height / 3 + 20},
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        onclick: function() {
+            this.hovering = false;
+            state.change(state.ABOUT, false);
+        }
+    }),
     // for the sprite color switch:
     new Button({
         text: "◂ Previous",
@@ -205,7 +223,7 @@ Button.items = [
     }),
     new Button({
         id: "Fullscreen",
-        text: "Fullscreen",
+        text: "Full screen",
         state: state.SETTINGS,
         x: {screenFactor: 1/2, offset: 0},
         y: {screenFactor: 0, offset: 280},
@@ -216,11 +234,52 @@ Button.items = [
             this.hovering = false;
         }
     }),
+    new Button({
+        id: "WaterFlow",
+        text: "Water flow",
+        state: state.SETTINGS,
+        x: {screenFactor: 1/2, offset: 0},
+        y: {screenFactor: 0, offset: 380},
+        width: Button.width,
+        height: Button.height,
+        onclick: function() {
+            config.graphics.waterFlow = !config.graphics.waterFlow;
+            this.text = `Water flow: ${config.graphics.waterFlow ? "ON":"OFF"}`;
+            settings.set(config);
+        }
+    }),
+    new Button({
+        id: "MenuSprites",
+        text: "Menu sprites: ON",
+        state: state.SETTINGS,
+        x: {screenFactor: 1/2, offset: 0},
+        y: {screenFactor: 0, offset: 480},
+        width: Button.width,
+        height: Button.height,
+        onclick: function() {
+            config.graphics.menuSprites = !config.graphics.menuSprites;
+            this.text = `Menu sprites: ${config.graphics.menuSprites ? "ON":"OFF"}`;
+            settings.set(config);
+        }
+    }),
+    // About menu
+    new Button({
+        text: "◂ Back",
+        state: state.ABOUT,
+        x: {screenFactor: 0, offset: Button.width / 3 + 20},
+        y: {screenFactor: 0, offset: Button.height / 3 + 20},
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        onclick: function() {
+            this.hovering = false;
+            state.change(state.SETTINGS, true);
+        }
+    })    
 ];
 
 Input.items = [
     new Input({
-        name: "IP-1",
+        id: "IP-1",
         state: state.LAN_GAME_MENU,
         x: {screenFactor: 1/2, offset: -300},
         y: {screenFactor: 1/2, offset: 100},
@@ -229,7 +288,7 @@ Input.items = [
         numbersOnly: true
     }),
     new Input({
-        name: "Username",
+        id: "Username",
         state: state.SETTINGS,
         x: {screenFactor: 1/5, offset: 0},
         y: {screenFactor: 0, offset: 280},
@@ -237,19 +296,90 @@ Input.items = [
         size: 20
     }),
     new Input({
-        name: "Control-MoveLeft",
+        id: "Keybind-MoveLeft",
         state: state.SETTINGS,
-        x: {screenFactor: 4/5, offset: 200},
-        y: {screenFactor: 0, offset: 250},
-        width: 50,
-    })
+        x: {screenFactor: 4/5, offset: 150},
+        y: {screenFactor: 0, offset: 240},
+        width: 100,
+        keybind: true
+    }),
+    new Input({
+        id: "Keybind-MoveRight",
+        state: state.SETTINGS,
+        x: {screenFactor: 4/5, offset: 150},
+        y: {screenFactor: 0, offset: 300},
+        width: 100,
+        keybind: true
+    }),
+    new Input({
+        id: "Keybind-Jump",
+        state: state.SETTINGS,
+        x: {screenFactor: 4/5, offset: 150},
+        y: {screenFactor: 0, offset: 360},
+        width: 100,
+        keybind: true
+    }),
+    new Input({
+        id: "Keybind-Attack",
+        state: state.SETTINGS,
+        x: {screenFactor: 4/5, offset: 150},
+        y: {screenFactor: 0, offset: 420},
+        width: 100,
+        keybind: true
+    }),
+    new Input({
+        id: "Keybind-LaunchRocket",
+        state: state.SETTINGS,
+        x: {screenFactor: 4/5, offset: 150},
+        y: {screenFactor: 0, offset: 480},
+        width: 100,
+        keybind: true
+    }),
+    new Input({
+        id: "Keybind-ActivateSuperpower",
+        state: state.SETTINGS,
+        x: {screenFactor: 4/5, offset: 150},
+        y: {screenFactor: 0, offset: 540},
+        width: 100,
+        keybind: true
+    }),
+    new Input({
+        id: "Keybind-GameMenu",
+        state: state.SETTINGS,
+        x: {screenFactor: 4/5, offset: 150},
+        y: {screenFactor: 0, offset: 600},
+        width: 100,
+        keybind: true
+    }),
 ];
 
 addEventListener("DOMContentLoaded", () => {
     c.init();
 
+    settings.init();
+    const configFile = settings.get();
+    config.appearance = configFile.appearance ?? settings.template.appearance;
+    config.graphics = configFile.graphics ?? settings.template.graphics;
+    config.controls = configFile.controls ?? settings.template.controls;
+
+    Input.getInputById("Username").value = config.appearance.playerName;
+
+    if (config.graphics.fullScreen) ipcRenderer.send("toggle-fullscreen");
+    Button.getButtonById("WaterFlow").text = `Water flow: ${config.graphics.waterFlow ? "ON":"OFF"}`;
+    Button.getButtonById("MenuSprites").text = `Menu sprites: ${config.graphics.menuSprites ? "ON":"OFF"}`;
+
+    Input.getInputById("Keybind-MoveLeft").value = Input.displayKeybind(config.controls.moveLeft);
+    Input.getInputById("Keybind-MoveRight").value = Input.displayKeybind(config.controls.moveRight);
+    Input.getInputById("Keybind-Jump").value = Input.displayKeybind(config.controls.jump);
+    Input.getInputById("Keybind-Attack").value = Input.displayKeybind(config.controls.attack);
+    Input.getInputById("Keybind-LaunchRocket").value = Input.displayKeybind(config.controls.launchRocket);
+    Input.getInputById("Keybind-ActivateSuperpower").value = Input.displayKeybind(config.controls.activateSuperpower);
+    Input.getInputById("Keybind-GameMenu").value = Input.displayKeybind(config.controls.gameMenu);
+
     ipcRenderer.on("fullscreen-status", (_e, enabled) => {
-        Button.getButtonById("Fullscreen").text = `Fullscreen: ${enabled ? "ON":"OFF"}`;
+        config.graphics.fullScreen = enabled;
+        Button.getButtonById("Fullscreen").text = `Full screen: ${enabled ? "ON":"OFF"}`;
+        settings.set(config);
     });
 
     addEventListener("mousemove", (e) => {
@@ -314,13 +444,13 @@ addEventListener("DOMContentLoaded", () => {
         for (const sprite of backgroundSprites) {
             sprite.y = Math.sin((frames + sprite.offset) / 40) * sprite.amplitude + c.height();
             if (sprite.y > c.height()) {
-                sprite.visible = true;
+                sprite.visible = config.graphics.menuSprites;
                 sprite.type = Math.floor(Math.random() * 4);
                 sprite.facing = Math.round(Math.random());
             }
         }
 
-        waterX -= 1;
+        waterX -= Number(config.graphics.waterFlow);
         if (waterX < -image.water.width) waterX = 0;
     };
 
@@ -339,7 +469,7 @@ addEventListener("DOMContentLoaded", () => {
         }
         c.draw.image(image.water, waterX + watersX, c.height() - 100);
 
-        if (state.current === state.MAIN_MENU) c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.changeX, 25, image.logo.width, image.logo.height);
+        if ([state.MAIN_MENU, state.ABOUT].includes(state.current)) c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.changeX, 25, image.logo.width, image.logo.height);
         else if (state.current === state.LOCAL_GAME_MENU) {
             c.draw.text("LOCAL MODE", c.width(0.5) + state.changeX, 80, theme.getTextColor(), 58, "Shantell Sans", "bold", "center");
         } else if (state.current === state.LAN_GAME_MENU) {
@@ -355,13 +485,9 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text("Preferred color:", c.width(0.2) - Button.width / 2 - 25 + state.changeX, 345, theme.getTextColor(), 24, "Shantell Sans", "", "left");
             c.draw.text("Superpower:", c.width(0.2) - Button.width / 2 - 25 + state.changeX, 525, theme.getTextColor(), 24, "Shantell Sans", "", "left");
 
-            c.draw.text("Move left", c.width(0.8) - Button.width / 2 - 25 + state.changeX, 250, theme.getTextColor(), 24, "Shantell Sans", "", "left");
-            c.draw.text("Move right", c.width(0.8) - Button.width / 2 - 25 + state.changeX, 310, theme.getTextColor(), 24, "Shantell Sans", "", "left");
-            c.draw.text("Jump", c.width(0.8) - Button.width / 2 - 25 + state.changeX, 310, theme.getTextColor(), 24, "Shantell Sans", "", "left");
-            c.draw.text("Attack", c.width(0.8) - Button.width / 2 - 25 + state.changeX, 310, theme.getTextColor(), 24, "Shantell Sans", "", "left");
-            c.draw.text("Launch rocket", c.width(0.8) - Button.width / 2 - 25 + state.changeX, 310, theme.getTextColor(), 24, "Shantell Sans", "", "left");
-            c.draw.text("Activate superpower", c.width(0.8) - Button.width / 2 - 25 + state.changeX, 310, theme.getTextColor(), 24, "Shantell Sans", "", "left");
-            c.draw.text("Game menu", c.width(0.8) - Button.width / 2 - 25 + state.changeX, 310, theme.getTextColor(), 24, "Shantell Sans", "", "left");
+            const keybinds = ["Move left", "Move right", "Jump", "Attack", "Launch rocket", "Activate superpower", "Game menu"];
+            for (let i=0; i<keybinds.length; i++)
+                c.draw.text(keybinds[i], c.width(0.8) - Button.width / 2 - 25 + state.changeX, 250 + i * 60, theme.getTextColor(), 24, "Shantell Sans", "", "left");
         }
 
         for (const button of Button.items) {
@@ -372,7 +498,7 @@ addEventListener("DOMContentLoaded", () => {
         for (const input of Input.items) {
             if (input.state !== state.current) continue;
 
-            c.draw.input(input.value, input.getX() + state.changeX, input.getY(), input.width, input.size, input.focused, frames % 40 < 20);
+            c.draw.input(input.value, input.getX() + state.changeX, input.getY(), input.width, input.size, input.focused, (frames % 40 < 20 && !input.keybind));
         }
     };
     

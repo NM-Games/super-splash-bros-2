@@ -5,27 +5,29 @@ class Input {
     /** @type {Input[]} */
     static items = [];
 
-    name;
+    id;
     state;
     #x;
     #y;
     width;
     size;
+    keybind;
+    maxLength;
     numbersOnly;
     value;
     hovering;
     focused;
     
     /**
-     * Get the value of an input based on its name, given in the constructor.
-     * @param {string} name
-     * @returns {string | null}
+     * Get an input based on its ID, given in the constructor.
+     * @param {string} id
+     * @returns {Input | null}
      */
-    static getValueByName(name) {
+    static getInputById(id) {
         let output = null;
         for (const input of Input.items) {
-            if (input.name === name) {
-                output = input.value;
+            if (input.id === id) {
+                output = input;
                 break;
             }
         }
@@ -45,28 +47,43 @@ class Input {
         }
         return output;
     }
+    /**
+     * Sanitizer for keybinds in the Settings menu.
+     * @param {string} keybind
+     * @returns {string}
+     */
+    static displayKeybind(keybind) {
+        if (keybind.startsWith("Arrow")) return keybind.slice(5);
+        else if (keybind === " ") return "Space";
+        else if (keybind === "Escape") return "Esc";
+        else if (keybind === "Control") return "Ctrl";
+        else if (keybind.length === 1) return keybind.toUpperCase();
+        else return keybind;
+    };
 
     /**
      * @constructor
      * Create an input field, for keybinds and IP addresses.
      * @param {{
-     *  name: string,
+     *  id: string,
      *  state: number,
      *  x: {screenFactor: number, offset: number},
      *  y: {screenFactor: number, offset: number},
      *  width: number,
-     *  size: number,
-     *  maxLength: number,
-     *  numbersOnly: boolean
+     *  size?: number,
+     *  keybind?: boolean,
+     *  maxLength?: number,
+     *  numbersOnly?: boolean
      * }} options
      */
     constructor(options) {
-        this.name = options.name;
+        this.id = options.id;
         this.state = options.state;
         this.#x = options.x;
         this.#y = options.y;
         this.width = options.width;
         this.size = options.size ?? Input.size;
+        this.keybind = options.keybind ?? false;
         this.maxLength = options.maxLength ?? 16;
         this.numbersOnly = options.numbersOnly ?? false;
         this.hovering = false;
@@ -76,9 +93,14 @@ class Input {
         addEventListener("keydown", (e) => {
             if (!this.focused || (e.key.length === 1 && isNaN(e.key) && this.numbersOnly)) return;
 
-            if (e.key.length === 1) this.value += e.key;
-            else if (e.key === "Backspace") this.value = this.value.slice(0, -1);
-            else if (e.key === "Escape" || e.key == "Enter") this.focused = false;
+            if (this.keybind) {
+                this.value = Input.displayKeybind(e.key);
+                this.focused = false;
+            } else {
+                if (e.key.length === 1) this.value += e.key;
+                else if (e.key === "Backspace") this.value = this.value.slice(0, -1);
+                else if (e.key === "Escape" || e.key == "Enter") this.focused = false;
+            }
 
             this.value = this.value.slice(0, this.maxLength);
         });

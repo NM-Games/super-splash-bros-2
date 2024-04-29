@@ -21,10 +21,10 @@ app.on("ready", () => {
 
     network.isPortAvailable(network.port).then(() => {
         window = new BrowserWindow({
-            width: 1250,
+            width: 1350,
             height: 700,
             minHeight: 700,
-            minWidth: 1100,
+            minWidth: 1350,
             webPreferences: {
                 sandbox: false,
                 contextIsolation: false,

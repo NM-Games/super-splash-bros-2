@@ -5,7 +5,7 @@
 const { width, height } = require("../canvas");
 
 class Button {
-    static width = 275;
+    static width = 300;
     static height = 100;
     /** @type {Button[]} */
     static items = [];
@@ -47,8 +47,8 @@ class Button {
      *  state: number,
      *  x: {screenFactor: number, offset: number},
      *  y: {screenFactor: number, offset: number},
-     *  width: number,
-     *  height: number,
+     *  width?: number,
+     *  height?: number,
      *  onclick: EmptyCallback | null
      * }} options
      */
