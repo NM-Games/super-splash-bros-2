@@ -636,6 +636,11 @@ addEventListener("DOMContentLoaded", () => {
         versions.chromium = chromium;
     });
 
+    addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && Button.getButtonById(`Back-${state.current}`) !== null) 
+            Button.getButtonById(`Back-${state.current}`).onclick();
+    });
+
     addEventListener("mousemove", (e) => {
         for (const button of Button.items) {
             if (button.state !== state.current) {
