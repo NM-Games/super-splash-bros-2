@@ -1,4 +1,4 @@
-const { ipcRenderer, ipcMain } = require("electron");
+const { ipcRenderer, shell } = require("electron");
 
 const c = require("./canvas");
 const image = require("./image");
@@ -14,12 +14,13 @@ const state = {
     LOCAL_GAME_MENU: 1,
     LAN_GAME_MENU: 2,
     WAITING_LOCAL: 3,
-    WAITING_LAN: 4,
-    PLAYING_FREEPLAY: 5,
-    PLAYING_LOCAL: 6,
-    PLAYING_LAN: 7,
-    SETTINGS: 8,
-    ABOUT: 9,
+    WAITING_LAN_HOST: 4,
+    WAITING_LAN_GUEST: 5,
+    PLAYING_FREEPLAY: 6,
+    PLAYING_LOCAL: 7,
+    PLAYING_LAN: 8,
+    SETTINGS: 9,
+    ABOUT: 10,
 
     current: 0,
     changing: false,
@@ -27,7 +28,7 @@ const state = {
     changeX: 0,
     changeVX: 0,
     /**
-     * Change the current game state
+     * Change the current game state.
      * @param {number} to
      * @param {boolean} inverted
      */
@@ -45,7 +46,7 @@ const state = {
 const setConnectElementsState = (to) => {
     Button.getButtonById("Connect").hovering =
     Button.getButtonById("CreateGame").hovering =
-    Button.getButtonById("LANModeBack").hovering =
+    Button.getButtonById(`Back-${state.LAN_GAME_MENU}`).hovering =
     Input.getInputById("IP-1").hovering =
     Input.getInputById("IP-2").hovering =
     Input.getInputById("IP-3").hovering =
@@ -53,7 +54,7 @@ const setConnectElementsState = (to) => {
 
     Button.getButtonById("Connect").disabled =
     Button.getButtonById("CreateGame").disabled =
-    Button.getButtonById("LANModeBack").disabled =
+    Button.getButtonById(`Back-${state.LAN_GAME_MENU}`).disabled =
     Input.getInputById("IP-1").disabled =
     Input.getInputById("IP-2").disabled =
     Input.getInputById("IP-3").disabled =
@@ -83,6 +84,7 @@ const generateBackgroundSprites = () => {
 
 const backgroundSprites = generateBackgroundSprites();
 const config = {appearance: {}, graphics: {}, controls: {}};
+const versions = {game: "", electron: "", chromium: ""};
 
 /** @type {WebSocket} */
 let ws;
@@ -154,6 +156,7 @@ Button.items = [
     }),
     // Local mode menu
     new Button({
+        id: `Back-${state.LOCAL_GAME_MENU}`,
         text: "◂ Back",
         state: state.LOCAL_GAME_MENU,
         x: {screenFactor: 0, offset: Button.width / 3 + 20},
@@ -167,7 +170,7 @@ Button.items = [
     }),
     // LAN mode menu
     new Button({
-        id: "LANModeBack",
+        id: `Back-${state.LAN_GAME_MENU}`,
         text: "◂ Back",
         state: state.LAN_GAME_MENU,
         x: {screenFactor: 0, offset: Button.width / 3 + 20},
@@ -192,7 +195,7 @@ Button.items = [
             ipcRenderer.on("gameserver-created", () => {
                 ws = new WebSocket(`ws://127.0.0.1:${port}`);
                 ws.addEventListener("open", () => {
-                    state.change(state.WAITING_LAN, false);
+                    state.change(state.WAITING_LAN_HOST, false);
                 });
             });
         }
@@ -236,7 +239,7 @@ Button.items = [
 
                 ws.addEventListener("open", (e) => {
                     clearTimeout(connectionTimeout);
-                    state.change(state.WAITING_LAN, false);
+                    state.change(state.WAITING_LAN_GUEST, false);
                     setConnectElementsState(false);
                 });
                 ws.addEventListener("error", (err) => {
@@ -250,6 +253,7 @@ Button.items = [
     }),
     // Settings menu
     new Button({
+        id: `Back-${state.SETTINGS}`,
         text: "◂ Back",
         state: state.SETTINGS,
         x: {screenFactor: 0, offset: Button.width / 3 + 20},
@@ -366,6 +370,7 @@ Button.items = [
     }),
     // About menu
     new Button({
+        id: `Back-${state.ABOUT}`,
         text: "◂ Back",
         state: state.ABOUT,
         x: {screenFactor: 0, offset: Button.width / 3 + 20},
@@ -375,6 +380,39 @@ Button.items = [
         onclick: function() {
             this.hovering = false;
             state.change(state.SETTINGS, true);
+        }
+    }),
+    new Button({
+        text: "Website",
+        state: state.ABOUT,
+        x: {screenFactor: 1/2, offset: -Button.width - 50},
+        y: {screenFactor: 9/10, offset: -25},
+        width: Button.width,
+        height: Button.height,
+        onclick: function() {
+            shell.openExternal("https://nm-games.eu");
+        }
+    }),
+    new Button({
+        text: "GitHub",
+        state: state.ABOUT,
+        x: {screenFactor: 1/2, offset: 0},
+        y: {screenFactor: 9/10, offset: -25},
+        width: Button.width,
+        height: Button.height,
+        onclick: function() {
+            shell.openExternal("https://github.com/NM-Games/super-splash-bros-2");
+        }
+    }),
+    new Button({
+        text: "Discord",
+        state: state.ABOUT,
+        x: {screenFactor: 1/2, offset: Button.width + 50},
+        y: {screenFactor: 9/10, offset: -25},
+        width: Button.width,
+        height: Button.height,
+        onclick: function() {
+            shell.openExternal("https://discord.gg/CaMaGRXDqB");
         }
     })
 ];
@@ -579,6 +617,11 @@ addEventListener("DOMContentLoaded", () => {
         Button.getButtonById("Fullscreen").text = `Full screen: ${enabled ? "ON":"OFF"}`;
         settings.set(config);
     });
+    ipcRenderer.on("information", (_e, game, electron, chromium) => {
+        versions.game = game;
+        versions.electron = electron;
+        versions.chromium = chromium;
+    });
 
     addEventListener("mousemove", (e) => {
         for (const button of Button.items) {
@@ -681,7 +724,7 @@ addEventListener("DOMContentLoaded", () => {
         }
         c.draw.image(image.water, waterX + watersX, c.height() - 100);
 
-        if ([state.MAIN_MENU, state.ABOUT].includes(state.current)) c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.changeX, 25, image.logo.width, image.logo.height);
+        if (state.current === state.MAIN_MENU) c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.changeX, 25, image.logo.width, image.logo.height);
         else if (state.current === state.LOCAL_GAME_MENU) {
             c.draw.text("LOCAL MODE", c.width(0.5) + state.changeX, 80, theme.getTextColor(), 58, "Shantell Sans", "bold", "center");
         } else if (state.current === state.LAN_GAME_MENU) {
@@ -709,6 +752,16 @@ addEventListener("DOMContentLoaded", () => {
             const keybinds = ["Move left", "Move right", "Jump", "Attack", "Launch rocket", "Activate superpower", "Game menu"];
             for (let i=0; i<keybinds.length; i++)
                 c.draw.text(keybinds[i], c.width(0.8) - Button.width / 2 - 25 + state.changeX, 250 + i * 60, theme.getTextColor(), 24, "Shantell Sans", "", "left");
+        } else if (state.current === state.ABOUT) {
+            c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.changeX, 25, image.logo.width, image.logo.height);
+            c.draw.text("by", c.width(0.5) + state.changeX, c.height(0.4) - 10, theme.getTextColor(), 24, "Shantell Sans", "bold", "center", "bottom");
+            c.draw.image(image.logo_nmgames, c.width(0.5) - image.logo_nmgames.width / 4 + state.changeX, c.height(0.4), image.logo_nmgames.width / 2, image.logo_nmgames.height / 2);
+            c.draw.text(`Version ${versions.game}`, c.width(0.5) + state.changeX, c.height(0.5) + 70, theme.getTextColor(), 36, "Shantell Sans", "bold", "center", "bottom");
+            c.draw.text(`(Electron: ${versions.electron}, Chromium: ${versions.chromium})`, c.width(0.5) + state.changeX, c.height(0.5) + 100, theme.getTextColor(), 24, "Shantell Sans", "", "center", "bottom");
+            c.draw.text(`This program is free and open-source software: you can modify and/or redistribute it`, c.width(0.5) + state.changeX, c.height(0.7), theme.getTextColor(), 20, "Shantell Sans", "", "center", "bottom");
+            c.draw.text(`under the terms of the GNU General Public License as published by the Free Software Foundation,`, c.width(0.5) + state.changeX, c.height(0.7) + 25, theme.getTextColor(), 20, "Shantell Sans", "", "center", "bottom");
+            c.draw.text(`either version 3 of the License, or (at your option) any later version.`, c.width(0.5) + state.changeX, c.height(0.7) + 50, theme.getTextColor(), 20, "Shantell Sans", "", "center", "bottom");
+
         }
 
         for (const button of Button.items) {

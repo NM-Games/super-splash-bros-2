@@ -8,6 +8,7 @@ const { readdirSync } = require("fs");
  *  explosion: HTMLImageElement,
  *  itembox: HTMLImageElement,
  *  logo: HTMLImageElement,
+ *  logo_nmgames: HTMLImageElement,
  *  platforms: HTMLImageElement,
  *  splash: HTMLImageElement,
  *  sprites: HTMLImageElement,

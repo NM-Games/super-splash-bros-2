@@ -3,6 +3,7 @@ const { join } = require("path");
 
 const network = require("./network");
 const gameserver = require("./gameserver");
+const { version } = require("../package-lock.json");
 
 
 /** @type {BrowserWindow} */
@@ -36,6 +37,9 @@ app.on("ready", () => {
         window.setTitle("Super Splash Bros 2");
         window.loadFile(join(__dirname, "window", "index.html"));
         window.setIcon(join(__dirname, "assets", "img", "icon.png"));
+        window.webContents.on("did-finish-load", () => {
+            window.webContents.send("information", version, process.versions.electron, process.versions.chrome);
+        });
         // window.webContents.openDevTools();
     
         window.on("ready-to-show", () => {
