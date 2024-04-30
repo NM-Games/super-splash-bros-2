@@ -10,7 +10,7 @@ const colors = {
         p3: "#ff1200",
         p4: "#002eff"
     },
-    ui: {primary: "#42cbe0", secondary: "#32a4d9"},
+    ui: {primary: "#42cbe0", secondary: "#32a4d9", error: "#e00"},
     text: {dark: "#505050", light: "#ffffff"}
 };
 

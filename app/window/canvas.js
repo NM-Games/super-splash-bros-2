@@ -44,6 +44,16 @@ const clear = () => {
     c.clearRect(0, 0, width(), height());
 };
 
+const options = {
+    /**
+     * Set the opacity of drawn objects.
+     * @param {number} opacity
+     */
+    setOpacity: (opacity) => {
+        c.globalAlpha = opacity;
+    }
+};
+
 const draw = {
     fill: {
         /**
@@ -182,7 +192,7 @@ const draw = {
             input.value + (input.focused && trailingChar ? "_":""),
             x - (input.keybind ? 0 : w / 2 - 8),
             y + 4,
-            (invalid && input.keybind) ? "#e00" : "white",
+            (invalid && input.keybind) ? theme.colors.ui.error : "white",
             input.size,
             "Shantell Sans",
             "",
@@ -198,5 +208,6 @@ module.exports = {
     width,
     height,
     clear,
+    options,
     draw
 };

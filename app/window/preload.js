@@ -88,7 +88,26 @@ const versions = {game: "", electron: "", chromium: ""};
 
 /** @type {WebSocket} */
 let ws;
-let wsConnectMessage = {text: "", color: null};
+let connectionMessage = {
+    text: "",
+    color: null, // null = theme dependent
+    a: 1,
+    shownAt: -6e9,
+    duration: Infinity,
+    /**
+     * Show a connection message.
+     * @param {string} text
+     * @param {string | CanvasGradient | CanvasPattern | null} color
+     * @param {number} duration
+     */
+    show: (text, color = null, duration = Infinity) => {
+        connectionMessage.text = text;
+        connectionMessage.color = color;
+        connectionMessage.duration = duration * 60;
+        connectionMessage.shownAt = frames;
+        connectionMessage.a = 1;
+    }
+};
 let frames = 0;
 let waterX = 0;
 
@@ -221,19 +240,14 @@ Button.items = [
                 if (isNaN(ip[i]) || ip[i] < 0 || ip[i] >= 255) error++;
             }
 
-            if (error > 0) {
-                wsConnectMessage.text = "Invalid IP address!";
-                wsConnectMessage.color = "#e00";
-            } else {
+            if (error > 0) connectionMessage.show("Invalid IP address!", theme.colors.ui.error, 3); else {
                 setConnectElementsState(true);
-                wsConnectMessage.text = "Connecting...";
-                wsConnectMessage.color = null;
+                connectionMessage.show("Connecting...");
 
                 ws = new WebSocket(`ws://${ip.join(".")}:${port}`);
                 const connectionTimeout = setTimeout(() => {
                     setConnectElementsState(false);
-                    wsConnectMessage.text = "Connection timed out!";
-                    wsConnectMessage.color = "#e00";
+                    connectionMessage.show("Connection timed out!", theme.colors.ui.error, 3);
                     ws = undefined;
                 }, 10000);
 
@@ -244,8 +258,7 @@ Button.items = [
                 });
                 ws.addEventListener("error", (err) => {
                     clearTimeout(connectionTimeout);
-                    wsConnectMessage.text = "Connection error!";
-                    wsConnectMessage.color = "#e00";
+                    connectionMessage.show("Connection error!", theme.colors.ui.error, 3);
                     setConnectElementsState(false);
                 });
             }
@@ -703,6 +716,8 @@ addEventListener("DOMContentLoaded", () => {
             if (input.hovering) hoverings.input++;
         }
 
+        if (frames - connectionMessage.shownAt >= connectionMessage.duration) connectionMessage.a = Math.max(connectionMessage.a - 0.05, 0);
+
         waterX -= Number(config.graphics.waterFlow);
         if (waterX < -image.water.width) waterX = 0;
 
@@ -731,7 +746,9 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text("LAN MODE", c.width(0.5) + state.changeX, 80, theme.getTextColor(), 58, "Shantell Sans", "bold", "center");
             c.draw.text("...or join a game on this network:", c.width(0.5) + state.changeX, c.height(0.5) - 50, theme.getTextColor(), 32, "Shantell Sans", "bold", "center");
             c.draw.text("IP address:", c.width(0.5) - 230 + state.changeX, c.height(0.5) + 60, theme.getTextColor(), 24, "Shantell Sans", "", "left");
-            c.draw.text(wsConnectMessage.text, c.width(0.5) + state.changeX, c.height(0.5) + Button.height + 180, wsConnectMessage.color ?? theme.getTextColor(), 30, "Shantell Sans", "bold", "center");
+            c.options.setOpacity(connectionMessage.a);
+            c.draw.text(connectionMessage.text, c.width(0.5) + state.changeX, c.height(0.5) + Button.height + 180, connectionMessage.color ?? theme.getTextColor(), 30, "Shantell Sans", "bold", "center");
+            c.options.setOpacity(1);
         } else if (state.current === state.SETTINGS) {
             c.draw.text("SETTINGS", c.width(0.5) + state.changeX, 80, theme.getTextColor(), 58, "Shantell Sans", "bold", "center");
 
