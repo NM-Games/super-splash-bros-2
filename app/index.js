@@ -22,6 +22,7 @@ app.on("ready", () => {
 
     network.isPortAvailable(network.port).then(() => {
         window = new BrowserWindow({
+            show: false,
             width: 1350,
             height: 700,
             minHeight: 700,
