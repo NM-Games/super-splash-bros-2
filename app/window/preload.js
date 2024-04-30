@@ -754,6 +754,8 @@ addEventListener("DOMContentLoaded", () => {
             c.options.setOpacity(connectionMessage.a);
             c.draw.text(connectionMessage.text, c.width(0.5) + state.changeX, c.height(0.5) + Button.height + 180, connectionMessage.color ?? theme.getTextColor(), 30, "Shantell Sans", "bold", "center");
             c.options.setOpacity(1);
+            for (let i=0; i<3; i++)
+                c.draw.text(".", c.width(0.5) - 125 + state.changeX + i * 120, c.height(0.5) + 120, theme.getTextColor(), 40, "Shantell Sans", "", "left");
         } else if (state.current === state.SETTINGS) {
             c.draw.text("SETTINGS", c.width(0.5) + state.changeX, 80, theme.getTextColor(), 58, "Shantell Sans", "bold", "center");
 
