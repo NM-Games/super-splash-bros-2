@@ -758,9 +758,9 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.image(image.logo_nmgames, c.width(0.5) - image.logo_nmgames.width / 4 + state.changeX, c.height(0.4), image.logo_nmgames.width / 2, image.logo_nmgames.height / 2);
             c.draw.text(`Version ${versions.game}`, c.width(0.5) + state.changeX, c.height(0.5) + 70, theme.getTextColor(), 36, "Shantell Sans", "bold", "center", "bottom");
             c.draw.text(`(Electron: ${versions.electron}, Chromium: ${versions.chromium})`, c.width(0.5) + state.changeX, c.height(0.5) + 100, theme.getTextColor(), 24, "Shantell Sans", "", "center", "bottom");
-            c.draw.text(`This program is free and open-source software: you can modify and/or redistribute it`, c.width(0.5) + state.changeX, c.height(0.7), theme.getTextColor(), 20, "Shantell Sans", "", "center", "bottom");
-            c.draw.text(`under the terms of the GNU General Public License as published by the Free Software Foundation,`, c.width(0.5) + state.changeX, c.height(0.7) + 25, theme.getTextColor(), 20, "Shantell Sans", "", "center", "bottom");
-            c.draw.text(`either version 3 of the License, or (at your option) any later version.`, c.width(0.5) + state.changeX, c.height(0.7) + 50, theme.getTextColor(), 20, "Shantell Sans", "", "center", "bottom");
+            c.draw.text(`This program is free and open-source software: you are free to modify and/or redistribute it.`, c.width(0.5) + state.changeX, c.height(0.7), theme.getTextColor(), 20, "Shantell Sans", "", "center", "bottom");
+            c.draw.text(`There is NO WARRANTY, to the extent permitted by law.`, c.width(0.5) + state.changeX, c.height(0.7) + 25, theme.getTextColor(), 20, "Shantell Sans", "", "center", "bottom");
+            c.draw.text(`Read the GNU General Public License version 3 for further details.`, c.width(0.5) + state.changeX, c.height(0.7) + 50, theme.getTextColor(), 20, "Shantell Sans", "", "center", "bottom");
 
         }
 
