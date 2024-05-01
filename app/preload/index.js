@@ -812,7 +812,7 @@ addEventListener("DOMContentLoaded", () => {
         } else if (state.current === state.ABOUT) {
             c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.changeX, 25, image.logo.width, image.logo.height);
             c.draw.text({text: "by", x: c.width(0.5) + state.changeX, y: c.height(0.4) - 10, font: {size: 24, style: "bold"}, alignment: "bottom"});
-            c.draw.image(image.logo_nmgames, c.width(0.5) - image.logo_nmgames.width / 4 + state.changeX, c.height(0.4), image.logo_nmgames.width / 2``, image.logo_nmgames.height / 2);
+            c.draw.image(image.logo_nmgames, c.width(0.5) - image.logo_nmgames.width / 4 + state.changeX, c.height(0.4), image.logo_nmgames.width / 2, image.logo_nmgames.height / 2);
             c.draw.text({text: `Version ${versions.game}`, x: c.width(0.5) + state.changeX, y: c.height(0.5) + 70, font: {size: 36, style: "bold"}, baseline: "bottom"});
             c.draw.text({text: `(Electron: ${versions.electron}, Chromium: ${versions.chromium})`, x: c.width(0.5) + state.changeX, y: c.height(0.5) + 100, font: {size: 24}, baseline: "bottom"});
             c.draw.text({text: `This program is free and open-source software: you are free to modify and/or redistribute it.`, x: c.width(0.5) + state.changeX, y: c.height(0.7), font: {size: 20}, baseline: "bottom"});
