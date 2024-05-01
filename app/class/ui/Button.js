@@ -51,6 +51,7 @@ class Button {
      *  y: {screenFactor: number, offset: number},
      *  width?: number,
      *  height?: number,
+     *  disabled?: boolean,
      *  onclick?: EmptyCallback
      * }} options
      */
@@ -66,7 +67,7 @@ class Button {
         this.onclick = options.onclick ?? function() {};
         this.hovering = false;
         this.active = false;
-        this.disabled = false;
+        this.disabled = options.disabled ?? false;
     }
 
     /**

@@ -4,7 +4,7 @@ const c = require("./canvas");
 const image = require("./image");
 const theme = require("./theme");
 const settings = require("./settings");
-const { port } = require("../network");
+const network = require("../network");
 const Button = require("../class/ui/Button");
 const Input = require("../class/ui/Input");
 
@@ -41,9 +41,9 @@ const state = {
 
 /**
  * Enable or disable the connect elements in the LAN mode menu.
- * @param {boolean} to
+ * @param {boolean} disabled
  */
-const setConnectElementsState = (to) => {
+const setConnectElementsState = (disabled) => {
     Button.getButtonById("Connect").hovering =
     Button.getButtonById("CreateGame").hovering =
     Button.getButtonById(`Back-${state.LAN_GAME_MENU}`).hovering =
@@ -52,13 +52,27 @@ const setConnectElementsState = (to) => {
     Input.getInputById("IP-3").hovering =
     Input.getInputById("IP-4").hovering = false;
 
-    Button.getButtonById("Connect").disabled =
     Button.getButtonById("CreateGame").disabled =
     Button.getButtonById(`Back-${state.LAN_GAME_MENU}`).disabled =
     Input.getInputById("IP-1").disabled =
     Input.getInputById("IP-2").disabled =
     Input.getInputById("IP-3").disabled =
-    Input.getInputById("IP-4").disabled = to;
+    Input.getInputById("IP-4").disabled = disabled;
+
+    Button.getButtonById("Connect").disabled = (disabled || !network.isValidIP(getEnteredIP()));
+};
+
+/**
+ * Get the IP address entered in the LAN mode menu.
+ * @returns {string[]}
+ */
+const getEnteredIP = () => {
+    return [
+        Input.getInputById("IP-1").value,
+        Input.getInputById("IP-2").value,
+        Input.getInputById("IP-3").value,
+        Input.getInputById("IP-4").value
+    ];
 };
 
 /**
@@ -210,10 +224,12 @@ Button.items = [
         width: Button.width,
         height: Button.height,
         onclick: function() {
+            setConnectElementsState(true);
             ipcRenderer.send("start-gameserver");
             ipcRenderer.on("gameserver-created", () => {
-                ws = new WebSocket(`ws://127.0.0.1:${port}`);
+                ws = new WebSocket(`ws://127.0.0.1:${network.port}`);
                 ws.addEventListener("open", () => {
+                    setConnectElementsState(false);
                     state.change(state.WAITING_LAN_HOST, false);
                 });
             });
@@ -227,24 +243,14 @@ Button.items = [
         y: {screenFactor: 1/2, offset: Button.height + 100},
         width: Button.width,
         height: Button.height,
+        disabled: true,
         onclick: function() {
-            const ip = [
-                Input.getInputById("IP-1").value,
-                Input.getInputById("IP-2").value,
-                Input.getInputById("IP-3").value,
-                Input.getInputById("IP-4").value
-            ];
-            let error = 0;
-            for (let i=0; i<ip.length; i++) {
-                ip[i] = parseInt(ip[i]);
-                if (isNaN(ip[i]) || ip[i] < 0 || ip[i] >= 255) error++;
-            }
-
-            if (error > 0) connectionMessage.show("Invalid IP address!", theme.colors.ui.error, 3); else {
+            const ip = getEnteredIP();
+            if (!network.isValidIP(ip)) connectionMessage.show("Invalid IP address!", theme.colors.ui.error, 3); else {
                 setConnectElementsState(true);
                 connectionMessage.show("Connecting...");
 
-                ws = new WebSocket(`ws://${ip.join(".")}:${port}`);
+                ws = new WebSocket(`ws://${ip.join(".")}:${network.port}`);
                 const connectionTimeout = setTimeout(() => {
                     setConnectElementsState(false);
                     connectionMessage.show("Connection timed out!", theme.colors.ui.error, 3);
@@ -477,6 +483,9 @@ Input.items = [
         },
         ontab: function(shift) {
             if (!shift) this.onmaxlengthreached();
+        },
+        ontype: () => {
+            Button.getButtonById("Connect").disabled = !network.isValidIP(getEnteredIP());
         }
     }),
     new Input({
@@ -497,6 +506,9 @@ Input.items = [
         },
         ontab: function(shift) {
             (shift) ? this.onemptybackspace() : this.onmaxlengthreached();
+        },
+        ontype: () => {
+            Button.getButtonById("Connect").disabled = !network.isValidIP(getEnteredIP());
         }
     }),
     new Input({
@@ -517,6 +529,9 @@ Input.items = [
         },
         ontab: function(shift) {
             (shift) ? this.onemptybackspace() : this.onmaxlengthreached();
+        },
+        ontype: () => {
+            Button.getButtonById("Connect").disabled = !network.isValidIP(getEnteredIP());
         }
     }),
     new Input({
@@ -533,6 +548,10 @@ Input.items = [
         },
         ontab: function(shift) {
             if (shift) this.onemptybackspace();
+        },
+        ontype: (blurred) => {
+            Button.getButtonById("Connect").disabled = !network.isValidIP(getEnteredIP());
+            if (blurred) Button.getButtonById("Connect").onclick();
         }
     }),
     new Input({
@@ -669,8 +688,8 @@ addEventListener("DOMContentLoaded", () => {
     });
 
     addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && Button.getButtonById(`Back-${state.current}`) !== null) 
-            Button.getButtonById(`Back-${state.current}`).onclick();
+        const button = Button.getButtonById(`Back-${state.current}`);
+        if (e.key === "Escape" && button !== null && !button.disabled) button.onclick();
     });
 
     addEventListener("mousemove", (e) => {
@@ -709,7 +728,7 @@ addEventListener("DOMContentLoaded", () => {
     });
     addEventListener("mouseup", (_e) => {
         for (const button of Button.items) {
-            if (button.active && button.hovering) {
+            if (button.active && button.hovering && !button.disabled) {
                 button.active = false;
                 button.onclick();
                 break;

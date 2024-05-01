@@ -33,4 +33,17 @@ const isPortAvailable = async (port) => {
     });
 };
 
-module.exports = {port, getIPs, isPortAvailable};
+/**
+ * @param {string[]} ip
+ * @returns {boolean}
+ */
+const isValidIP = (ip) => {
+    let error = 0;
+    for (let i=0; i<ip.length; i++) {
+        ip[i] = parseInt(ip[i]);
+        if (isNaN(ip[i]) || ip[i] < 0 || ip[i] >= 255) error++;
+    }
+    return (error === 0);
+};
+
+module.exports = {port, getIPs, isPortAvailable, isValidIP};

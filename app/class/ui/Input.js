@@ -6,6 +6,9 @@
  * 
  * @callback TabCallback
  * @param {boolean} shift
+ * 
+ * @callback TypeCallback
+ * @param {boolean} blurred
  */
 
 const { width, height } = require("../../preload/canvas");
@@ -31,6 +34,7 @@ class Input {
     focused;
     disabled;
     onblur;
+    ontype;
     ontab;
     onemptybackspace;
     onkeybindselected;
@@ -96,6 +100,7 @@ class Input {
      *  numbersOnly?: boolean
      *  onblur?: EmptyCallback,
      *  ontab?: TabCallback,
+     *  ontype?: TypeCallback,
      *  onemptybackspace?: EmptyCallback,
      *  onkeybindselected?: KeybindCallback,
      *  onmaxlengthreached?: EmptyCallback
@@ -113,6 +118,7 @@ class Input {
         this.numbersOnly = options.numbersOnly ?? false;
         this.onblur = options.onblur ?? function() {};
         this.ontab = options.ontab ?? function() {};
+        this.ontype = options.ontype ?? function() {};
         this.onemptybackspace = options.onemptybackspace ?? function() {};
         this.onkeybindselected = options.onkeybindselected ?? function() {};
         this.onmaxlengthreached = options.onmaxlengthreached ?? function() {};
@@ -141,10 +147,15 @@ class Input {
                     this.onblur();
                 }
             } else {
-                if (e.key.length === 1) this.value += e.key;
-                else if (e.key === "Backspace") this.value = this.value.slice(0, -1);
-                else if (e.key === "Escape" || e.key == "Enter") {
+                if (e.key.length === 1) {
+                    this.value += e.key;
+                    this.ontype(false);
+                } else if (e.key === "Backspace") {
+                    this.value = this.value.slice(0, -1);
+                    this.ontype(false);
+                } else if (e.key === "Escape" || e.key == "Enter") {
                     this.focused = false;
+                    this.ontype(true);
                     this.onblur();
                 }
             }
