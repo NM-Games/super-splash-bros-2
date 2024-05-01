@@ -451,6 +451,30 @@ Button.items = [
             });
         }
     }),
+    new Button({
+        text: "Theme",
+        state: state.WAITING_LAN_HOST,
+        x: {screenFactor: 1/2, offset: -250},
+        y: {screenFactor: 17/20, offset: 0},
+        width: Button.width,
+        height: Button.height,
+        onclick: function() {
+            // todo: cycle themes
+        }
+    }),
+    new Button({
+        id: "StartLANGame",
+        text: "Start!",
+        state: state.WAITING_LAN_HOST,
+        x: {screenFactor: 1/2, offset: 250},
+        y: {screenFactor: 17/20, offset: 0},
+        width: Button.width,
+        height: Button.height,
+        disabled: true,
+        onclick: function() {
+            // todo: start the game
+        }
+    }),
     // LAN game waiting menu (guest)
     new Button({
         id: `Back-${state.WAITING_LAN_GUEST}`,
@@ -842,9 +866,25 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text({text: `There is NO WARRANTY, to the extent permitted by law.`, x: c.width(0.5) + state.changeX, y: c.height(0.7) + 25, font: {size: 20}, baseline: "bottom"});
             c.draw.text({text: `Read the GNU General Public License version 3 for further details.`, x: c.width(0.5) + state.changeX, y: c.height(0.7) + 50, font: {size: 20}, baseline: "bottom"});
         } else if ([state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST].includes(state.current)) {
+            const ips = network.getIPs();
+            const mainIP = ips.shift();
+
+            c.draw.text({
+                text: (state.current === state.WAITING_LAN_GUEST) ? "Waiting until start..." : mainIP,
+                x: c.width(0.5) + state.changeX,
+                y: c.height(0.125),
+                font: {size: 58, style: "bold"}
+            });
+            if (state.current === state.WAITING_LAN_HOST) {
+                c.draw.text({text: "Players can now connect to this IP address:", x: c.width(0.5) + state.changeX, y: c.height(0.125) - 60, font: {size: 24}});
+                if (ips.length > 0) c.draw.text({text: `If that does not work, try:   ${ips.join("   ")}`, x: c.width(0.5) + state.changeX, y: c.height(0.125) + 30, font: {size: 18}});
+            }
+
             for (let i=0; i<8; i++) {
-                c.draw.fill.rect(theme.colors.players[`p${i + 1}`], c.width(0.5) - 500 + state.changeX, c.height(0.25) + i * 60, 400, 50);
-                c.draw.croppedImage(image.sprites, i * 128, 0, 128, 128, c.width(0.5) - 495 + state.changeX, c.height(0.25) + i * 60 + 5, 40, 40);
+                const x = (i % 2 === 0) ? c.width(0.5) - 510 : c.width(0.5) + 10;
+                const y = Math.floor(i / 2);
+                c.draw.fill.rect(theme.colors.players[`p${i + 1}`], x + state.changeX, c.height(0.2) + y * 100, 500, 80, 8);
+                c.draw.croppedImage(image.sprites, i * 128, 0, 128, 128, x + 8 + state.changeX, c.height(0.2) + y * 100 + 8, 64, 64);
             }
         }
 
