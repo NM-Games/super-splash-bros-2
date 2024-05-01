@@ -154,7 +154,7 @@ const draw = {
     },
     /**
      * Draw a button on the screen.
-     * @param {import("./elements/Button")} button
+     * @param {import("../class/Button")} button
      * @param {number} offsetX
      */
     button: (button, offsetX) => {
@@ -175,7 +175,7 @@ const draw = {
     },
     /**
      * Draw an input field on the screen.
-     * @param {import("./elements/Input")} input
+     * @param {import("../class/Input")} input
      * @param {number} offsetX
      * @param {boolean} invalid
      * @param {boolean} trailingChar

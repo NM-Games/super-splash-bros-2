@@ -5,8 +5,8 @@ const image = require("./image");
 const theme = require("./theme");
 const settings = require("./settings");
 const { port } = require("../network");
-const Button = require("./elements/Button");
-const Input = require("./elements/Input");
+const Button = require("../class/Button");
+const Input = require("../class/Input");
 
 
 const state = {

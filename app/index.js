@@ -31,14 +31,14 @@ app.on("ready", () => {
             webPreferences: {
                 sandbox: false,
                 contextIsolation: false,
-                preload: join(__dirname, "window", "preload.js")
+                preload: join(__dirname, "preload", "index.js")
             }
         });
     
         window.removeMenu();
         window.setTitle("Super Splash Bros 2");
         window.loadFile(join(__dirname, "window", "index.html"));
-        window.setIcon(join(__dirname, "assets", "img", "icon.png"));
+        window.setIcon(join(__dirname, "img", "icon.png"));
         window.webContents.on("did-finish-load", () => {
             window.webContents.send("information", version, process.versions.electron, process.versions.chrome);
         });

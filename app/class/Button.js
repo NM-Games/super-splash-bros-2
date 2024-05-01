@@ -2,7 +2,7 @@
  * @callback EmptyCallback
  */
 
-const { width, height } = require("../canvas");
+const { width, height } = require("../preload/canvas");
 
 class Button {
     static width = 300;
