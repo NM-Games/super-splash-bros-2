@@ -195,7 +195,7 @@ const draw = {
         const h = input.getH();
         c.filter = (input.disabled) ? "grayscale(1)" : "none";
         draw.fill.rect(theme.colors.ui.primary, x - w / 2, y - h / 2, w, h, 6);
-        draw.stroke.rect((input.focused) ? "white" : theme.colors.ui.secondary, x - w / 2, y - h / 2, w, h, 3, 6);
+        draw.stroke.rect((input.focused) ? "white" : (input.hovering) ? "#eee" : theme.colors.ui.secondary, x - w / 2, y - h / 2, w, h, 3, 6);
         draw.text({
             text: input.value + (input.focused && trailingChar ? "_":""),
             x: x - (input.keybind ? 0 : w / 2 - 8),
