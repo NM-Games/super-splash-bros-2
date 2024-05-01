@@ -778,45 +778,46 @@ addEventListener("DOMContentLoaded", () => {
 
         if (state.current === state.MAIN_MENU) c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.changeX, 25, image.logo.width, image.logo.height);
         else if (state.current === state.LOCAL_GAME_MENU) {
-            c.draw.text("LOCAL MODE", c.width(0.5) + state.changeX, 80, theme.getTextColor(), 58, "Shantell Sans", "bold", "center");
+            c.draw.text({text: "LOCAL MODE", x: c.width(0.5) + state.changeX, y: 80, font: {size: 58, style: "bold"}});
         } else if (state.current === state.LAN_GAME_MENU) {
-            c.draw.text("LAN MODE", c.width(0.5) + state.changeX, 80, theme.getTextColor(), 58, "Shantell Sans", "bold", "center");
-            c.draw.text("...or join a game on this network:", c.width(0.5) + state.changeX, c.height(0.5) - 50, theme.getTextColor(), 32, "Shantell Sans", "bold", "center");
-            c.draw.text("IP address:", c.width(0.5) - 230 + state.changeX, c.height(0.5) + 60, theme.getTextColor(), 24, "Shantell Sans", "", "left");
+            c.draw.text({text: "LAN MODE", x: c.width(0.5) + state.changeX, y: 80, font: {size: 58, style: "bold"}});
+
+            c.draw.text({text: "...or join a game on this network:", x: c.width(0.5) + state.changeX, y: c.height(0.5) - 50, font: {size: 32, style: "bold"}});
+            c.draw.text({text: "IP address:", x: c.width(0.5) - 230 + state.changeX, y: c.height(0.5) + 60, font: {size: 24}, alignment: "left"});
             c.options.setOpacity(connectionMessage.a);
-            c.draw.text(connectionMessage.text, c.width(0.5) + state.changeX, c.height(0.5) + Button.height + 180, connectionMessage.color ?? theme.getTextColor(), 30, "Shantell Sans", "bold", "center");
+            c.draw.text({text: connectionMessage.text, x: c.width(0.5) + state.changeX, y: c.height(0.5) + Button.height + 180, color: connectionMessage.color ?? theme.getTextColor(), font: {size: 30, style: "bold"}});
             c.options.setOpacity(1);
             for (let i=0; i<3; i++)
-                c.draw.text(".", c.width(0.5) - 125 + state.changeX + i * 120, c.height(0.5) + 120, theme.getTextColor(), 40, "Shantell Sans", "", "left");
+                c.draw.text({text: ".", x: c.width(0.5) - 125 + state.changeX + i * 120, y: c.height(0.5) + 120, font: {size: 40}, alignment: "left"});
         } else if (state.current === state.SETTINGS) {
-            c.draw.text("SETTINGS", c.width(0.5) + state.changeX, 80, theme.getTextColor(), 58, "Shantell Sans", "bold", "center");
+            c.draw.text({text: "SETTINGS", x: c.width(0.5) + state.changeX, y: 80, font: {size: 58, style: "bold"}});
 
-            c.draw.text("APPEARANCE", c.width(0.2) + state.changeX, 180, theme.getTextColor(), 32, "Shantell Sans", "bold", "center");
-            c.draw.text("GRAPHICS", c.width(0.5) + state.changeX, 180, theme.getTextColor(), 32, "Shantell Sans", "bold", "center");
-            c.draw.text("CONTROLS", c.width(0.8) + state.changeX, 180, theme.getTextColor(), 32, "Shantell Sans", "bold", "center");
+            c.draw.text({text: "APPEARANCE", x: c.width(0.2) + state.changeX, y: 180, font: {size: 32, style: "bold"}});
+            c.draw.text({text: "GRAPHICS", x: c.width(0.5) + state.changeX, y: 180, font: {size: 32, style: "bold"}});
+            c.draw.text({text: "CONTROLS", x: c.width(0.8) + state.changeX, y: 180, font: {size: 32, style: "bold"}});
 
-            c.draw.text("Player name:", c.width(0.2) - Button.width / 2 - 25 + state.changeX, 250, theme.getTextColor(), 24, "Shantell Sans", "", "left");
-            c.draw.text("Preferred color:", c.width(0.2) - Button.width / 2 - 25 + state.changeX, 345, theme.getTextColor(), 24, "Shantell Sans", "", "left");
-            c.draw.text("Superpower:", c.width(0.2) - Button.width / 2 - 25 + state.changeX, 525, theme.getTextColor(), 24, "Shantell Sans", "", "left");
+            c.draw.text({text: "Player name:", x: c.width(0.2) - Button.width / 2 - 25 + state.changeX, y: 250, font: {size: 24}, alignment: "left"});
+            c.draw.text({text: "Preferred color:", x: c.width(0.2) - Button.width / 2 - 25 + state.changeX, y: 345, font: {size: 24}, alignment: "left"});
+            c.draw.text({text: "Superpower:", x: c.width(0.2) - Button.width / 2 - 25 + state.changeX, y: 525, font: {size: 24}, alignment: "left"});
             
             const colors = ["Yellow", "Green", "Red", "Blue", "Orange", "Cyan", "Purple", "Gray"];
             const superpowers = ["Squash", "Shield", "Poop Bomb", "Invisibility", "Power Rockets", "Regeneration", "Knockback", "Strength"];
             c.draw.croppedImage(image.sprites, config.appearance.preferredColor * 128, 0, 128, 128, c.width(0.2) - 80 + state.changeX, 360, 64, 64);
-            c.draw.text(colors[config.appearance.preferredColor], c.width(0.2) + state.changeX, 396, theme.getTextColor(), 28, "Shantell Sans", "bold", "left", "middle"); 
-            c.draw.text(superpowers[config.appearance.superpower], c.width(0.2), 576 + state.changeX, theme.getTextColor(), 28, "Shantell Sans", "bold", "left", "middle"); 
+            c.draw.text({text: colors[config.appearance.preferredColor], x: c.width(0.2) + state.changeX, y: 396, font: {size: 28, style: "bold"}, alignment: "left", baseline: "middle"}); 
+            c.draw.text({text: superpowers[config.appearance.superpower], x: c.width(0.2) + state.changeX, y: 576, font: {size: 28, style: "bold"}, alignment: "left", baseline: "middle"}); 
 
             const keybinds = ["Move left", "Move right", "Jump", "Attack", "Launch rocket", "Activate superpower", "Game menu"];
             for (let i=0; i<keybinds.length; i++)
-                c.draw.text(keybinds[i], c.width(0.8) - Button.width / 2 - 25 + state.changeX, 250 + i * 60, theme.getTextColor(), 24, "Shantell Sans", "", "left");
+                c.draw.text({text: keybinds[i], x: c.width(0.8) - Button.width / 2 - 25 + state.changeX, y: 250 + i * 60, font: {size: 24}, alignment: "left"});
         } else if (state.current === state.ABOUT) {
             c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.changeX, 25, image.logo.width, image.logo.height);
-            c.draw.text("by", c.width(0.5) + state.changeX, c.height(0.4) - 10, theme.getTextColor(), 24, "Shantell Sans", "bold", "center", "bottom");
-            c.draw.image(image.logo_nmgames, c.width(0.5) - image.logo_nmgames.width / 4 + state.changeX, c.height(0.4), image.logo_nmgames.width / 2, image.logo_nmgames.height / 2);
-            c.draw.text(`Version ${versions.game}`, c.width(0.5) + state.changeX, c.height(0.5) + 70, theme.getTextColor(), 36, "Shantell Sans", "bold", "center", "bottom");
-            c.draw.text(`(Electron: ${versions.electron}, Chromium: ${versions.chromium})`, c.width(0.5) + state.changeX, c.height(0.5) + 100, theme.getTextColor(), 24, "Shantell Sans", "", "center", "bottom");
-            c.draw.text(`This program is free and open-source software: you are free to modify and/or redistribute it.`, c.width(0.5) + state.changeX, c.height(0.7), theme.getTextColor(), 20, "Shantell Sans", "", "center", "bottom");
-            c.draw.text(`There is NO WARRANTY, to the extent permitted by law.`, c.width(0.5) + state.changeX, c.height(0.7) + 25, theme.getTextColor(), 20, "Shantell Sans", "", "center", "bottom");
-            c.draw.text(`Read the GNU General Public License version 3 for further details.`, c.width(0.5) + state.changeX, c.height(0.7) + 50, theme.getTextColor(), 20, "Shantell Sans", "", "center", "bottom");
+            c.draw.text({text: "by", x: c.width(0.5) + state.changeX, y: c.height(0.4) - 10, font: {size: 24, style: "bold"}, alignment: "bottom"});
+            c.draw.image(image.logo_nmgames, c.width(0.5) - image.logo_nmgames.width / 4 + state.changeX, c.height(0.4), image.logo_nmgames.width / 2``, image.logo_nmgames.height / 2);
+            c.draw.text({text: `Version ${versions.game}`, x: c.width(0.5) + state.changeX, y: c.height(0.5) + 70, font: {size: 36, style: "bold"}, baseline: "bottom"});
+            c.draw.text({text: `(Electron: ${versions.electron}, Chromium: ${versions.chromium})`, x: c.width(0.5) + state.changeX, y: c.height(0.5) + 100, font: {size: 24}, baseline: "bottom"});
+            c.draw.text({text: `This program is free and open-source software: you are free to modify and/or redistribute it.`, x: c.width(0.5) + state.changeX, y: c.height(0.7), font: {size: 20}, baseline: "bottom"});
+            c.draw.text({text: `There is NO WARRANTY, to the extent permitted by law.`, x: c.width(0.5) + state.changeX, y: c.height(0.7) + 25, font: {size: 20}, baseline: "bottom"});
+            c.draw.text({text: `Read the GNU General Public License version 3 for further details.`, x: c.width(0.5) + state.changeX, y: c.height(0.7) + 50, font: {size: 20}, baseline: "bottom"});
         } else if ([state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST].includes(state.current)) {
             for (let i=0; i<8; i++) {
                 c.draw.fill.rect(theme.colors.players[`p${i + 1}`], c.width(0.5) - 500 + state.changeX, c.height(0.25) + i * 60, 400, 50);

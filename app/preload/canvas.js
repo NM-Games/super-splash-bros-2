@@ -135,22 +135,23 @@ const draw = {
     },
     /**
      * Draw text on the screen.
-     * @param {string} text
-     * @param {number} x
-     * @param {number} y
-     * @param {string} color
-     * @param {number} fontSize
-     * @param {string} fontFamily
-     * @param {"" | "bold" | "italic"} fontStyle 
-     * @param {"left" | "center" | "right"} alignment 
-     * @param {"top" | "middle" | "bottom" | "alphabetic"} baseline 
+     * @param {{
+     *  text: string,
+     *  x: number,
+     *  y: number,
+     *  color?: string | CanvasGradient | CanvasPattern,
+     *  maxWidth?: number,
+     *  alignment?: "left" | "center" | "right",
+     *  baseline?: "alphabetic" | "bottom" | "middle" | "top",
+     *  font: {style?: "bold" | "italic", size: number, family?: string}
+     * }} options
      */
-    text: (text, x, y, color, fontSize, fontFamily = "Shantell Sans", fontStyle = "", alignment = "left", baseline = "alphabetic") => {
-        c.fillStyle = color;
-        c.textBaseline = baseline;
-        c.textAlign = alignment;
-        c.font = `${fontStyle} ${fontSize}px ${fontFamily}`;
-        c.fillText(text, x, y);
+    text: (options) => {
+        c.fillStyle = options.color ?? theme.getTextColor();
+        c.textBaseline = options.baseline ?? "alphabetic";
+        c.textAlign = options.alignment ?? "center";
+        c.font = `${options.font.style ?? ""} ${options.font.size}px ${options.font.family ?? "Shantell Sans"}`;
+        c.fillText(options.text, options.x, options.y, options.maxWidth);
     },
     /**
      * Draw a button on the screen.
@@ -171,7 +172,14 @@ const draw = {
             button.height
         );
         c.filter = "none";
-        draw.text(button.text, button.getX() + offsetX, button.getY(), (button.active) ? theme.colors.ui.primary : "white", 32 * button.scale, "Shantell Sans", "", "center", "middle");
+        draw.text({
+            text: button.text,
+            x: button.getX() + offsetX,
+            y: button.getY(),
+            color: (button.active) ? theme.colors.ui.primary : "white",
+            font: {size: 32 * button.scale},
+            baseline: "middle"
+        });
     },
     /**
      * Draw an input field on the screen.
@@ -188,17 +196,15 @@ const draw = {
         c.filter = (input.disabled) ? "grayscale(1)" : "none";
         draw.fill.rect(theme.colors.ui.primary, x - w / 2, y - h / 2, w, h, 6);
         draw.stroke.rect((input.focused) ? "white" : theme.colors.ui.secondary, x - w / 2, y - h / 2, w, h, 3, 6);
-        draw.text(
-            input.value + (input.focused && trailingChar ? "_":""),
-            x - (input.keybind ? 0 : w / 2 - 8),
-            y + 4,
-            (invalid && input.keybind) ? theme.colors.ui.error : "white",
-            input.size,
-            "Shantell Sans",
-            "",
-            (input.keybind) ? "center":"left", 
-            "middle"
-        );
+        draw.text({
+            text: input.value + (input.focused && trailingChar ? "_":""),
+            x: x - (input.keybind ? 0 : w / 2 - 8),
+            y: y + 4,
+            color: (invalid && input.keybind) ? theme.colors.ui.error : "white",
+            font: {size: input.size},
+            alignment: (input.keybind) ? "center":"left", 
+            baseline: "middle"
+        });
         c.filter = "none";
     }
 }
