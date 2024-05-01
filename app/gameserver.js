@@ -1,35 +1,22 @@
+/**
+ * This script is executed with utilityProcess.fork(), DO NOT require() it!
+ * Because the close() method is broken, this is the only way to make the port usable again.
+ */
+
 const { WebSocketServer } = require("ws");
-const { EventEmitter } = require("events");
 
 const { port } = require("./network");
 
 
-/** @type {WebSocketServer} */
-let wss;
-const game = new EventEmitter();
+const wss = new WebSocketServer({port});
 
-const start = () => {
-    wss = new WebSocketServer({port});
-    wss.on("connection", (socket) => {
-        console.log("Connection!");
-        socket.on("message", (data) => {
-            const payload = Buffer.isBuffer(data) ? new TextDecoder().decode(data) : data;
-            console.log(`Message: ${payload}`);
-        });
-    });
-    wss.on("listening", () => {
-        game.emit("listening");
-    });
-    wss.on("close", () => {
-        console.log("Powered off.");
-    });
-};
+wss.on("listening", () => {
+    process.parentPort.postMessage("listening");
+});
 
-const stop = () => {
-    if (typeof wss === "object") {
-        wss.close();
-        wss = undefined;
-    }
-};
-
-module.exports = {start, stop, game};
+wss.on("connection", (socket) => {
+    socket.on("message", (data) => {
+        const payload = Buffer.isBuffer(data) ? new TextDecoder().decode(data) : data;
+        console.log(`Incoming socket essage: ${payload}`);
+    });
+});

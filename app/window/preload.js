@@ -427,7 +427,39 @@ Button.items = [
         onclick: function() {
             shell.openExternal("https://discord.gg/CaMaGRXDqB");
         }
-    })
+    }),
+    // LAN game waiting menu (host)
+    new Button({
+        id: `Back-${state.WAITING_LAN_HOST}`,
+        text: "◂ Quit",
+        state: state.WAITING_LAN_HOST,
+        x: {screenFactor: 0, offset: Button.width / 3 + 20},
+        y: {screenFactor: 0, offset: Button.height / 3 + 20},
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        onclick: function() {
+            ipcRenderer.send("stop-gameserver");
+            ipcRenderer.on("gameserver-stopped", () => {
+                this.hovering = false;
+                state.change(state.LAN_GAME_MENU, true);
+            });
+        }
+    }),
+    // LAN game waiting menu (guest)
+    new Button({
+        id: `Back-${state.WAITING_LAN_GUEST}`,
+        text: "◂ Leave",
+        state: state.WAITING_LAN_GUEST,
+        x: {screenFactor: 0, offset: Button.width / 3 + 20},
+        y: {screenFactor: 0, offset: Button.height / 3 + 20},
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        onclick: function() {
+            ws.close();
+            this.hovering = false;
+            state.change(state.LAN_GAME_MENU, true);
+        }
+    }),
 ];
 
 Input.items = [
@@ -599,7 +631,7 @@ Input.items = [
             config.controls.gameMenu = key;
             settings.set(config);
         }
-    }),
+    })
 ];
 
 addEventListener("DOMContentLoaded", () => {
@@ -785,7 +817,11 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text(`This program is free and open-source software: you are free to modify and/or redistribute it.`, c.width(0.5) + state.changeX, c.height(0.7), theme.getTextColor(), 20, "Shantell Sans", "", "center", "bottom");
             c.draw.text(`There is NO WARRANTY, to the extent permitted by law.`, c.width(0.5) + state.changeX, c.height(0.7) + 25, theme.getTextColor(), 20, "Shantell Sans", "", "center", "bottom");
             c.draw.text(`Read the GNU General Public License version 3 for further details.`, c.width(0.5) + state.changeX, c.height(0.7) + 50, theme.getTextColor(), 20, "Shantell Sans", "", "center", "bottom");
-
+        } else if ([state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST].includes(state.current)) {
+            for (let i=0; i<8; i++) {
+                c.draw.fill.rect(theme.colors.players[`p${i + 1}`], c.width(0.5) - 500 + state.changeX, c.height(0.25) + i * 60, 400, 50);
+                c.draw.croppedImage(image.sprites, i * 128, 0, 128, 128, c.width(0.5) - 495 + state.changeX, c.height(0.25) + i * 60 + 5, 40, 40);
+            }
         }
 
         for (const button of Button.items) {

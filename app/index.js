@@ -1,13 +1,14 @@
-const { app, BrowserWindow, ipcMain, dialog, globalShortcut } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, globalShortcut, utilityProcess } = require("electron");
 const { join } = require("path");
 
 const network = require("./network");
-const gameserver = require("./gameserver");
 const { version } = require("../package-lock.json");
 
 
 /** @type {BrowserWindow} */
 let window;
+/** @type {Electron.UtilityProcess} */
+let gameserver;
 
 app.on("ready", () => {
     if (!app.requestSingleInstanceLock()) {
@@ -60,8 +61,13 @@ app.on("ready", () => {
         });
 
         ipcMain.on("start-gameserver", () => {
-            gameserver.start();
-            gameserver.game.on("listening", () => window.webContents.send("gameserver-created"));
+            gameserver = utilityProcess.fork(join(__dirname, "gameserver.js"));
+            gameserver.on("message", (msg) => {
+                if (msg === "listening") window.webContents.send("gameserver-created");
+            });
+        });
+        ipcMain.on("stop-gameserver", () => {
+            if (gameserver.kill()) window.webContents.send("gameserver-stopped");
         });
     }).catch((err) => {
         dialog.showErrorBox("Cannot start Super Splash Bros 2", `${err}: The Super Splash Bros 2 port, ${network.port}, is already in use.`);
