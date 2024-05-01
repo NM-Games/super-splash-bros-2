@@ -1,4 +1,4 @@
-const { ipcRenderer, shell } = require("electron");
+const { ipcRenderer, clipboard, shell } = require("electron");
 
 const c = require("./canvas");
 const image = require("./image");
@@ -563,7 +563,7 @@ Input.items = [
         size: 25,
         onblur: function() {
             if (this.value.trim().length === 0) this.value = settings.generatePlayerName();
-            config.appearance.playerName = this.value;
+            config.appearance.playerName = this.value.slice(0, this.maxLength);
             settings.set(config);
         }
     }),
@@ -690,6 +690,10 @@ addEventListener("DOMContentLoaded", () => {
     addEventListener("keydown", (e) => {
         const button = Button.getButtonById(`Back-${state.current}`);
         if (e.key === "Escape" && button !== null && !button.disabled) button.onclick();
+        else if (e.key.toLowerCase() === "v" && e.ctrlKey && Input.getInputById("Username").focused) {
+            Input.getInputById("Username").value += clipboard.readText();
+            Input.getInputById("Username").value = Input.getInputById("Username").value.slice(0, Input.getInputById("Username").maxLength);
+        }
     });
 
     addEventListener("mousemove", (e) => {
