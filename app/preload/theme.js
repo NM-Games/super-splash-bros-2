@@ -26,6 +26,13 @@ module.exports = {
         if (this.current === "night") this.current = "daylight";
     },
     /**
+     * Check whether the theme is a dark theme for optimal text colors.
+     * @returns {boolean}
+     */
+    isDark: function() {
+        return (this.current === "night");
+    },
+    /**
      * Get the primary and secondary background colors
      * @returns {{primary: string, secondary: string}}
      */
@@ -37,6 +44,6 @@ module.exports = {
      * @returns {string}
      */
     getTextColor: function() {
-        return (this.current === "night" ? colors.text.light : colors.text.dark);
+        return (this.isDark() ? colors.text.light : colors.text.dark);
     }
 };
