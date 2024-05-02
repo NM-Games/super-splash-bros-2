@@ -166,16 +166,16 @@ const draw = {
             Number(button.hovering) * (image.buttons.height / 2),
             image.buttons.width,
             image.buttons.height / 2,
-            button.getX() + offsetX - button.width / 2,
-            button.getY() - button.height / 2,
+            button.x() + offsetX - button.width / 2,
+            button.y() - button.height / 2,
             button.width,
             button.height
         );
         c.filter = "none";
         draw.text({
             text: button.text,
-            x: button.getX() + offsetX,
-            y: button.getY(),
+            x: button.x() + offsetX,
+            y: button.y(),
             color: (button.active) ? theme.colors.ui.primary : "white",
             font: {size: 32 * button.scale},
             baseline: "middle"
@@ -189,10 +189,10 @@ const draw = {
      * @param {boolean} trailingChar
      */
     input: (input, offsetX, invalid, trailingChar) => {
-        const x = input.getX() + offsetX;
-        const y = input.getY();
+        const x = input.x() + offsetX;
+        const y = input.y();
         const w = input.width;
-        const h = input.getH();
+        const h = input.getHeight();
         c.filter = (input.disabled) ? "grayscale(1)" : "none";
         draw.fill.rect(theme.colors.ui.primary, x - w / 2, y - h / 2, w, h, 6);
         draw.stroke.rect((input.focused) ? "white" : (input.hovering) ? "#eee" : theme.colors.ui.secondary, x - w / 2, y - h / 2, w, h, 3, 6);

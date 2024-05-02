@@ -1,8 +1,9 @@
 /**
  * @callback EmptyCallback
+ * 
+ * @callback CoordinateCallback
+ * @returns {number}
  */
-
-const { width, height } = require("../../preload/canvas");
 
 class Button {
     static width = 300;
@@ -30,8 +31,8 @@ class Button {
     id;
     text;
     state;
-    #x;
-    #y;
+    x;
+    y;
     width;
     height;
     scale;
@@ -47,8 +48,8 @@ class Button {
      *  id: string,
      *  text: string,
      *  state: number,
-     *  x: {screenFactor: number, offset: number},
-     *  y: {screenFactor: number, offset: number},
+     *  x: CoordinateCallback,
+     *  y: CoordinateCallback,
      *  width?: number,
      *  height?: number,
      *  disabled?: boolean,
@@ -59,8 +60,8 @@ class Button {
         this.id = options.id ?? "";
         this.text = options.text;
         this.state = options.state;
-        this.#x = options.x;
-        this.#y = options.y;
+        this.x = options.x;
+        this.y = options.y;
         this.width = options.width ?? Button.width;
         this.height = options.height ?? Button.height;
         this.scale = Math.min(1, this.width * 1.3 / Button.width);
@@ -68,21 +69,6 @@ class Button {
         this.hovering = false;
         this.active = false;
         this.disabled = options.disabled ?? false;
-    }
-
-    /**
-     * Get the center X position of the button.
-     * @returns {number}
-     */
-    getX() {
-        return width(this.#x.screenFactor) + this.#x.offset;
-    }
-    /**
-     * Get the center Y position of the button.
-     * @returns {number}
-     */
-    getY() {
-        return height(this.#y.screenFactor) + this.#y.offset;
     }
 }
 

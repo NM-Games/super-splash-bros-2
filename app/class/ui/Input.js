@@ -1,6 +1,9 @@
 /**
  * @callback EmptyCallback
  * 
+ * @callback CoordinateCallback
+ * @returns {number}
+ * 
  * @callback KeybindCallback
  * @param {string} key
  * 
@@ -11,8 +14,6 @@
  * @param {boolean} blurred
  */
 
-const { width, height } = require("../../preload/canvas");
-
 class Input {
     static size = 32;
     static hoveringOn = false;
@@ -22,8 +23,8 @@ class Input {
 
     id;
     state;
-    #x;
-    #y;
+    x;
+    y;
     width;
     size;
     keybind;
@@ -91,8 +92,8 @@ class Input {
      * @param {{
      *  id: string,
      *  state: number,
-     *  x: {screenFactor: number, offset: number},
-     *  y: {screenFactor: number, offset: number},
+     *  x: CoordinateCallback,
+     *  y: CoordinateCallback,
      *  width: number,
      *  size?: number,
      *  keybind?: boolean,
@@ -109,8 +110,8 @@ class Input {
     constructor(options) {
         this.id = options.id;
         this.state = options.state;
-        this.#x = options.x;
-        this.#y = options.y;
+        this.x = options.x;
+        this.y = options.y;
         this.width = options.width;
         this.size = options.size ?? Input.size;
         this.keybind = options.keybind ?? false;
@@ -166,25 +167,11 @@ class Input {
     }
 
     /**
-     * Get the center X position of the input.
-     * @returns {number}
-     */
-    getX() {
-        return width(this.#x.screenFactor) + this.#x.offset;
-    }
-    /**
-     * Get the center Y position of the input.
-     * @returns {number}
-     */
-    getY() {
-        return height(this.#y.screenFactor) + this.#y.offset;
-    }
-    /**
      * Get the height of the input, based on its size.
      * @param {number} factor
      * @returns {number}
      */
-    getH(factor = 1) {
+    getHeight(factor = 1) {
         return (this.size + 16) * factor;
     }
 }

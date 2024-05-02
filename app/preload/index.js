@@ -130,8 +130,8 @@ Button.items = [
     new Button({
         text: "Local mode",
         state: state.MAIN_MENU,
-        x: {screenFactor: 1/4, offset: 0},
-        y: {screenFactor: 1/2, offset: -50},
+        x: () => c.width(1/4),
+        y: () => c.height(1/2) + -50,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -142,8 +142,8 @@ Button.items = [
     new Button({
         text: "LAN mode",
         state: state.MAIN_MENU,
-        x: {screenFactor: 1/2, offset: 0},
-        y: {screenFactor: 1/2, offset: -50},
+        x: () => c.width(1/2),
+        y: () => c.height(1/2) + -50,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -154,8 +154,8 @@ Button.items = [
     new Button({
         text: "Practice mode",
         state: state.MAIN_MENU,
-        x: {screenFactor: 3/4, offset: 0},
-        y: {screenFactor: 1/2, offset: -50},
+        x: () => c.width(3/4),
+        y: () => c.height(1/2) + -50,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -166,8 +166,8 @@ Button.items = [
     new Button({
         text: "Settings",
         state: state.MAIN_MENU,
-        x: {screenFactor: 1/3, offset: 0},
-        y: {screenFactor: 3/4, offset: -100},
+        x: () => c.width(1/3),
+        y: () => c.height(3/4) + -100,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -178,8 +178,8 @@ Button.items = [
     new Button({
         text: "Quit game",
         state: state.MAIN_MENU,
-        x: {screenFactor: 2/3, offset: 0},
-        y: {screenFactor: 3/4, offset: -100},
+        x: () => c.width(2/3),
+        y: () => c.height(3/4) + -100,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -192,8 +192,8 @@ Button.items = [
         id: `Back-${state.LOCAL_GAME_MENU}`,
         text: "◂ Back",
         state: state.LOCAL_GAME_MENU,
-        x: {screenFactor: 0, offset: Button.width / 3 + 20},
-        y: {screenFactor: 0, offset: Button.height / 3 + 20},
+        x: () => c.width(0) + Button.width / 3 + 20,
+        y: () => c.height(0) + Button.height / 3 + 20,
         width: Button.width / 1.5,
         height: Button.height / 1.5,
         onclick: function() {
@@ -206,8 +206,8 @@ Button.items = [
         id: `Back-${state.LAN_GAME_MENU}`,
         text: "◂ Back",
         state: state.LAN_GAME_MENU,
-        x: {screenFactor: 0, offset: Button.width / 3 + 20},
-        y: {screenFactor: 0, offset: Button.height / 3 + 20},
+        x: () => c.width(0) + Button.width / 3 + 20,
+        y: () => c.height(0) + Button.height / 3 + 20,
         width: Button.width / 1.5,
         height: Button.height / 1.5,
         onclick: function() {
@@ -219,8 +219,8 @@ Button.items = [
         id: "CreateGame",
         text: "Create a game",
         state: state.LAN_GAME_MENU,
-        x: {screenFactor: 1/2, offset: 0},
-        y: {screenFactor: 1/4, offset: 20},
+        x: () => c.width(1/2),
+        y: () => c.height(1/4) + 20,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -239,8 +239,8 @@ Button.items = [
         id: "Connect",
         text: "Connect",
         state: state.LAN_GAME_MENU,
-        x: {screenFactor: 1/2, offset: 0},
-        y: {screenFactor: 1/2, offset: Button.height + 100},
+        x: () => c.width(1/2),
+        y: () => c.height(1/2) + Button.height + 100,
         width: Button.width,
         height: Button.height,
         disabled: true,
@@ -275,8 +275,8 @@ Button.items = [
         id: `Back-${state.SETTINGS}`,
         text: "◂ Back",
         state: state.SETTINGS,
-        x: {screenFactor: 0, offset: Button.width / 3 + 20},
-        y: {screenFactor: 0, offset: Button.height / 3 + 20},
+        x: () => c.width(0) + Button.width / 3 + 20,
+        y: () => c.height(0) + Button.height / 3 + 20,
         width: Button.width / 1.5,
         height: Button.height / 1.5,
         onclick: function() {
@@ -287,8 +287,8 @@ Button.items = [
     new Button({
         text: "About...",
         state: state.SETTINGS,
-        x: {screenFactor: 1, offset: -Button.width / 3 - 20},
-        y: {screenFactor: 0, offset: Button.height / 3 + 20},
+        x: () => c.width(1) + -Button.width / 3 - 20,
+        y: () => c.height(0) + Button.height / 3 + 20,
         width: Button.width / 1.5,
         height: Button.height / 1.5,
         onclick: function() {
@@ -300,8 +300,8 @@ Button.items = [
     new Button({
         text: "◂ Previous",
         state: state.SETTINGS,
-        x: {screenFactor: 1/5, offset: -Button.width / 4 - 20},
-        y: {screenFactor: 0, offset: 470},
+        x: () => c.width(1/5) + -Button.width / 4 - 20,
+        y: () => c.height(0) + 470,
         width: Button.width / 2,
         height: Button.height / 2,
         onclick: () => {
@@ -312,8 +312,8 @@ Button.items = [
     new Button({
         text: "Next ▸",
         state: state.SETTINGS,
-        x: {screenFactor: 1/5, offset: Button.width / 4 + 20},
-        y: {screenFactor: 0, offset: 470},
+        x: () => c.width(1/5) + Button.width / 4 + 20,
+        y: () => c.height(0) + 470,
         width: Button.width / 2,
         height: Button.height / 2,
         onclick: () => {
@@ -325,8 +325,8 @@ Button.items = [
     new Button({
         text: "◂ Previous",
         state: state.SETTINGS,
-        x: {screenFactor: 1/5, offset: -Button.width / 4 - 20},
-        y: {screenFactor: 0, offset: 650},
+        x: () => c.width(1/5) + -Button.width / 4 - 20,
+        y: () => c.height(0) + 650,
         width: Button.width / 2,
         height: Button.height / 2,
         onclick: () => {
@@ -337,8 +337,8 @@ Button.items = [
     new Button({
         text: "Next ▸",
         state: state.SETTINGS,
-        x: {screenFactor: 1/5, offset: Button.width / 4 + 20},
-        y: {screenFactor: 0, offset: 650},
+        x: () => c.width(1/5) + Button.width / 4 + 20,
+        y: () => c.height(0) + 650,
         width: Button.width / 2,
         height: Button.height / 2,
         onclick: () => {
@@ -350,8 +350,8 @@ Button.items = [
         id: "Fullscreen",
         text: "Full screen",
         state: state.SETTINGS,
-        x: {screenFactor: 1/2, offset: 0},
-        y: {screenFactor: 0, offset: 280},
+        x: () => c.width(1/2),
+        y: () => c.height(0) + 280,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -363,8 +363,8 @@ Button.items = [
         id: "WaterFlow",
         text: "Water flow",
         state: state.SETTINGS,
-        x: {screenFactor: 1/2, offset: 0},
-        y: {screenFactor: 0, offset: 380},
+        x: () => c.width(1/2),
+        y: () => c.height(0) + 380,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -377,8 +377,8 @@ Button.items = [
         id: "MenuSprites",
         text: "Menu sprites: ON",
         state: state.SETTINGS,
-        x: {screenFactor: 1/2, offset: 0},
-        y: {screenFactor: 0, offset: 480},
+        x: () => c.width(1/2),
+        y: () => c.height(0) + 480,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -392,8 +392,8 @@ Button.items = [
         id: `Back-${state.ABOUT}`,
         text: "◂ Back",
         state: state.ABOUT,
-        x: {screenFactor: 0, offset: Button.width / 3 + 20},
-        y: {screenFactor: 0, offset: Button.height / 3 + 20},
+        x: () => c.width(0) + Button.width / 3 + 20,
+        y: () => c.height(0) + Button.height / 3 + 20,
         width: Button.width / 1.5,
         height: Button.height / 1.5,
         onclick: function() {
@@ -404,8 +404,8 @@ Button.items = [
     new Button({
         text: "Website",
         state: state.ABOUT,
-        x: {screenFactor: 1/2, offset: -Button.width - 50},
-        y: {screenFactor: 9/10, offset: -25},
+        x: () => c.width(1/2) + -Button.width - 50,
+        y: () => c.height(9/10) + -25,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -415,8 +415,8 @@ Button.items = [
     new Button({
         text: "GitHub",
         state: state.ABOUT,
-        x: {screenFactor: 1/2, offset: 0},
-        y: {screenFactor: 9/10, offset: -25},
+        x: () => c.width(1/2),
+        y: () => c.height(9/10) + -25,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -426,8 +426,8 @@ Button.items = [
     new Button({
         text: "Discord",
         state: state.ABOUT,
-        x: {screenFactor: 1/2, offset: Button.width + 50},
-        y: {screenFactor: 9/10, offset: -25},
+        x: () => c.width(1/2) + Button.width + 50,
+        y: () => c.height(9/10) + -25,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -439,8 +439,8 @@ Button.items = [
         id: `Back-${state.WAITING_LAN_HOST}`,
         text: "◂ Quit",
         state: state.WAITING_LAN_HOST,
-        x: {screenFactor: 0, offset: Button.width / 3 + 20},
-        y: {screenFactor: 0, offset: Button.height / 3 + 20},
+        x: () => c.width(0) + Button.width / 3 + 20,
+        y: () => c.height(0) + Button.height / 3 + 20,
         width: Button.width / 1.5,
         height: Button.height / 1.5,
         onclick: function() {
@@ -454,8 +454,8 @@ Button.items = [
     new Button({
         text: "Theme",
         state: state.WAITING_LAN_HOST,
-        x: {screenFactor: 1/2, offset: -250},
-        y: {screenFactor: 17/20, offset: 0},
+        x: () => c.width(1/2) + -250,
+        y: () => c.height(17/20),
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -466,8 +466,8 @@ Button.items = [
         id: "StartLANGame",
         text: "Start!",
         state: state.WAITING_LAN_HOST,
-        x: {screenFactor: 1/2, offset: 250},
-        y: {screenFactor: 17/20, offset: 0},
+        x: () => c.width(1/2) + 250,
+        y: () => c.height(17/20),
         width: Button.width,
         height: Button.height,
         disabled: true,
@@ -480,8 +480,8 @@ Button.items = [
         id: `Back-${state.WAITING_LAN_GUEST}`,
         text: "◂ Leave",
         state: state.WAITING_LAN_GUEST,
-        x: {screenFactor: 0, offset: Button.width / 3 + 20},
-        y: {screenFactor: 0, offset: Button.height / 3 + 20},
+        x: () => c.width(0) + Button.width / 3 + 20,
+        y: () => c.height(0) + Button.height / 3 + 20,
         width: Button.width / 1.5,
         height: Button.height / 1.5,
         onclick: function() {
@@ -496,8 +496,8 @@ Input.items = [
     new Input({
         id: "IP-1",
         state: state.LAN_GAME_MENU,
-        x: {screenFactor: 1/2, offset: -180},
-        y: {screenFactor: 1/2, offset: 100},
+        x: () => c.width(1/2) + -180,
+        y: () => c.height(1/2) + 100,
         width: 100,
         maxLength: 3,
         numbersOnly: true,
@@ -515,8 +515,8 @@ Input.items = [
     new Input({
         id: "IP-2",
         state: state.LAN_GAME_MENU,
-        x: {screenFactor: 1/2, offset: -60},
-        y: {screenFactor: 1/2, offset: 100},
+        x: () => c.width(1/2) + -60,
+        y: () => c.height(1/2) + 100,
         width: 100,
         maxLength: 3,
         numbersOnly: true,
@@ -538,8 +538,8 @@ Input.items = [
     new Input({
         id: "IP-3",
         state: state.LAN_GAME_MENU,
-        x: {screenFactor: 1/2, offset: 60},
-        y: {screenFactor: 1/2, offset: 100},
+        x: () => c.width(1/2) + 60,
+        y: () => c.height(1/2) + 100,
         width: 100,
         maxLength: 3,
         numbersOnly: true,
@@ -561,8 +561,8 @@ Input.items = [
     new Input({
         id: "IP-4",
         state: state.LAN_GAME_MENU,
-        x: {screenFactor: 1/2, offset: 180},
-        y: {screenFactor: 1/2, offset: 100},
+        x: () => c.width(1/2) + 180,
+        y: () => c.height(1/2) + 100,
         width: 100,
         maxLength: 3,
         numbersOnly: true,
@@ -581,8 +581,8 @@ Input.items = [
     new Input({
         id: "Username",
         state: state.SETTINGS,
-        x: {screenFactor: 1/5, offset: 0},
-        y: {screenFactor: 0, offset: 285},
+        x: () => c.width(1/5),
+        y: () => c.height(0) + 285,
         width: Button.width + 50,
         size: 25,
         onblur: function() {
@@ -594,8 +594,8 @@ Input.items = [
     new Input({
         id: "Keybind-MoveLeft",
         state: state.SETTINGS,
-        x: {screenFactor: 4/5, offset: 150},
-        y: {screenFactor: 0, offset: 240},
+        x: () => c.width(4/5) + 150,
+        y: () => c.height(0) + 240,
         width: 100,
         keybind: true,
         onkeybindselected: (key) => {
@@ -606,8 +606,8 @@ Input.items = [
     new Input({
         id: "Keybind-MoveRight",
         state: state.SETTINGS,
-        x: {screenFactor: 4/5, offset: 150},
-        y: {screenFactor: 0, offset: 300},
+        x: () => c.width(4/5) + 150,
+        y: () => c.height(0) + 300,
         width: 100,
         keybind: true,
         onkeybindselected: (key) => {
@@ -618,8 +618,8 @@ Input.items = [
     new Input({
         id: "Keybind-Jump",
         state: state.SETTINGS,
-        x: {screenFactor: 4/5, offset: 150},
-        y: {screenFactor: 0, offset: 360},
+        x: () => c.width(4/5) + 150,
+        y: () => c.height(0) + 360,
         width: 100,
         keybind: true,
         onkeybindselected: (key) => {
@@ -630,8 +630,8 @@ Input.items = [
     new Input({
         id: "Keybind-Attack",
         state: state.SETTINGS,
-        x: {screenFactor: 4/5, offset: 150},
-        y: {screenFactor: 0, offset: 420},
+        x: () => c.width(4/5) + 150,
+        y: () => c.height(0) + 420,
         width: 100,
         keybind: true,
         onkeybindselected: (key) => {
@@ -642,8 +642,8 @@ Input.items = [
     new Input({
         id: "Keybind-LaunchRocket",
         state: state.SETTINGS,
-        x: {screenFactor: 4/5, offset: 150},
-        y: {screenFactor: 0, offset: 480},
+        x: () => c.width(4/5) + 150,
+        y: () => c.height(0) + 480,
         width: 100,
         keybind: true,
         onkeybindselected: (key) => {
@@ -654,8 +654,8 @@ Input.items = [
     new Input({
         id: "Keybind-ActivateSuperpower",
         state: state.SETTINGS,
-        x: {screenFactor: 4/5, offset: 150},
-        y: {screenFactor: 0, offset: 540},
+        x: () => c.width(4/5) + 150,
+        y: () => c.height(0) + 540,
         width: 100,
         keybind: true,
         onkeybindselected: (key) => {
@@ -666,8 +666,8 @@ Input.items = [
     new Input({
         id: "Keybind-GameMenu",
         state: state.SETTINGS,
-        x: {screenFactor: 4/5, offset: 150},
-        y: {screenFactor: 0, offset: 600},
+        x: () => c.width(4/5) + 150,
+        y: () => c.height(0) + 600,
         width: 100,
         keybind: true,
         onkeybindselected: (key) => {
@@ -727,8 +727,8 @@ addEventListener("DOMContentLoaded", () => {
                 continue;
             }
 
-            button.hovering = (e.clientX > button.getX() - button.width / 2 && e.clientX < button.getX() + button.width / 2
-             && e.clientY > button.getY() - button.height / 2 && e.clientY < button.getY() + button.height / 2 && !button.disabled && !state.changing);
+            button.hovering = (e.clientX > button.x() - button.width / 2 && e.clientX < button.x() + button.width / 2
+             && e.clientY > button.y() - button.height / 2 && e.clientY < button.y() + button.height / 2 && !button.disabled && !state.changing);
         }
         for (const input of Input.items) {
             if (input.state !== state.current) {
@@ -736,8 +736,8 @@ addEventListener("DOMContentLoaded", () => {
                 continue;
             }
 
-            input.hovering = (e.clientX > input.getX() - input.width / 2 && e.clientX < input.getX() + input.width / 2
-             && e.clientY > input.getY() - input.getH(0.5) && e.clientY < input.getY() + input.getH(0.5) && !input.disabled && !state.changing);
+            input.hovering = (e.clientX > input.x() - input.width / 2 && e.clientX < input.x() + input.width / 2
+             && e.clientY > input.y() - input.getHeight(0.5) && e.clientY < input.y() + input.getHeight(0.5) && !input.disabled && !state.changing);
         }
     });
 
