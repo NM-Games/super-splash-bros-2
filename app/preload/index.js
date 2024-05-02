@@ -75,9 +75,15 @@ const getEnteredIP = () => {
     ];
 };
 
-/**
- * Generate sprites for in menu backgrounds.
- */
+/** Check the LAN availability and kick the player out of a menu if needed. */
+const checkLANAvailability = () => {
+    const LANavailable = (network.getIPs().length > 0);
+    Button.getButtonById("LANMode").disabled = !LANavailable;
+    if ([state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.PLAYING_LAN].includes(state.current) && !LANavailable)
+        state.change(state.MAIN_MENU, true);
+};
+
+/** Generate sprites for in menu backgrounds. */
 const generateBackgroundSprites = () => {
     const sprites = [];
     let spriteX = 50;
@@ -140,6 +146,7 @@ Button.items = [
         }
     }),
     new Button({
+        id: "LANMode",
         text: "LAN mode",
         state: state.MAIN_MENU,
         x: () => c.width(1/2),
@@ -703,6 +710,9 @@ addEventListener("DOMContentLoaded", () => {
     config.appearance = configFile.appearance ?? settings.template.appearance;
     config.graphics = configFile.graphics ?? settings.template.graphics;
     config.controls = configFile.controls ?? settings.template.controls;
+
+    checkLANAvailability();
+    setInterval(checkLANAvailability, 5000);
 
     Input.getInputById("Username").value = config.appearance.playerName;
 
