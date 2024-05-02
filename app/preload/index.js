@@ -23,19 +23,21 @@ const state = {
     ABOUT: 10,
 
     current: 0,
-    changing: false,
-    changingTo: 0,
-    changeX: 0,
-    changeVX: 0,
-    /**
-     * Change the current game state.
-     * @param {number} to
-     * @param {boolean} inverted
-     */
-    change: (to, inverted) => {
-        state.changingTo = to;
-        state.changeVX = (inverted) ? 150 : -150;
-        state.changing = true;
+    change: {
+        /**
+         * Change the current game state.
+         * @param {number} toState
+         * @param {boolean} inverted
+         */
+        to: (toState, inverted) => {
+            state.change.newState = toState;
+            state.change.vx = (inverted) ? 150 : -150;
+            state.change.active = true;
+        },
+        active: false,
+        newState: 0,
+        x: 0,
+        vx: 0
     }
 };
 
@@ -80,7 +82,7 @@ const checkLANAvailability = () => {
     const LANavailable = (network.getIPs().length > 0);
     Button.getButtonById("LANMode").disabled = !LANavailable;
     if ([state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.PLAYING_LAN].includes(state.current) && !LANavailable)
-        state.change(state.MAIN_MENU, true);
+        state.change.to(state.MAIN_MENU, true);
 };
 
 /** Generate sprites for in menu backgrounds. */
@@ -142,7 +144,7 @@ Button.items = [
         height: Button.height,
         onclick: function() {
             this.hovering = false;
-            state.change(state.LOCAL_GAME_MENU, false);
+            state.change.to(state.LOCAL_GAME_MENU, false);
         }
     }),
     new Button({
@@ -155,7 +157,7 @@ Button.items = [
         height: Button.height,
         onclick: function() {
             this.hovering = false;
-            state.change(state.LAN_GAME_MENU, false);
+            state.change.to(state.LAN_GAME_MENU, false);
         }
     }),
     new Button({
@@ -167,7 +169,7 @@ Button.items = [
         height: Button.height,
         onclick: function() {
             this.hovering = false;
-            state.change(state.PLAYING_FREEPLAY, false);
+            state.change.to(state.PLAYING_FREEPLAY, false);
         }
     }),
     new Button({
@@ -179,7 +181,7 @@ Button.items = [
         height: Button.height,
         onclick: function() {
             this.hovering = false;
-            state.change(state.SETTINGS, false);
+            state.change.to(state.SETTINGS, false);
         }
     }),
     new Button({
@@ -205,7 +207,7 @@ Button.items = [
         height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
-            state.change(state.MAIN_MENU, true);
+            state.change.to(state.MAIN_MENU, true);
         }
     }),
     // LAN mode menu
@@ -219,7 +221,7 @@ Button.items = [
         height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
-            state.change(state.MAIN_MENU, true);
+            state.change.to(state.MAIN_MENU, true);
         }
     }),
     new Button({
@@ -238,7 +240,7 @@ Button.items = [
                 ws.addEventListener("open", () => {
                     setConnectElementsState(false);
                     Button.getButtonById("LANGameTheme").text = `Theme: ${theme.current}`;
-                    state.change(state.WAITING_LAN_HOST, false);
+                    state.change.to(state.WAITING_LAN_HOST, false);
                 });
             });
         }
@@ -267,7 +269,7 @@ Button.items = [
 
                 ws.addEventListener("open", (e) => {
                     clearTimeout(connectionTimeout);
-                    state.change(state.WAITING_LAN_GUEST, false);
+                    state.change.to(state.WAITING_LAN_GUEST, false);
                     setConnectElementsState(false);
                 });
                 ws.addEventListener("error", (err) => {
@@ -289,7 +291,7 @@ Button.items = [
         height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
-            state.change(state.MAIN_MENU, true);
+            state.change.to(state.MAIN_MENU, true);
         }
     }),
     new Button({
@@ -301,7 +303,7 @@ Button.items = [
         height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
-            state.change(state.ABOUT, false);
+            state.change.to(state.ABOUT, false);
         }
     }),
     // for the sprite color switch:
@@ -420,7 +422,7 @@ Button.items = [
         height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
-            state.change(state.SETTINGS, true);
+            state.change.to(state.SETTINGS, true);
         }
     }),
     new Button({
@@ -470,7 +472,7 @@ Button.items = [
             ipcRenderer.on("gameserver-stopped", () => {
                 this.hovering = false;
                 theme.current = config.graphics.theme;
-                state.change(state.LAN_GAME_MENU, true);
+                state.change.to(state.LAN_GAME_MENU, true);
             });
         }
     }),
@@ -512,7 +514,7 @@ Button.items = [
         onclick: function() {
             ws.close();
             this.hovering = false;
-            state.change(state.LAN_GAME_MENU, true);
+            state.change.to(state.LAN_GAME_MENU, true);
         }
     }),
 ];
@@ -759,7 +761,7 @@ addEventListener("DOMContentLoaded", () => {
             }
 
             button.hovering = (e.clientX > button.x() - button.width / 2 && e.clientX < button.x() + button.width / 2
-             && e.clientY > button.y() - button.height / 2 && e.clientY < button.y() + button.height / 2 && !button.disabled && !state.changing);
+             && e.clientY > button.y() - button.height / 2 && e.clientY < button.y() + button.height / 2 && !button.disabled && !state.change.active);
         }
         for (const input of Input.items) {
             if (input.state !== state.current) {
@@ -768,20 +770,20 @@ addEventListener("DOMContentLoaded", () => {
             }
 
             input.hovering = (e.clientX > input.x() - input.width / 2 && e.clientX < input.x() + input.width / 2
-             && e.clientY > input.y() - input.getHeight(0.5) && e.clientY < input.y() + input.getHeight(0.5) && !input.disabled && !state.changing);
+             && e.clientY > input.y() - input.getHeight(0.5) && e.clientY < input.y() + input.getHeight(0.5) && !input.disabled && !state.change.active);
         }
     });
 
     addEventListener("mousedown", (_e) => {
         for (const button of Button.items) {
-            if (button.hovering && !state.changing) {
+            if (button.hovering && !state.change.active) {
                 button.active = true;
                 break;
             }
         }
         for (const input of Input.items) {
             const oldFocused = input.focused;
-            input.focused = (input.hovering && !state.changing);
+            input.focused = (input.hovering && !state.change.active);
             if (oldFocused && !input.focused) input.onblur();
         }
     });
@@ -798,19 +800,19 @@ addEventListener("DOMContentLoaded", () => {
     const update = () => {
         frames++;
 
-        if (state.changing) {
-            state.changeX += state.changeVX;
-            if (state.changeX < -c.width()) {
-                state.current = state.changingTo;
-                state.changeX = c.width();
-            } else if (state.changeX > c.width()) {
-                state.current = state.changingTo;
-                state.changeX = -c.width();
+        if (state.change.active) {
+            state.change.x += state.change.vx;
+            if (state.change.x < -c.width()) {
+                state.current = state.change.newState;
+                state.change.x = c.width();
+            } else if (state.change.x > c.width()) {
+                state.current = state.change.newState;
+                state.change.x = -c.width();
             }
 
-            if (state.current === state.changingTo && ((state.changeVX < 0 && state.changeX < 0) || (state.changeVX > 0 && state.changeX > 0))) {
-                state.changeX = 0;
-                state.changing = false;
+            if (state.current === state.change.newState && ((state.change.vx < 0 && state.change.x < 0) || (state.change.vx > 0 && state.change.x > 0))) {
+                state.change.x = 0;
+                state.change.active = false;
             }
         }
 
@@ -868,84 +870,84 @@ addEventListener("DOMContentLoaded", () => {
 
         if (state.current === state.MAIN_MENU) {
             if (theme.isDark()) c.options.setFilter("brightness(100)");
-            c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.changeX, 25, image.logo.width, image.logo.height);
+            c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.change.x, 25, image.logo.width, image.logo.height);
             c.options.setFilter();
         } else if (state.current === state.LOCAL_GAME_MENU) {
-            c.draw.text({text: "LOCAL MODE", x: c.width(0.5) + state.changeX, y: 80, font: {size: 58, style: "bold"}});
+            c.draw.text({text: "LOCAL MODE", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold"}});
         } else if (state.current === state.LAN_GAME_MENU) {
-            c.draw.text({text: "LAN MODE", x: c.width(0.5) + state.changeX, y: 80, font: {size: 58, style: "bold"}});
+            c.draw.text({text: "LAN MODE", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold"}});
 
-            c.draw.text({text: "...or join a game on this network:", x: c.width(0.5) + state.changeX, y: c.height(0.5) - 50, font: {size: 32, style: "bold"}});
-            c.draw.text({text: "IP address:", x: c.width(0.5) - 230 + state.changeX, y: c.height(0.5) + 60, font: {size: 24}, alignment: "left"});
+            c.draw.text({text: "...or join a game on this network:", x: c.width(0.5) + state.change.x, y: c.height(0.5) - 50, font: {size: 32, style: "bold"}});
+            c.draw.text({text: "IP address:", x: c.width(0.5) - 230 + state.change.x, y: c.height(0.5) + 60, font: {size: 24}, alignment: "left"});
             c.options.setOpacity(connectionMessage.a);
-            c.draw.text({text: connectionMessage.text, x: c.width(0.5) + state.changeX, y: c.height(0.5) + Button.height + 180, color: connectionMessage.color ?? theme.getTextColor(), font: {size: 30, style: "bold"}});
+            c.draw.text({text: connectionMessage.text, x: c.width(0.5) + state.change.x, y: c.height(0.5) + Button.height + 180, color: connectionMessage.color ?? theme.getTextColor(), font: {size: 30, style: "bold"}});
             c.options.setOpacity(1);
             for (let i=0; i<3; i++)
-                c.draw.text({text: ".", x: c.width(0.5) - 125 + state.changeX + i * 120, y: c.height(0.5) + 120, font: {size: 40}, alignment: "left"});
+                c.draw.text({text: ".", x: c.width(0.5) - 125 + state.change.x + i * 120, y: c.height(0.5) + 120, font: {size: 40}, alignment: "left"});
         } else if (state.current === state.SETTINGS) {
-            c.draw.text({text: "SETTINGS", x: c.width(0.5) + state.changeX, y: 80, font: {size: 58, style: "bold"}});
+            c.draw.text({text: "SETTINGS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold"}});
 
-            c.draw.text({text: "APPEARANCE", x: c.width(0.2) + state.changeX, y: 180, font: {size: 32, style: "bold"}});
-            c.draw.text({text: "GRAPHICS", x: c.width(0.5) + state.changeX, y: 180, font: {size: 32, style: "bold"}});
-            c.draw.text({text: "CONTROLS", x: c.width(0.8) + state.changeX, y: 180, font: {size: 32, style: "bold"}});
+            c.draw.text({text: "APPEARANCE", x: c.width(0.2) + state.change.x, y: 180, font: {size: 32, style: "bold"}});
+            c.draw.text({text: "GRAPHICS", x: c.width(0.5) + state.change.x, y: 180, font: {size: 32, style: "bold"}});
+            c.draw.text({text: "CONTROLS", x: c.width(0.8) + state.change.x, y: 180, font: {size: 32, style: "bold"}});
 
-            c.draw.text({text: "Player name:", x: c.width(0.2) - Button.width / 2 - 25 + state.changeX, y: 250, font: {size: 24}, alignment: "left"});
-            c.draw.text({text: "Preferred color:", x: c.width(0.2) - Button.width / 2 - 25 + state.changeX, y: 345, font: {size: 24}, alignment: "left"});
-            c.draw.text({text: "Superpower:", x: c.width(0.2) - Button.width / 2 - 25 + state.changeX, y: 525, font: {size: 24}, alignment: "left"});
+            c.draw.text({text: "Player name:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 250, font: {size: 24}, alignment: "left"});
+            c.draw.text({text: "Preferred color:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 345, font: {size: 24}, alignment: "left"});
+            c.draw.text({text: "Superpower:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 525, font: {size: 24}, alignment: "left"});
             
             const colors = ["Yellow", "Green", "Red", "Blue", "Orange", "Cyan", "Purple", "Gray"];
             const superpowers = ["Squash", "Shield", "Poop Bomb", "Invisibility", "Power Rockets", "Regeneration", "Knockback", "Strength"];
-            c.draw.croppedImage(image.sprites, config.appearance.preferredColor * 128, 0, 128, 128, c.width(0.2) - 80 + state.changeX, 360, 64, 64);
-            c.draw.text({text: colors[config.appearance.preferredColor], x: c.width(0.2) + state.changeX, y: 396, font: {size: 28, style: "bold"}, alignment: "left", baseline: "middle"}); 
-            c.draw.text({text: superpowers[config.appearance.superpower], x: c.width(0.2) + state.changeX, y: 576, font: {size: 28, style: "bold"}, alignment: "left", baseline: "middle"}); 
+            c.draw.croppedImage(image.sprites, config.appearance.preferredColor * 128, 0, 128, 128, c.width(0.2) - 80 + state.change.x, 360, 64, 64);
+            c.draw.text({text: colors[config.appearance.preferredColor], x: c.width(0.2) + state.change.x, y: 396, font: {size: 28, style: "bold"}, alignment: "left", baseline: "middle"}); 
+            c.draw.text({text: superpowers[config.appearance.superpower], x: c.width(0.2) + state.change.x, y: 576, font: {size: 28, style: "bold"}, alignment: "left", baseline: "middle"}); 
 
             const keybinds = ["Move left", "Move right", "Jump", "Attack", "Launch rocket", "Activate superpower", "Game menu"];
             for (let i=0; i<keybinds.length; i++)
-                c.draw.text({text: keybinds[i], x: c.width(0.8) - Button.width / 2 - 25 + state.changeX, y: 250 + i * 60, font: {size: 24}, alignment: "left"});
+                c.draw.text({text: keybinds[i], x: c.width(0.8) - Button.width / 2 - 25 + state.change.x, y: 250 + i * 60, font: {size: 24}, alignment: "left"});
         } else if (state.current === state.ABOUT) {
             if (theme.isDark()) c.options.setFilter("brightness(100)");
-            c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.changeX, 25, image.logo.width, image.logo.height);
+            c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.change.x, 25, image.logo.width, image.logo.height);
             c.options.setFilter();
 
-            c.draw.text({text: "by", x: c.width(0.5) + state.changeX, y: c.height(0.4) - 10, font: {size: 24, style: "bold"}, alignment: "bottom"});
-            c.draw.image(image.logo_nmgames, c.width(0.5) - image.logo_nmgames.width / 4 + state.changeX, c.height(0.4), image.logo_nmgames.width / 2, image.logo_nmgames.height / 2);
-            c.draw.text({text: `Version ${versions.game}`, x: c.width(0.5) + state.changeX, y: c.height(0.5) + 70, font: {size: 36, style: "bold"}, baseline: "bottom"});
-            c.draw.text({text: `(Electron: ${versions.electron}, Chromium: ${versions.chromium})`, x: c.width(0.5) + state.changeX, y: c.height(0.5) + 100, font: {size: 24}, baseline: "bottom"});
-            c.draw.text({text: `This program is free and open-source software: you are free to modify and/or redistribute it.`, x: c.width(0.5) + state.changeX, y: c.height(0.7), font: {size: 20}, baseline: "bottom"});
-            c.draw.text({text: `There is NO WARRANTY, to the extent permitted by law.`, x: c.width(0.5) + state.changeX, y: c.height(0.7) + 25, font: {size: 20}, baseline: "bottom"});
-            c.draw.text({text: `Read the GNU General Public License version 3 for further details.`, x: c.width(0.5) + state.changeX, y: c.height(0.7) + 50, font: {size: 20}, baseline: "bottom"});
+            c.draw.text({text: "by", x: c.width(0.5) + state.change.x, y: c.height(0.4) - 10, font: {size: 24, style: "bold"}, alignment: "bottom"});
+            c.draw.image(image.logo_nmgames, c.width(0.5) - image.logo_nmgames.width / 4 + state.change.x, c.height(0.4), image.logo_nmgames.width / 2, image.logo_nmgames.height / 2);
+            c.draw.text({text: `Version ${versions.game}`, x: c.width(0.5) + state.change.x, y: c.height(0.5) + 70, font: {size: 36, style: "bold"}, baseline: "bottom"});
+            c.draw.text({text: `(Electron: ${versions.electron}, Chromium: ${versions.chromium})`, x: c.width(0.5) + state.change.x, y: c.height(0.5) + 100, font: {size: 24}, baseline: "bottom"});
+            c.draw.text({text: `This program is free and open-source software: you are free to modify and/or redistribute it.`, x: c.width(0.5) + state.change.x, y: c.height(0.7), font: {size: 20}, baseline: "bottom"});
+            c.draw.text({text: `There is NO WARRANTY, to the extent permitted by law.`, x: c.width(0.5) + state.change.x, y: c.height(0.7) + 25, font: {size: 20}, baseline: "bottom"});
+            c.draw.text({text: `Read the GNU General Public License version 3 for further details.`, x: c.width(0.5) + state.change.x, y: c.height(0.7) + 50, font: {size: 20}, baseline: "bottom"});
         } else if ([state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST].includes(state.current)) {
             const ips = network.getIPs();
             const mainIP = ips.shift();
 
             c.draw.text({
                 text: (state.current === state.WAITING_LAN_GUEST) ? "Waiting until start..." : mainIP,
-                x: c.width(0.5) + state.changeX,
+                x: c.width(0.5) + state.change.x,
                 y: c.height(0.125),
                 font: {size: 58, style: "bold"}
             });
             if (state.current === state.WAITING_LAN_HOST) {
-                c.draw.text({text: "Players can now connect to this IP address:", x: c.width(0.5) + state.changeX, y: c.height(0.125) - 60, font: {size: 24}});
-                if (ips.length > 0) c.draw.text({text: `If that does not work, try:   ${ips.join("   ")}`, x: c.width(0.5) + state.changeX, y: c.height(0.125) + 30, font: {size: 18}});
+                c.draw.text({text: "Players can now connect to this IP address:", x: c.width(0.5) + state.change.x, y: c.height(0.125) - 60, font: {size: 24}});
+                if (ips.length > 0) c.draw.text({text: `If that does not work, try:   ${ips.join("   ")}`, x: c.width(0.5) + state.change.x, y: c.height(0.125) + 30, font: {size: 18}});
             }
 
             for (let i=0; i<8; i++) {
                 const x = (i % 2 === 0) ? c.width(0.5) - 510 : c.width(0.5) + 10;
                 const y = Math.floor(i / 2);
-                c.draw.fill.rect(theme.colors.players[`p${i + 1}`], x + state.changeX, c.height(0.2) + y * 100, 500, 80, 8);
-                c.draw.croppedImage(image.sprites, i * 128, 0, 128, 128, x + 8 + state.changeX, c.height(0.2) + y * 100 + 8, 64, 64);
+                c.draw.fill.rect(theme.colors.players[`p${i + 1}`], x + state.change.x, c.height(0.2) + y * 100, 500, 80, 8);
+                c.draw.croppedImage(image.sprites, i * 128, 0, 128, 128, x + 8 + state.change.x, c.height(0.2) + y * 100 + 8, 64, 64);
             }
         }
 
         for (const button of Button.items) {
             if (button.state !== state.current) continue;
 
-            c.draw.button(button, state.changeX);
+            c.draw.button(button, state.change.x);
         }
         for (const input of Input.items) {
             if (input.state !== state.current) continue;
 
-            c.draw.input(input, state.changeX, Input.keybindsInvalid, (frames % 40 < 20 && !input.keybind));
+            c.draw.input(input, state.change.x, Input.keybindsInvalid, (frames % 40 < 20 && !input.keybind));
         }
     };
     
