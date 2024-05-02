@@ -7,6 +7,7 @@ const settings = require("./settings");
 const network = require("../network");
 const Button = require("../class/ui/Button");
 const Input = require("../class/ui/Input");
+const MenuSprite = require("../class/ui/MenuSprite");
 
 
 const state = {
@@ -85,26 +86,6 @@ const checkLANAvailability = () => {
         state.change.to(state.MAIN_MENU, true);
 };
 
-/** Generate sprites for in menu backgrounds. */
-const generateBackgroundSprites = () => {
-    const sprites = [];
-    let spriteX = 50;
-    while (spriteX < 20000) {
-        sprites.push({
-            visible: false,
-            x: spriteX,
-            y: 900,
-            amplitude: Math.random() * 250 + 300,
-            offset: Math.floor(Math.random() * 300),
-            type: Math.floor(Math.random() * 4),
-            facing: Math.round(Math.random())
-        });
-        spriteX += Math.random() * 100 + 200;
-    }
-    return sprites;
-};
-
-const backgroundSprites = generateBackgroundSprites();
 const config = {appearance: {}, graphics: {}, controls: {}};
 const versions = {game: "", electron: "", chromium: ""};
 
@@ -724,6 +705,7 @@ addEventListener("DOMContentLoaded", () => {
     if (config.graphics.fullScreen) ipcRenderer.send("toggle-fullscreen");
     Button.getButtonById("WaterFlow").text = `Water flow: ${config.graphics.waterFlow ? "ON":"OFF"}`;
     Button.getButtonById("MenuSprites").text = `Menu sprites: ${config.graphics.menuSprites ? "ON":"OFF"}`;
+    MenuSprite.generate();
 
     Input.getInputById("Keybind-MoveLeft").value = Input.displayKeybind(config.controls.moveLeft);
     Input.getInputById("Keybind-MoveRight").value = Input.displayKeybind(config.controls.moveRight);
@@ -816,14 +798,7 @@ addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        for (const sprite of backgroundSprites) {
-            sprite.y = Math.sin((frames + sprite.offset) / 40) * sprite.amplitude + c.height();
-            if (sprite.y > c.height()) {
-                sprite.visible = config.graphics.menuSprites;
-                sprite.type = Math.floor(Math.random() * 4);
-                sprite.facing = Math.round(Math.random());
-            }
-        }
+        MenuSprite.update(frames, config.graphics.menuSprites);
 
         let hoverings = {button: 0, input: 0};
         for (const button of Button.items) {
@@ -857,7 +832,7 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.fill.circle(c.options.gradient(0, c.height() - 600, 0, c.height(), {pos: 0, color: "yellow"}, {pos: 1, color: "#ff1f82"}), c.width(0.5), c.height() - 169, c.width(0.2));
         }
 
-        for (const sprite of backgroundSprites) {
+        for (const sprite of MenuSprite.items) {
             if (sprite.visible) c.draw.croppedImage(image.sprites, sprite.type * 128, sprite.facing * 128, 128, 128, sprite.x, sprite.y, 96, 96);
         }
 
