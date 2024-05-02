@@ -1,8 +1,13 @@
+/**
+ * @typedef {"daylight" | "sunset" | "night" | "synthwave"} Themes
+ */
+
 const colors = {
     theme: {
-        daylight: {primary: "#23ffff", secondary: "#23ffff"},
-        sunset: {primary: "#ffb914", secondary: "#ffff00"},
-        night: {primary: "#000000", secondary: "#ffffff"}
+        daylight: "#23ffff",
+        sunset: "#ffb914",
+        night: "#000000",
+        synthwave: "#1b023b",
     },
     players: {
         p1: "#ffd900",
@@ -16,25 +21,31 @@ const colors = {
 
 module.exports = {
     colors,
-    /** @type {"daylight" | "sunset" | "night"} */
+    /** @type {Themes} */
     current: "daylight",
 
-    /** Cycle themes */
+    /** 
+     * Cycle themes
+     * @returns {Themes}
+     */
     cycle: function() {
         if (this.current === "daylight") this.current = "sunset";
-        if (this.current === "sunset") this.current = "night";
-        if (this.current === "night") this.current = "daylight";
+        else if (this.current === "sunset") this.current = "night";
+        else if (this.current === "night") this.current = "synthwave";
+        else if (this.current === "synthwave") this.current = "daylight";
+
+        return this.current;
     },
     /**
      * Check whether the theme is a dark theme for optimal text colors.
      * @returns {boolean}
      */
     isDark: function() {
-        return (this.current === "night");
+        return ["night", "synthwave"].includes(this.current);
     },
     /**
-     * Get the primary and secondary background colors
-     * @returns {{primary: string, secondary: string}}
+     * Get the background color/gradient.
+     * @returns {string}
      */
     getBackgroundColor: function() {
         return colors.theme[this.current];

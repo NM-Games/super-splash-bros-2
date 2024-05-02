@@ -51,6 +51,40 @@ const options = {
      */
     setOpacity: (opacity) => {
         c.globalAlpha = opacity;
+    },
+    /**
+     * Apply filters to drawn objects.
+     * @param {...string} filters
+     */
+    setFilter: (...filters) => {
+        c.filter = (filters.length === 0) ? "none" : filters.join(" ");
+    },
+    /**
+     * Apply shadows to drawn objects.
+     * @param {string} color
+     * @param {number} blur
+     * @param {number} x
+     * @param {number} y
+     */
+    setShadow: (color = "transparent", blur = 0, x = 0, y = 0) => {
+        c.shadowColor = color;
+        c.shadowBlur = blur;
+        c.shadowOffsetX = x;
+        c.shadowOffsetY = y;
+    },
+    /**
+     * Generate a gradient, which can be applied as a color.
+     * @param {number} x1 
+     * @param {number} y1 
+     * @param {number} x2 
+     * @param {number} y2 
+     * @param  {...{pos: number, color: string}} colors
+     * @returns {CanvasGradient}
+     */
+    gradient: (x1, y1, x2, y2, ...colors) => {
+        const grd = c.createLinearGradient(x1, y1, x2, y2);
+        for (const color of colors) grd.addColorStop(color.pos, color.color);
+        return grd;
     }
 };
 
@@ -77,6 +111,19 @@ const draw = {
             c.lineTo(x + r, y + h);
             c.quadraticCurveTo(x, y + h, x, y + h - r);
             c.closePath();
+            c.fill();
+        },
+        /**
+         * Fill a circle on the screen.
+         * @param {string | CanvasGradient | CanvasPattern} color
+         * @param {number} x 
+         * @param {number} y 
+         * @param {number} r 
+         */
+        circle: (color, x, y, r) => {
+            c.fillStyle = color;
+            c.beginPath();
+            c.arc(x, y, r, 0, Math.PI * 2);
             c.fill();
         }
     },

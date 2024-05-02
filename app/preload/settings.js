@@ -17,6 +17,7 @@ const template = {
         superpower: 0
     },
     graphics: {
+        theme: "daylight",
         fullScreen: false,
         waterFlow: true,
         menuSprites: true

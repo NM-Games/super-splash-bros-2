@@ -230,6 +230,7 @@ Button.items = [
                 ws = new WebSocket(`ws://127.0.0.1:${network.port}`);
                 ws.addEventListener("open", () => {
                     setConnectElementsState(false);
+                    Button.getButtonById("LANGameTheme").text = `Theme: ${theme.current}`;
                     state.change(state.WAITING_LAN_HOST, false);
                 });
             });
@@ -347,11 +348,25 @@ Button.items = [
         }
     }),
     new Button({
+        id: "Theme",
+        text: "Theme",
+        state: state.SETTINGS,
+        x: () => c.width(1/2),
+        y: () => c.height(0) + 280,
+        width: Button.width,
+        height: Button.height,
+        onclick: function() {
+            config.graphics.theme = theme.cycle();
+            this.text = `Theme: ${theme.current}`;
+            settings.set(config);
+        }
+    }),
+    new Button({
         id: "Fullscreen",
         text: "Full screen",
         state: state.SETTINGS,
         x: () => c.width(1/2),
-        y: () => c.height(0) + 280,
+        y: () => c.height(0) + 380,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -364,7 +379,7 @@ Button.items = [
         text: "Water flow",
         state: state.SETTINGS,
         x: () => c.width(1/2),
-        y: () => c.height(0) + 380,
+        y: () => c.height(0) + 480,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -378,7 +393,7 @@ Button.items = [
         text: "Menu sprites: ON",
         state: state.SETTINGS,
         x: () => c.width(1/2),
-        y: () => c.height(0) + 480,
+        y: () => c.height(0) + 580,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -447,11 +462,13 @@ Button.items = [
             ipcRenderer.send("stop-gameserver");
             ipcRenderer.on("gameserver-stopped", () => {
                 this.hovering = false;
+                theme.current = config.graphics.theme;
                 state.change(state.LAN_GAME_MENU, true);
             });
         }
     }),
     new Button({
+        id: "LANGameTheme",
         text: "Theme",
         state: state.WAITING_LAN_HOST,
         x: () => c.width(1/2) + -250,
@@ -459,7 +476,8 @@ Button.items = [
         width: Button.width,
         height: Button.height,
         onclick: function() {
-            // todo: cycle themes
+            theme.cycle();
+            this.text = `Theme: ${theme.current}`;
         }
     }),
     new Button({
@@ -688,6 +706,9 @@ addEventListener("DOMContentLoaded", () => {
 
     Input.getInputById("Username").value = config.appearance.playerName;
 
+    theme.current = config.graphics.theme;
+    Button.getButtonById("Theme").text = `Theme: ${theme.current}`;
+
     if (config.graphics.fullScreen) ipcRenderer.send("toggle-fullscreen");
     Button.getButtonById("WaterFlow").text = `Water flow: ${config.graphics.waterFlow ? "ON":"OFF"}`;
     Button.getButtonById("MenuSprites").text = `Menu sprites: ${config.graphics.menuSprites ? "ON":"OFF"}`;
@@ -810,7 +831,19 @@ addEventListener("DOMContentLoaded", () => {
 
     const draw = () => {
         c.clear();
-        c.draw.fill.rect(theme.getBackgroundColor().primary, 0, 0, c.width(), c.height());
+        c.draw.fill.rect(theme.getBackgroundColor(), 0, 0, c.width(), c.height());
+        if (theme.current === "sunset") {
+            c.options.setShadow("yellow", 64);
+            c.draw.fill.circle("yellow", c.width(0.5), c.height() - 100, c.width(0.2));
+            c.options.setShadow();
+        } else if (theme.current === "night") c.draw.image(image.stars, 0, 0, c.width(), c.height());
+        else if (theme.current === "synthwave") {
+            c.options.setOpacity(0.1);
+            c.draw.image(image.stars, 0, 0, c.width(), c.height());
+            c.options.setOpacity(1);
+            c.draw.fill.rect(c.options.gradient(0, c.height(0.3), 0, c.height(), {pos: 0, color: "transparent"}, {pos: 1, color: "#d51ec4"}), 0, 0, c.width(), c.height());
+            c.draw.fill.circle(c.options.gradient(0, c.height() - 600, 0, c.height(), {pos: 0, color: "yellow"}, {pos: 1, color: "#ff1f82"}), c.width(0.5), c.height() - 169, c.width(0.2));
+        }
 
         for (const sprite of backgroundSprites) {
             if (sprite.visible) c.draw.croppedImage(image.sprites, sprite.type * 128, sprite.facing * 128, 128, 128, sprite.x, sprite.y, 96, 96);
@@ -823,8 +856,11 @@ addEventListener("DOMContentLoaded", () => {
         }
         c.draw.image(image.water, waterX + watersX, c.height() - 100);
 
-        if (state.current === state.MAIN_MENU) c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.changeX, 25, image.logo.width, image.logo.height);
-        else if (state.current === state.LOCAL_GAME_MENU) {
+        if (state.current === state.MAIN_MENU) {
+            if (theme.isDark()) c.options.setFilter("brightness(100)");
+            c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.changeX, 25, image.logo.width, image.logo.height);
+            c.options.setFilter();
+        } else if (state.current === state.LOCAL_GAME_MENU) {
             c.draw.text({text: "LOCAL MODE", x: c.width(0.5) + state.changeX, y: 80, font: {size: 58, style: "bold"}});
         } else if (state.current === state.LAN_GAME_MENU) {
             c.draw.text({text: "LAN MODE", x: c.width(0.5) + state.changeX, y: 80, font: {size: 58, style: "bold"}});
@@ -857,7 +893,10 @@ addEventListener("DOMContentLoaded", () => {
             for (let i=0; i<keybinds.length; i++)
                 c.draw.text({text: keybinds[i], x: c.width(0.8) - Button.width / 2 - 25 + state.changeX, y: 250 + i * 60, font: {size: 24}, alignment: "left"});
         } else if (state.current === state.ABOUT) {
+            if (theme.isDark()) c.options.setFilter("brightness(100)");
             c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.changeX, 25, image.logo.width, image.logo.height);
+            c.options.setFilter();
+
             c.draw.text({text: "by", x: c.width(0.5) + state.changeX, y: c.height(0.4) - 10, font: {size: 24, style: "bold"}, alignment: "bottom"});
             c.draw.image(image.logo_nmgames, c.width(0.5) - image.logo_nmgames.width / 4 + state.changeX, c.height(0.4), image.logo_nmgames.width / 2, image.logo_nmgames.height / 2);
             c.draw.text({text: `Version ${versions.game}`, x: c.width(0.5) + state.changeX, y: c.height(0.5) + 70, font: {size: 36, style: "bold"}, baseline: "bottom"});
