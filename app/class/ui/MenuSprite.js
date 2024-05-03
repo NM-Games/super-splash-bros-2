@@ -9,7 +9,8 @@ class MenuSprite {
         while (spriteX < 20000) {
             this.items.push(new MenuSprite(spriteX));
             spriteX += Math.random() * 100 + 200;
-        }    
+        }
+        console.log(this.items);
     }
 
     /** 
@@ -21,7 +22,7 @@ class MenuSprite {
             sprite.y = Math.sin((frames + sprite.offset) / 40) * sprite.amplitude + height();
             if (sprite.y > height()) {
                 sprite.visible = enabled;
-                sprite.type = Math.floor(Math.random() * 4);
+                sprite.color = Math.floor(Math.random() * 8);
                 sprite.facing = Math.round(Math.random());
                 sprite.setAmplitude();
             }
@@ -46,7 +47,7 @@ class MenuSprite {
         this.visible = false;
         this.setAmplitude();
         this.offset = Math.floor(Math.random() * 600);
-        this.type = Math.floor(Math.random() * 4);
+        this.color = Math.floor(Math.random() * 8);
         this.facing = Math.round(Math.random());
     }
 

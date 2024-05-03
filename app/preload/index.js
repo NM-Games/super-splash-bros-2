@@ -833,7 +833,7 @@ addEventListener("DOMContentLoaded", () => {
         }
 
         for (const sprite of MenuSprite.items) {
-            if (sprite.visible) c.draw.croppedImage(image.sprites, sprite.type * 128, sprite.facing * 128, 128, 128, sprite.x, sprite.y, 96, 96);
+            if (sprite.visible) c.draw.croppedImage(image.sprites, sprite.color * 128, sprite.facing * 128, 128, 128, sprite.x, sprite.y, 96, 96);
         }
 
         let watersX = 0;
