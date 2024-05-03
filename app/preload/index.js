@@ -825,10 +825,10 @@ addEventListener("DOMContentLoaded", () => {
             c.options.setShadow("yellow", 64);
             c.draw.fill.circle("yellow", c.width(0.5), c.height() - 100, c.width(0.2));
             c.options.setShadow();
-        } else if (theme.current === "night") c.draw.image(image.stars, 0, 0, c.width(), c.height());
+        } else if (theme.current === "night") c.draw.fill.rect(c.options.pattern(image.stars), 0, 0, c.width(), c.height());
         else if (theme.current === "synthwave") {
             c.options.setOpacity(0.1);
-            c.draw.image(image.stars, 0, 0, c.width(), c.height());
+            c.draw.fill.rect(c.options.pattern(image.stars), 0, 0, c.width(), c.height());
             c.options.setOpacity(1);
             c.draw.fill.rect(c.options.gradient(0, c.height(0.3), 0, c.height(), {pos: 0, color: "transparent"}, {pos: 1, color: "#d51ec4"}), 0, 0, c.width(), c.height());
             c.draw.fill.circle(c.options.gradient(0, c.height() - 600, 0, c.height(), {pos: 0, color: "yellow"}, {pos: 1, color: "#ff1f82"}), c.width(0.5), c.height() - 169, c.width(0.2));

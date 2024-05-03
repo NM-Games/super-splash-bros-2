@@ -85,6 +85,15 @@ const options = {
         const grd = c.createLinearGradient(x1, y1, x2, y2);
         for (const color of colors) grd.addColorStop(color.pos, color.color);
         return grd;
+    },
+    /**
+     * Generate a pattern of an image, which can be applied as a color.
+     * @param {CanvasImageSource} image
+     * @param {"repeat" | "repeat-x" | "repeat-y" | "no-repeat"} repetition
+     * @returns {CanvasPattern}
+     */
+    pattern: (image, repetition = "repeat") => {
+        return c.createPattern(image, repetition);
     }
 };
 
