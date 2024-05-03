@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, globalShortcut, utilityProcess } = require("electron");
+const { app, BrowserWindow, ipcMain, screen, dialog, globalShortcut, utilityProcess } = require("electron");
 const { join } = require("path");
 
 const network = require("./network");
@@ -39,8 +39,11 @@ app.on("ready", () => {
         window.setTitle("Super Splash Bros 2");
         window.loadFile(join(__dirname, "window", "index.html"));
         window.setIcon(join(__dirname, "img", "icon.png"));
-        window.webContents.on("did-finish-load", () => {
-            window.webContents.send("information", version, process.versions.electron, process.versions.chrome);
+        window.webContents.on("dom-ready", () => {
+            let totalWidth = 0;
+            for (const scr of screen.getAllDisplays()) totalWidth += scr.bounds.width;
+
+            window.webContents.send("information", version, process.versions.electron, process.versions.chrome, totalWidth);
         });
         // window.webContents.openDevTools();
     

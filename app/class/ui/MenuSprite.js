@@ -4,13 +4,16 @@ class MenuSprite {
     /** @type {MenuSprite[]} */
     static items = [];
 
-    static generate() {
+    /**
+     * Generate menu sprites in the background for the entire screen width.
+     * @param {number} until
+     */
+    static generate(until) {
         let spriteX = 50;
-        while (spriteX < 20000) {
+        while (spriteX < until) {
             this.items.push(new MenuSprite(spriteX));
             spriteX += Math.random() * 100 + 200;
         }
-        console.log(this.items);
     }
 
     /** 

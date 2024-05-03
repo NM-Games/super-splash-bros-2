@@ -1,4 +1,4 @@
-const { ipcRenderer, clipboard, shell } = require("electron");
+const { ipcRenderer, clipboard, screen, shell } = require("electron");
 
 const c = require("./canvas");
 const image = require("./image");
@@ -707,7 +707,6 @@ addEventListener("DOMContentLoaded", () => {
     if (config.graphics.fullScreen) ipcRenderer.send("toggle-fullscreen");
     Button.getButtonById("WaterFlow").text = `Water flow: ${config.graphics.waterFlow ? "ON":"OFF"}`;
     Button.getButtonById("MenuSprites").text = `Menu sprites: ${config.graphics.menuSprites ? "ON":"OFF"}`;
-    MenuSprite.generate();
 
     Input.getInputById("Keybind-MoveLeft").value = Input.displayKeybind(config.controls.moveLeft);
     Input.getInputById("Keybind-MoveRight").value = Input.displayKeybind(config.controls.moveRight);
@@ -722,10 +721,11 @@ addEventListener("DOMContentLoaded", () => {
         Button.getButtonById("Fullscreen").text = `Full screen: ${enabled ? "ON":"OFF"}`;
         settings.set(config);
     });
-    ipcRenderer.on("information", (_e, game, electron, chromium) => {
-        versions.game = game;
-        versions.electron = electron;
-        versions.chromium = chromium;
+    ipcRenderer.on("information", (_e, gameV, electronV, chromiumV, maxWidth) => {
+        versions.game = gameV;
+        versions.electron = electronV;
+        versions.chromium = chromiumV;
+        MenuSprite.generate(maxWidth);
     });
 
     addEventListener("keydown", (e) => {
