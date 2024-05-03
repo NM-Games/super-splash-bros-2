@@ -111,8 +111,35 @@ let connectionMessage = {
         connectionMessage.a = 1;
     }
 };
+const water = {
+    imageX: 0,
+    x: 0,
+    vx: -1,
+    flood: { // flood effect on startup and game start
+        enabled: true,
+        level: 0, // from 0 to c.height()
+        levelSpeed: 0,
+        levelAcceleration: 0,
+        enabling: false,
+        disabling: false,
+        enable: function() {
+            if (this.enabling || this.disabling) return;
+            
+            this.enabled = true;
+            this.enabling = true;
+            this.levelSpeed = 0;
+            this.levelAcceleration = 0;
+        },
+        disable: function() {
+            if (this.enabling || this.disabling) return;
+            
+            this.enabled = false;
+            this.disabling = true;
+            this.levelSpeed = Math.ceil(c.height() / 36);
+        }
+    }
+};
 let frames = 0;
-let waterX = 0;
 
 Button.items = [
     // Main menu
@@ -744,7 +771,7 @@ addEventListener("DOMContentLoaded", () => {
                 continue;
             }
 
-            button.hovering = (e.clientX > button.x() - button.width / 2 && e.clientX < button.x() + button.width / 2
+            button.hovering = (e.clientX > button.x() - button.width / 2 && e.clientX < button.x() + button.width / 2 && !water.flood.enabled
              && e.clientY > button.y() - button.height / 2 && e.clientY < button.y() + button.height / 2 && !button.disabled && !state.change.active);
         }
         for (const input of Input.items) {
@@ -753,7 +780,7 @@ addEventListener("DOMContentLoaded", () => {
                 continue;
             }
 
-            input.hovering = (e.clientX > input.x() - input.width / 2 && e.clientX < input.x() + input.width / 2
+            input.hovering = (e.clientX > input.x() - input.width / 2 && e.clientX < input.x() + input.width / 2 && !water.flood.enabled
              && e.clientY > input.y() - input.getHeight(0.5) && e.clientY < input.y() + input.getHeight(0.5) && !input.disabled && !state.change.active);
         }
     });
@@ -812,8 +839,24 @@ addEventListener("DOMContentLoaded", () => {
 
         if (frames - connectionMessage.shownAt >= connectionMessage.duration) connectionMessage.a = Math.max(connectionMessage.a - 0.05, 0);
 
-        waterX -= Number(config.graphics.waterFlow);
-        if (waterX < -image.water.width) waterX = 0;
+        water.x += Number(config.graphics.waterFlow) * water.vx;
+        if (water.x < -image.water.width) water.x = 0;
+        if (water.flood.enabling) {
+            water.flood.level -= water.flood.levelSpeed;
+            water.flood.levelSpeed += water.flood.levelAcceleration;
+            if (water.flood.level <= 0) {
+                water.flood.level = 0;
+                water.flood.enabling = false;
+            }
+        } else if (water.flood.disabling) {
+            water.flood.level += water.flood.levelSpeed;
+            water.flood.levelSpeed = Math.max(4, water.flood.levelSpeed / 1.025);
+            if (water.flood.level >= c.height()) {
+                water.flood.level = c.height();
+                water.flood.disabling = false;
+            }
+        } else water.flood.level = (water.flood.enabled) ? 0 : c.height();
+        if (frames === 150) water.flood.disable();
 
         document.body.style.cursor = (hoverings.button > 0) ? "pointer" : (hoverings.input > 0) ? "text" : "default";
     };
@@ -837,13 +880,6 @@ addEventListener("DOMContentLoaded", () => {
         for (const sprite of MenuSprite.items) {
             if (sprite.visible) c.draw.croppedImage(image.sprites, sprite.color * 128, sprite.facing * 128, 128, 128, sprite.x, sprite.y, 96, 96);
         }
-
-        let watersX = 0;
-        while (watersX < c.width()) {
-            c.draw.image(image.water, waterX + watersX, c.height() - 100);
-            watersX += image.water.width;
-        }
-        c.draw.image(image.water, waterX + watersX, c.height() - 100);
 
         if (state.current === state.MAIN_MENU) {
             if (theme.isDark()) c.options.setFilter("brightness(100)");
@@ -926,6 +962,21 @@ addEventListener("DOMContentLoaded", () => {
 
             c.draw.input(input, state.change.x, Input.keybindsInvalid, (frames % 40 < 20 && !input.keybind));
         }
+
+        water.imageX = 0;
+        while (water.imageX < c.width()) {
+            c.draw.image(image.water, water.x + water.imageX, water.flood.level - image.water.height);
+            water.imageX += image.water.width;
+        }
+        c.draw.image(image.water, water.x + water.imageX, water.flood.level - image.water.height);
+        c.draw.fill.rect(
+            c.options.gradient(0, water.flood.level, 0, water.flood.level + c.height(),
+                {pos: 0, color: theme.colors.ui.secondary}, {pos: 0.5, color: theme.colors.ui.primary}, {pos: 1, color: theme.colors.ui.secondary}),
+            0,
+            water.flood.level - 2,
+            c.width(),
+            c.height() + 2
+        );
     };
     
     const loop = () => {
