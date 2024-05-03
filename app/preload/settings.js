@@ -1,3 +1,11 @@
+/**
+ * @typedef {{
+ *  appearance: {playerName: string, preferredColor: number, superpower: number},
+ *  graphics: {theme: import("./theme").Themes, fullScreen: boolean, waterFlow: boolean, menuSprites: boolean},
+ *  controls: {moveLeft: string, moveRight: string, jump: string, attack: string, launchRocket: string, activateSuperpower: string, gameMenu: string}
+ * }} Settings
+ */
+
 const { readFileSync, writeFileSync, existsSync } = require("fs");
 const { homedir, EOL, platform } = require("os");
 const { join } = require("path");
@@ -35,7 +43,7 @@ const template = {
 
 /**
  * Retrieve the settings file.
- * @returns {{appearance: object, graphics: object, controls: object}}
+ * @returns {Settings}
  */
 const get = () => {
     const contents = readFileSync(filePath);
@@ -51,7 +59,7 @@ const get = () => {
 
 /**
  * Change the settings file.
- * @param {object} settings
+ * @param {Settings} settings
  */
 const set = (settings) => {
     const json = JSON.stringify(settings, null, 4);

@@ -3,6 +3,7 @@ const { ipcRenderer, clipboard, shell } = require("electron");
 const c = require("./canvas");
 const image = require("./image");
 const theme = require("./theme");
+const socket = require("./socket");
 const settings = require("./settings");
 const network = require("../network");
 const Button = require("../class/ui/Button");
@@ -86,11 +87,10 @@ const checkLANAvailability = () => {
         state.change.to(state.MAIN_MENU, true);
 };
 
+/** @type {import("./settings").Settings} */
 const config = {appearance: {}, graphics: {}, controls: {}};
 const versions = {game: "", electron: "", chromium: ""};
 
-/** @type {WebSocket} */
-let ws;
 let connectionMessage = {
     text: "",
     color: null, // null = theme dependent
@@ -217,11 +217,15 @@ Button.items = [
             setConnectElementsState(true);
             ipcRenderer.send("start-gameserver");
             ipcRenderer.on("gameserver-created", () => {
-                ws = new WebSocket(`ws://127.0.0.1:${network.port}`);
-                ws.addEventListener("open", () => {
-                    setConnectElementsState(false);
-                    Button.getButtonById("LANGameTheme").text = `Theme: ${theme.current}`;
-                    state.change.to(state.WAITING_LAN_HOST, false);
+                socket.open({
+                    ip: "127.0.0.1",
+                    asHost: true,
+                    appearance: config.appearance,
+                    onopen: () => {
+                        setConnectElementsState(false);
+                        Button.getButtonById("LANGameTheme").text = `Theme: ${theme.current}`;
+                        state.change.to(state.WAITING_LAN_HOST, false);    
+                    }
                 });
             });
         }
@@ -241,22 +245,20 @@ Button.items = [
                 setConnectElementsState(true);
                 connectionMessage.show("Connecting...");
 
-                ws = new WebSocket(`ws://${ip.join(".")}:${network.port}`);
-                const connectionTimeout = setTimeout(() => {
-                    setConnectElementsState(false);
-                    connectionMessage.show("Connection timed out!", theme.colors.ui.error, 3);
-                    ws = undefined;
-                }, 10000);
-
-                ws.addEventListener("open", (e) => {
-                    clearTimeout(connectionTimeout);
-                    state.change.to(state.WAITING_LAN_GUEST, false);
-                    setConnectElementsState(false);
-                });
-                ws.addEventListener("error", (err) => {
-                    clearTimeout(connectionTimeout);
-                    connectionMessage.show("Connection error!", theme.colors.ui.error, 3);
-                    setConnectElementsState(false);
+                socket.open({
+                    ip: ip.join("."),
+                    onopen: () => {
+                        state.change.to(state.WAITING_LAN_GUEST, false);
+                        setConnectElementsState(false);    
+                    },
+                    onerror: () => {
+                        connectionMessage.show("Connection error!", theme.colors.ui.error, 3);
+                        setConnectElementsState(false);    
+                    },
+                    ontimeout: () => {
+                        setConnectElementsState(false);
+                        connectionMessage.show("Connection timed out!", theme.colors.ui.error, 3);
+                    }
                 });
             }
         }
@@ -493,7 +495,7 @@ Button.items = [
         width: Button.width / 1.5,
         height: Button.height / 1.5,
         onclick: function() {
-            ws.close();
+            socket.close();
             this.hovering = false;
             state.change.to(state.LAN_GAME_MENU, true);
         }
