@@ -1,4 +1,4 @@
-const { ipcRenderer, clipboard, screen, shell } = require("electron");
+const { ipcRenderer, clipboard, shell } = require("electron");
 
 const c = require("./canvas");
 const image = require("./image");
@@ -30,14 +30,17 @@ const state = {
          * Change the current game state.
          * @param {number} toState
          * @param {boolean} inverted
+         * @param {import("./socket").EmptyCallback} onchanged
          */
-        to: (toState, inverted) => {
+        to: (toState, inverted, onchanged = () => {}) => {
             state.change.newState = toState;
             state.change.vx = (inverted) ? 150 : -150;
             state.change.active = true;
+            state.change.onfinished = onchanged;
         },
         active: false,
         newState: 0,
+        onfinished: () => {},
         x: 0,
         vx: 0
     }
@@ -98,7 +101,7 @@ const water = {
         enabled: true,
         level: 0, // from 0 to c.height()
         levelSpeed: 0,
-        levelAcceleration: 0,
+        levelAcceleration: 0.5, // for enabling only
         enabling: false,
         disabling: false,
         enable: function() {
@@ -107,7 +110,6 @@ const water = {
             this.enabled = true;
             this.enabling = true;
             this.levelSpeed = 0;
-            this.levelAcceleration = 0;
         },
         disable: function() {
             if (this.enabling || this.disabling) return;
@@ -193,7 +195,7 @@ Button.items = [
         height: Button.height,
         onclick: function() {
             this.hovering = false;
-            state.change.to(state.PLAYING_FREEPLAY, false);
+            state.change.to(state.PLAYING_FREEPLAY, false, () => water.flood.enable());
         }
     }),
     new Button({
@@ -265,9 +267,8 @@ Button.items = [
                     asHost: true,
                     appearance: config.appearance,
                     onopen: () => {
-                        setConnectElementsState(false);
                         Button.getButtonById("LANGameTheme").text = `Theme: ${theme.current}`;
-                        state.change.to(state.WAITING_LAN_HOST, false);    
+                        state.change.to(state.WAITING_LAN_HOST, false, () => setConnectElementsState(false));    
                     }
                 });
             });
@@ -291,8 +292,7 @@ Button.items = [
                 socket.open({
                     ip: ip.join("."),
                     onopen: () => {
-                        state.change.to(state.WAITING_LAN_GUEST, false);
-                        setConnectElementsState(false);    
+                        state.change.to(state.WAITING_LAN_GUEST, false, () => setConnectElementsState(false));
                     },
                     onerror: () => {
                         connectionMessage.show("Connection error!", theme.colors.ui.error, 3);
@@ -836,9 +836,11 @@ addEventListener("DOMContentLoaded", () => {
             if (state.change.x < -c.width()) {
                 state.current = state.change.newState;
                 state.change.x = c.width();
+                state.change.onfinished();
             } else if (state.change.x > c.width()) {
                 state.current = state.change.newState;
                 state.change.x = -c.width();
+                state.change.onfinished();
             }
 
             if (state.current === state.change.newState && ((state.change.vx < 0 && state.change.x < 0) || (state.change.vx > 0 && state.change.x > 0))) {
