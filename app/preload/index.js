@@ -90,27 +90,6 @@ const checkLANAvailability = () => {
 /** @type {import("./settings").Settings} */
 const config = {appearance: {}, graphics: {}, controls: {}};
 const versions = {game: "", electron: "", chromium: ""};
-
-let connectionMessage = {
-    text: "",
-    color: null, // null = theme dependent
-    a: 1,
-    shownAt: -6e9,
-    duration: Infinity,
-    /**
-     * Show a connection message.
-     * @param {string} text
-     * @param {string | CanvasGradient | CanvasPattern | null} color
-     * @param {number} duration
-     */
-    show: (text, color = null, duration = Infinity) => {
-        connectionMessage.text = text;
-        connectionMessage.color = color;
-        connectionMessage.duration = duration * 60;
-        connectionMessage.shownAt = frames;
-        connectionMessage.a = 1;
-    }
-};
 const water = {
     imageX: 0,
     x: 0,
@@ -137,6 +116,43 @@ const water = {
             this.disabling = true;
             this.levelSpeed = Math.ceil(c.height() / 36);
         }
+    }
+};
+const introLogo = {
+    progress: 0,
+    duration: 150,
+    a: 0,
+    va: 0.05,
+    movement: 0,
+    update: function() {
+        if (this.progress >= this.duration) return;
+
+        this.progress++;
+        this.movement += 1;
+
+        if (this.progress >= this.duration - (1 / this.va) - 15) this.a = Math.max(this.a - this.va, 0);
+        else this.a = Math.min(this.a + this.va, 1);
+    }
+};
+
+let connectionMessage = {
+    text: "",
+    color: null, // null = theme dependent
+    a: 1,
+    shownAt: -6e9,
+    duration: Infinity,
+    /**
+     * Show a connection message.
+     * @param {string} text
+     * @param {string | CanvasGradient | CanvasPattern | null} color
+     * @param {number} duration
+     */
+    show: (text, color = null, duration = Infinity) => {
+        connectionMessage.text = text;
+        connectionMessage.color = color;
+        connectionMessage.duration = duration * 60;
+        connectionMessage.shownAt = frames;
+        connectionMessage.a = 1;
     }
 };
 let frames = 0;
@@ -827,6 +843,7 @@ addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        introLogo.update();
         MenuSprite.update(frames, config.graphics.menuSprites);
 
         let hoverings = {button: 0, input: 0};
@@ -856,7 +873,7 @@ addEventListener("DOMContentLoaded", () => {
                 water.flood.disabling = false;
             }
         } else water.flood.level = (water.flood.enabled) ? 0 : c.height();
-        if (frames === 150) water.flood.disable();
+        if (frames === introLogo.duration) water.flood.disable();
 
         document.body.style.cursor = (hoverings.button > 0) ? "pointer" : (hoverings.input > 0) ? "text" : "default";
     };
@@ -977,6 +994,17 @@ addEventListener("DOMContentLoaded", () => {
             c.width(),
             c.height() + 2
         );
+        if (introLogo.progress < introLogo.duration) {
+            c.options.setOpacity(introLogo.a);
+            c.draw.image(
+                image.logo_nmgames,
+                (c.width() - image.logo_nmgames.width) / 2 - introLogo.movement / 2,
+                (c.height() - image.logo_nmgames.height) / 2 - introLogo.movement * (image.logo_nmgames.height / image.logo_nmgames.width) / 2,
+                image.logo_nmgames.width + introLogo.movement,
+                image.logo_nmgames.height + introLogo.movement * (image.logo_nmgames.height / image.logo_nmgames.width)
+            );
+            c.options.setOpacity(1);
+        }
     };
     
     const loop = () => {
