@@ -759,6 +759,10 @@ addEventListener("DOMContentLoaded", () => {
     Input.getInputById("Keybind-ActivateSuperpower").value = Input.displayKeybind(config.controls.activateSuperpower);
     Input.getInputById("Keybind-GameMenu").value = Input.displayKeybind(config.controls.gameMenu);
 
+    const ip = network.getIPs()[0] ?? "...";
+    const ipFragments = ip.split(".");
+    for (let i=0; i<3; i++) Input.getInputById(`IP-${i + 1}`).value = ipFragments[i];
+
     ipcRenderer.on("fullscreen-status", (_e, enabled) => {
         config.graphics.fullScreen = enabled;
         Button.getButtonById("Fullscreen").text = `Full screen: ${enabled ? "ON":"OFF"}`;
