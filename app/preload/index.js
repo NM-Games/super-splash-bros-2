@@ -295,8 +295,10 @@ Button.items = [
 
                 socket.open({
                     ip: ip.join("."),
+                    appearance: config.appearance,
                     onopen: () => {
                         state.change.to(state.WAITING_LAN_GUEST, false, () => setConnectElementsState(false));
+                        connectionMessage.show("");
                     },
                     onerror: () => {
                         connectionMessage.show("Connection error!", theme.colors.ui.error, 3);
