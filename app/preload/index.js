@@ -136,6 +136,11 @@ const introLogo = {
         else this.a = Math.min(this.a + this.va, 1);
     }
 };
+const konamiEasterEgg = {
+    keys: ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"],
+    index: 0,
+    activated: false
+};
 
 let connectionMessage = {
     text: "",
@@ -780,7 +785,10 @@ addEventListener("DOMContentLoaded", () => {
         else if (e.key.toLowerCase() === "v" && e.ctrlKey && Input.getInputById("Username").focused) {
             Input.getInputById("Username").value += clipboard.readText();
             Input.getInputById("Username").value = Input.getInputById("Username").value.slice(0, Input.getInputById("Username").maxLength);
-        }
+        } else if (e.key === konamiEasterEgg.keys[konamiEasterEgg.index]) {
+            konamiEasterEgg.index++;
+            if (konamiEasterEgg.index >= konamiEasterEgg.keys.length) konamiEasterEgg.activated = true;
+        } else konamiEasterEgg.index = 0;
     });
 
     addEventListener("mousemove", (e) => {
@@ -849,7 +857,7 @@ addEventListener("DOMContentLoaded", () => {
         }
 
         introLogo.update();
-        MenuSprite.update(frames, config.graphics.menuSprites);
+        MenuSprite.update(frames, config.graphics.menuSprites, konamiEasterEgg.activated);
 
         let hoverings = {button: 0, input: 0};
         for (const button of Button.items) {

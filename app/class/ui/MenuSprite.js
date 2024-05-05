@@ -19,8 +19,9 @@ class MenuSprite {
     /** 
      * @param {number} frames
      * @param {boolean} enabled
+     * @param {boolean} alwaysChange
      */
-    static update(frames, enabled) {
+    static update(frames, enabled, alwaysChange) {
         for (const sprite of this.items) {
             sprite.y = Math.sin((frames + sprite.offset) / 40) * sprite.amplitude + height();
             if (sprite.y > height()) {
@@ -28,7 +29,7 @@ class MenuSprite {
                 sprite.color = Math.floor(Math.random() * 8);
                 sprite.facing = Math.round(Math.random());
                 sprite.setAmplitude();
-            }
+            } else if (alwaysChange && frames % 5 === 0) sprite.color = Math.floor(Math.random() * 8);
         }
     }
 
