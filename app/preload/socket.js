@@ -1,5 +1,5 @@
 /**
- * @typedef {{act: import("../gameserver").SocketActions, version: string}} SocketData
+ * @typedef {import("../gameserver").SocketData} SocketData
  * 
  * @callback EmptyCallback
  */
@@ -34,7 +34,6 @@ const parse = (data) => {
  * Connect with a Super Splash Bros server.
  * @param {{
  *  ip: string,
- *  asHost?: boolean,
  *  appearance: import("./settings").Settings["appearance"]
  *  timeout?: number,
  *  onopen?: EmptyCallback,
@@ -53,7 +52,7 @@ const open = (options) => {
     ws.addEventListener("open", () => {
         if (options.onopen) options.onopen();
         clearTimeout(connectTimeout);
-        send({act: "join", version, asHost: options.asHost ?? false, appearance: options.appearance});
+        send({act: "join", version, appearance: options.appearance});
     });
     ws.addEventListener("close", () => {
         if (options.onclose) options.onclose();

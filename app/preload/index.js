@@ -227,8 +227,8 @@ Button.items = [
         id: `Back-${state.LOCAL_GAME_MENU}`,
         text: "◂ Back",
         state: state.LOCAL_GAME_MENU,
-        x: () => c.width(0) + Button.width / 3 + 20,
-        y: () => c.height(0) + Button.height / 3 + 20,
+        x: () => Button.width / 3 + 20,
+        y: () => Button.height / 3 + 20,
         width: Button.width / 1.5,
         height: Button.height / 1.5,
         onclick: function() {
@@ -241,8 +241,8 @@ Button.items = [
         id: `Back-${state.LAN_GAME_MENU}`,
         text: "◂ Back",
         state: state.LAN_GAME_MENU,
-        x: () => c.width(0) + Button.width / 3 + 20,
-        y: () => c.height(0) + Button.height / 3 + 20,
+        x: () => Button.width / 3 + 20,
+        y: () => Button.height / 3 + 20,
         width: Button.width / 1.5,
         height: Button.height / 1.5,
         onclick: function() {
@@ -264,7 +264,6 @@ Button.items = [
             ipcRenderer.on("gameserver-created", () => {
                 socket.open({
                     ip: "127.0.0.1",
-                    asHost: true,
                     appearance: config.appearance,
                     onopen: () => {
                         Button.getButtonById("LANGameTheme").text = `Theme: ${theme.current}`;
@@ -311,8 +310,8 @@ Button.items = [
         id: `Back-${state.SETTINGS}`,
         text: "◂ Back",
         state: state.SETTINGS,
-        x: () => c.width(0) + Button.width / 3 + 20,
-        y: () => c.height(0) + Button.height / 3 + 20,
+        x: () => Button.width / 3 + 20,
+        y: () => Button.height / 3 + 20,
         width: Button.width / 1.5,
         height: Button.height / 1.5,
         onclick: function() {
@@ -324,7 +323,7 @@ Button.items = [
         text: "About...",
         state: state.SETTINGS,
         x: () => c.width(1) + -Button.width / 3 - 20,
-        y: () => c.height(0) + Button.height / 3 + 20,
+        y: () => Button.height / 3 + 20,
         width: Button.width / 1.5,
         height: Button.height / 1.5,
         onclick: function() {
@@ -337,7 +336,7 @@ Button.items = [
         text: "◂ Previous",
         state: state.SETTINGS,
         x: () => c.width(1/5) + -Button.width / 4 - 20,
-        y: () => c.height(0) + 470,
+        y: () => 470,
         width: Button.width / 2,
         height: Button.height / 2,
         onclick: () => {
@@ -349,7 +348,7 @@ Button.items = [
         text: "Next ▸",
         state: state.SETTINGS,
         x: () => c.width(1/5) + Button.width / 4 + 20,
-        y: () => c.height(0) + 470,
+        y: () => 470,
         width: Button.width / 2,
         height: Button.height / 2,
         onclick: () => {
@@ -362,7 +361,7 @@ Button.items = [
         text: "◂ Previous",
         state: state.SETTINGS,
         x: () => c.width(1/5) + -Button.width / 4 - 20,
-        y: () => c.height(0) + 650,
+        y: () => 650,
         width: Button.width / 2,
         height: Button.height / 2,
         onclick: () => {
@@ -374,7 +373,7 @@ Button.items = [
         text: "Next ▸",
         state: state.SETTINGS,
         x: () => c.width(1/5) + Button.width / 4 + 20,
-        y: () => c.height(0) + 650,
+        y: () => 650,
         width: Button.width / 2,
         height: Button.height / 2,
         onclick: () => {
@@ -387,7 +386,7 @@ Button.items = [
         text: "Theme",
         state: state.SETTINGS,
         x: () => c.width(1/2),
-        y: () => c.height(0) + 280,
+        y: () => 280,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -401,7 +400,7 @@ Button.items = [
         text: "Full screen",
         state: state.SETTINGS,
         x: () => c.width(1/2),
-        y: () => c.height(0) + 380,
+        y: () => 380,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -414,7 +413,7 @@ Button.items = [
         text: "Water flow",
         state: state.SETTINGS,
         x: () => c.width(1/2),
-        y: () => c.height(0) + 480,
+        y: () => 480,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -428,7 +427,7 @@ Button.items = [
         text: "Menu sprites: ON",
         state: state.SETTINGS,
         x: () => c.width(1/2),
-        y: () => c.height(0) + 580,
+        y: () => 580,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -442,8 +441,8 @@ Button.items = [
         id: `Back-${state.ABOUT}`,
         text: "◂ Back",
         state: state.ABOUT,
-        x: () => c.width(0) + Button.width / 3 + 20,
-        y: () => c.height(0) + Button.height / 3 + 20,
+        x: () => Button.width / 3 + 20,
+        y: () => Button.height / 3 + 20,
         width: Button.width / 1.5,
         height: Button.height / 1.5,
         onclick: function() {
@@ -489,8 +488,8 @@ Button.items = [
         id: `Back-${state.WAITING_LAN_HOST}`,
         text: "◂ Quit",
         state: state.WAITING_LAN_HOST,
-        x: () => c.width(0) + Button.width / 3 + 20,
-        y: () => c.height(0) + Button.height / 3 + 20,
+        x: () => Button.width / 3 + 20,
+        y: () => Button.height / 3 + 20,
         width: Button.width / 1.5,
         height: Button.height / 1.5,
         onclick: function() {
@@ -533,8 +532,8 @@ Button.items = [
         id: `Back-${state.WAITING_LAN_GUEST}`,
         text: "◂ Leave",
         state: state.WAITING_LAN_GUEST,
-        x: () => c.width(0) + Button.width / 3 + 20,
-        y: () => c.height(0) + Button.height / 3 + 20,
+        x: () => Button.width / 3 + 20,
+        y: () => Button.height / 3 + 20,
         width: Button.width / 1.5,
         height: Button.height / 1.5,
         onclick: function() {
@@ -635,7 +634,7 @@ Input.items = [
         id: "Username",
         state: state.SETTINGS,
         x: () => c.width(1/5),
-        y: () => c.height(0) + 285,
+        y: () => 285,
         width: Button.width + 50,
         size: 25,
         onblur: function() {
@@ -648,7 +647,7 @@ Input.items = [
         id: "Keybind-MoveLeft",
         state: state.SETTINGS,
         x: () => c.width(4/5) + 150,
-        y: () => c.height(0) + 240,
+        y: () => 240,
         width: 100,
         keybind: true,
         onkeybindselected: (key) => {
@@ -660,7 +659,7 @@ Input.items = [
         id: "Keybind-MoveRight",
         state: state.SETTINGS,
         x: () => c.width(4/5) + 150,
-        y: () => c.height(0) + 300,
+        y: () => 300,
         width: 100,
         keybind: true,
         onkeybindselected: (key) => {
@@ -672,7 +671,7 @@ Input.items = [
         id: "Keybind-Jump",
         state: state.SETTINGS,
         x: () => c.width(4/5) + 150,
-        y: () => c.height(0) + 360,
+        y: () => 360,
         width: 100,
         keybind: true,
         onkeybindselected: (key) => {
@@ -684,7 +683,7 @@ Input.items = [
         id: "Keybind-Attack",
         state: state.SETTINGS,
         x: () => c.width(4/5) + 150,
-        y: () => c.height(0) + 420,
+        y: () => 420,
         width: 100,
         keybind: true,
         onkeybindselected: (key) => {
@@ -696,7 +695,7 @@ Input.items = [
         id: "Keybind-LaunchRocket",
         state: state.SETTINGS,
         x: () => c.width(4/5) + 150,
-        y: () => c.height(0) + 480,
+        y: () => 480,
         width: 100,
         keybind: true,
         onkeybindselected: (key) => {
@@ -708,7 +707,7 @@ Input.items = [
         id: "Keybind-ActivateSuperpower",
         state: state.SETTINGS,
         x: () => c.width(4/5) + 150,
-        y: () => c.height(0) + 540,
+        y: () => 540,
         width: 100,
         keybind: true,
         onkeybindselected: (key) => {
@@ -720,7 +719,7 @@ Input.items = [
         id: "Keybind-GameMenu",
         state: state.SETTINGS,
         x: () => c.width(4/5) + 150,
-        y: () => c.height(0) + 600,
+        y: () => 600,
         width: 100,
         keybind: true,
         onkeybindselected: (key) => {
