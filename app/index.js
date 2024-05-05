@@ -35,6 +35,7 @@ app.on("ready", () => {
             }
         });
     
+        window.maximize();
         window.removeMenu();
         window.setTitle("Super Splash Bros 2");
         window.loadFile(join(__dirname, "window", "index.html"));
