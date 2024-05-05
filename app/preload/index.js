@@ -904,6 +904,14 @@ addEventListener("DOMContentLoaded", () => {
             if (sprite.visible) c.draw.croppedImage(image.sprites, sprite.color * 128, sprite.facing * 128, 128, 128, sprite.x, sprite.y, 96, 96);
         }
 
+        water.imageX = 0;
+        if (!water.flood.enabling && !water.flood.disabling) {
+            while (water.imageX < c.width()) {
+                c.draw.image(image.water, water.x + water.imageX, water.flood.level - image.water.height);
+                water.imageX += image.water.width;
+            }
+        }
+
         if (state.current === state.MAIN_MENU) {
             if (theme.isDark()) c.options.setFilter("brightness(100)");
             c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.change.x, 25, image.logo.width, image.logo.height);
@@ -986,10 +994,11 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.input(input, state.change.x, Input.keybindsInvalid, (frames % 40 < 20 && !input.keybind));
         }
 
-        water.imageX = 0;
-        while (water.imageX < c.width()) {
-            c.draw.image(image.water, water.x + water.imageX, water.flood.level - image.water.height);
-            water.imageX += image.water.width;
+        if (water.flood.enabling || water.flood.disabling) {
+            while (water.imageX < c.width()) {
+                c.draw.image(image.water, water.x + water.imageX, water.flood.level - image.water.height);
+                water.imageX += image.water.width;
+            }
         }
         c.draw.image(image.water, water.x + water.imageX, water.flood.level - image.water.height);
         c.draw.fill.rect(
