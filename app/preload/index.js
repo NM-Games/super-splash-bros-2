@@ -101,6 +101,7 @@ const connect = (asHost) => {
             } else {
                 const reason = (e.reason) ? e.reason : "You have been disconnected because the game you were in was closed.";
                 state.change.to(state.LAN_GAME_MENU, true, () => errorAlert.show(reason));
+                theme.current = config.graphics.theme;
             }
         },
         onerror: () => {
@@ -532,7 +533,7 @@ Button.items = [
             if (game.connected > 1) {
                 dialog.show("Are you sure you want to quit?", "Quitting will kick out everyone in your game.", new Button({
                     text: "Yes",
-                    x: () => c.width(0.4),
+                    x: () => c.width(0.35),
                     y: () => c.height(0.75),
                     onclick: () => {
                         dialog.close();
@@ -540,7 +541,7 @@ Button.items = [
                     }
                 }), new Button({
                     text: "No",
-                    x: () => c.width(0.6),
+                    x: () => c.width(0.65),
                     y: () => c.height(0.75),
                     onclick: () => dialog.close()
                 }));
@@ -814,24 +815,24 @@ addEventListener("DOMContentLoaded", () => {
         if ([state.PLAYING_LOCAL, state.PLAYING_LAN, state.PLAYING_FREEPLAY].includes(state.current)) {
             dialog.show("Are you sure you want to quit?", "You will not be able to rejoin this match.", new Button({
                 text: "Yes",
-                x: () => c.width(0.4),
+                x: () => c.width(0.35),
                 y: () => c.height(0.75),
                 onclick: () => ipcRenderer.send("quit")
             }), new Button({
                 text: "No",
-                x: () => c.width(0.6),
+                x: () => c.width(0.65),
                 y: () => c.height(0.75),
                 onclick: () => dialog.close()
             }));
         } else if (state.current === state.WAITING_LAN_HOST && game.connected > 1) {
             dialog.show("Are you sure you want to quit?", "Quitting will kick out everyone in your game.", new Button({
                 text: "Yes",
-                x: () => c.width(0.4),
+                x: () => c.width(0.35),
                 y: () => c.height(0.75),
                 onclick: () => ipcRenderer.send("quit")
             }), new Button({
                 text: "No",
-                x: () => c.width(0.6),
+                x: () => c.width(0.65),
                 y: () => c.height(0.75),
                 onclick: () => dialog.close()
             }));
