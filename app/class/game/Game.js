@@ -26,7 +26,8 @@ class Game {
      * @returns {number}
      */
     join(appearance, ip) {
-        if (this.players[appearance.preferredColor] !== null) {
+        if (this.blacklist.includes(ip)) return -2;
+        else if (this.players[appearance.preferredColor] !== null) {
             let success = -1;
             for (let i=0; i<this.players.length; i++) {
                 if (this.players[i] === null) {
