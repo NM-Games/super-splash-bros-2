@@ -41,8 +41,8 @@ wss.on("listening", () => {
             client.ping("", false, (error) => {
                 const clientIndex = game.ips.indexOf(client.ip);
 
-                if (clientIndex === -1 && game.blacklist.includes(client.ip)) client.send(JSON.stringify({act: "error", message: "You have been banned from this game!"}));
-                else if (clientIndex === -1) client.send(JSON.stringify({act: "error", message: "You have been kicked from this game!"}));
+                if (clientIndex === -1 && game.blacklist.includes(client.ip)) client.close(1000, "You have been banned from this game!");
+                else if (clientIndex === -1) client.close(1000, "You have been kicked from this game!");
                 else if (error && clientIndex > -1) game.kick(clientIndex);
                 else client.send(JSON.stringify(game.export()));
             });

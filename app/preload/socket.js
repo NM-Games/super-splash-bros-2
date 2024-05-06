@@ -82,7 +82,6 @@ const open = (options) => {
     ws.addEventListener("message", (e) => {
         const data = parse(e.data);
         if (data.act === "join" && !isHost) options.onopen();
-        else if (data.act === "error") options.onclose({reason: data.message});
         else game = data;
     });
 };

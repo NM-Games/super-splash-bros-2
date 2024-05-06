@@ -10,6 +10,7 @@ class Game {
     startedOn;
     /** @type {string[]} */
     blacklist;
+    hostIndex;
 
     constructor() {
         this.players = [null, null, null, null, null, null, null, null];
@@ -41,6 +42,7 @@ class Game {
         } else {
             this.players[appearance.preferredColor] = new Player(appearance.playerName, appearance.superpower);
             this.ips[appearance.preferredColor] = ip;
+            if (ip.includes("127.0.0.1")) this.hostIndex = appearance.preferredColor;
         }
 
         return appearance.preferredColor;
@@ -51,7 +53,7 @@ class Game {
      * @param {number} index
      */
     kick(index) {
-        if (this.players[index] !== null) this.players[index] = this.ips[index] = null;
+        if (this.players[index] !== null && index !== this.hostIndex) this.players[index] = this.ips[index] = null;
     }
 
     /**
@@ -59,6 +61,8 @@ class Game {
      * @param {number} index
      */
     ban(index) {
+        if (index === this.hostIndex) return;
+
         this.blacklist.push(this.ips[index]);
         this.kick(index);
     }
