@@ -901,6 +901,13 @@ addEventListener("DOMContentLoaded", () => {
     const update = () => {
         frames++;
         if (socket.isOpen()) game = socket.getGame();
+        if (game && game.players) {
+            let connectedClients = 0;
+            for (const p of game.players) {
+                if (p !== null) connectedClients++;
+            }
+            Button.getButtonById("StartLANGame").disabled = (connectedClients <= 1);
+        }
 
         if (state.change.active) {
             state.change.x += state.change.vx;
