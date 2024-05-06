@@ -83,10 +83,16 @@ class Game {
 
     /** Export the game to clients. */
     export() {
+        let connected = 0;
+        for (const p of this.players) {
+            if (p !== null) connected++;
+        }
+
         return {
             act: "update",
             version,
             players: this.players,
+            connected,
             started: this.started
         };
     }

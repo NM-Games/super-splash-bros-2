@@ -346,6 +346,7 @@ Button.items = [
         onclick: function() {
             setConnectElementsState(true);
             ipcRenderer.send("start-gameserver");
+            ipcRenderer.once("gameserver-created", () => connect(true));
         }
     }),
     new Button({
@@ -556,7 +557,28 @@ Button.items = [
         height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
-            ipcRenderer.send("stop-gameserver");
+            if (game.connected > 1) {
+                dialog.show("Are you sure you want to quit?", "Quitting will kick out everyone in your game.", new Button({
+                    text: "Yes",
+                    x: () => c.width(0.4),
+                    y: () => c.height(0.75),
+                    onclick: () => {
+                        dialog.close();
+                        ipcRenderer.send("stop-gameserver");
+                    }
+                }), new Button({
+                    text: "No",
+                    x: () => c.width(0.6),
+                    y: () => c.height(0.75),
+                    onclick: () => dialog.close()
+                }));
+            } else ipcRenderer.send("stop-gameserver");
+
+            ipcRenderer.once("gameserver-stopped", () => {
+                theme.current = config.graphics.theme;
+                state.change.to(state.LAN_GAME_MENU, true);
+                errorAlert.suppress();
+            });        
         }
     }),
     new Button({
@@ -832,12 +854,6 @@ addEventListener("DOMContentLoaded", () => {
         versions.chromium = chromiumV;
         MenuSprite.generate(maxWidth);
     });
-    ipcRenderer.on("gameserver-created", () => connect(true));
-    ipcRenderer.on("gameserver-stopped", () => {
-        theme.current = config.graphics.theme;
-        state.change.to(state.LAN_GAME_MENU, true);
-        errorAlert.suppress();
-    });
 
     addEventListener("keydown", (e) => {
         const button = Button.getButtonById(`Back-${state.current}`);
@@ -905,12 +921,8 @@ addEventListener("DOMContentLoaded", () => {
     const update = () => {
         frames++;
         if (socket.isOpen()) game = socket.getGame();
-        if (game && game.players) {
-            let connectedClients = 0;
-            for (const p of game.players) {
-                if (p !== null) connectedClients++;
-            }
-            Button.getButtonById("StartLANGame").disabled = (connectedClients <= 1);
+        if (game) {
+            Button.getButtonById("StartLANGame").disabled = (game.connected <= 1);
         }
 
         if (state.change.active) {
