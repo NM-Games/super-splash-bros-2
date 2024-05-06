@@ -94,12 +94,13 @@ const connect = (asHost) => {
             connectionMessage.show("");
             state.change.to(asHost ? state.WAITING_LAN_HOST : state.WAITING_LAN_GUEST, false, () => setConnectElementsState(false));
         },
-        onclose: () => {
-            state.change.to(state.LAN_GAME_MENU, true, () => errorAlert.show("You have been disconnected because the game you were in was closed."));
+        onclose: (e) => {
+            const reason = (e.reason) ? e.reason : "You have been disconnected because the game you were in was closed.";
+            state.change.to(state.LAN_GAME_MENU, true, () => errorAlert.show(reason));
         },
         onerror: () => {
             connectionMessage.show("Connection error!", theme.colors.error.foreground, 3);
-            setConnectElementsState(false);    
+            setConnectElementsState(false);
         },
         ontimeout: () => {
             connectionMessage.show("Connection timed out!", theme.colors.error.foreground, 3);

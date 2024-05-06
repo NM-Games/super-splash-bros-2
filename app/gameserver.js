@@ -5,7 +5,7 @@
  */
 
 /**
- * @typedef {"join" | "leave" | "update" | "keys" | "error"} SocketActions
+ * @typedef {"join" | "update" | "keys" | "error"} SocketActions
  * @typedef {{
  *  act: SocketActions,
  *  version: string,
@@ -42,18 +42,21 @@ wss.on("listening", () => {
                 if (error) {
                     const clientIndex = game.ips.indexOf(client.ip);
                     if (clientIndex > -1) game.kick(clientIndex);
-                } else {
-                    console.log("Client IP:");
-                    console.log(client.ip);
-                    console.log(`Frame update ${frames}`);
-                    client.send(JSON.stringify(game.export()));                    
-                }
+                } else client.send(JSON.stringify(game.export()));
             });
         });
     }, 17);    
 });
 
 wss.on("connection", (socket, request) => {
+    /**
+     * Send data to clients.
+     * @param {object} data
+     */
+    const send = (data) => {
+        socket.send(JSON.stringify(data));
+    };
+
     socket.ip = request.socket.remoteAddress;
     socket.on("message", (data) => {
         const payload = Buffer.isBuffer(data) ? new TextDecoder().decode(data) : data;
@@ -65,14 +68,16 @@ wss.on("connection", (socket, request) => {
             json = JSON.parse(payload);
         } catch { return }
 
-        if (json.version !== version) return;
-
-        if (json.act === "join") {
-            console.log(`Joining: ${game.join(json.appearance, socket.ip)}`);
-        } else if (json.act === "leave") {
-            
+        if (json.version !== version) {
+            socket.close(1000, "Your version does not match with the host!");
+        } else if (json.act === "join" && game.join(json.appearance, socket.ip) === -1) {
+            socket.close(1000, "That game is already full!");
         } else if (json.act === "keys") {
 
         }
+    });
+    socket.on("close", () => {
+        const clientIndex = game.ips.indexOf(socket.ip);
+        if (clientIndex > -1) game.kick(clientIndex);
     });
 });
