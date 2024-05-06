@@ -90,7 +90,8 @@ const connect = (asHost) => {
     socket.open({
         ip: (asHost) ? "127.0.0.1" : getEnteredIP().join("."),
         appearance: config.appearance,
-        onopen: () => {
+        onopen: (index) => {
+            playerIndex = index;
             connectionMessage.show("");
             state.change.to(asHost ? state.WAITING_LAN_HOST : state.WAITING_LAN_GUEST, false, () => setConnectElementsState(false));
         },
@@ -244,6 +245,7 @@ const konamiEasterEgg = {
 
 let frames = 0;
 let game = socket.getGame();
+let playerIndex = -1;
 
 Button.items = [
     // Main menu
@@ -1076,8 +1078,21 @@ addEventListener("DOMContentLoaded", () => {
                 if (game.players[i] === null) c.options.setOpacity(0.5);
                 c.draw.fill.rect(theme.colors.players[`p${i + 1}`], x + state.change.x, c.height(0.2) + y * 100, 500, 80, 8);
                 c.draw.croppedImage(image.sprites, i * 128, 0, 128, 128, x + 8 + state.change.x, c.height(0.2) + y * 100 + 8, 64, 64);
-                if (game.players[i] !== null)
-                    c.draw.text({text: game.players[i].name, x: x + state.change.x + 85, y: c.height(0.2) + y * 100 + 52, font: {size: 32}, color: theme.colors.text.light, alignment: "left"});
+                if (game.players[i] !== null) {
+                    let additionalText = false;
+                    console.log(`i: ${i}, playerIndex: ${playerIndex}, game.host: ${game.host}`);
+                    if (playerIndex === game.host) {
+                        additionalText = true;
+                        c.draw.text({text: (i === playerIndex) ? "you":"click to ban", x: x + state.change.x + 85, y: c.height(0.2) + y * 100 + 65, font: {size: 20}, color: theme.colors.text.light, alignment: "left"})
+                    } else if (i === playerIndex) {
+                        additionalText = true;
+                        c.draw.text({text: "you", x: x + state.change.x + 85, y: c.height(0.2) + y * 100 + 65, font: {size: 20}, color: theme.colors.text.light, alignment: "left"})
+                    } else if (i === game.host) {
+                        additionalText = true;
+                        c.draw.text({text: "host", x: x + state.change.x + 85, y: c.height(0.2) + y * 100 + 65, font: {size: 20}, color: theme.colors.text.light, alignment: "left"})
+                    }
+                    c.draw.text({text: game.players[i].name, x: x + state.change.x + 85, y: c.height(0.2) + y * 100 + (additionalText ? 39 : 52), font: {size: 32}, color: theme.colors.text.light, alignment: "left"});
+                }
                 c.options.setOpacity(1);
             }
         }

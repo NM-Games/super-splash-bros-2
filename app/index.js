@@ -46,7 +46,7 @@ app.on("ready", () => {
 
             window.webContents.send("information", version, process.versions.electron, process.versions.chrome, totalWidth);
         });
-        // window.webContents.openDevTools();
+        window.webContents.openDevTools();
     
         window.on("ready-to-show", () => {
             window.webContents.send("fullscreen-status", window.isFullScreen());

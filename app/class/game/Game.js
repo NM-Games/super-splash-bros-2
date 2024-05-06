@@ -103,6 +103,7 @@ class Game {
         return {
             act: "update",
             theme: this.theme,
+            host: this.hostIndex,
             version,
             players: this.players,
             connected,

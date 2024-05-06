@@ -69,7 +69,7 @@ const open = (options) => {
     }, options.timeout ?? 10000);
 
     ws.addEventListener("open", () => {
-        if (options.onopen && isHost) options.onopen();
+        if (options.onopen && isHost) options.onopen(options.appearance.preferredColor);
         clearTimeout(connectTimeout);
         send({act: "join", version, appearance: options.appearance});
     });
@@ -83,11 +83,11 @@ const open = (options) => {
     });
     ws.addEventListener("message", (e) => {
         const data = parse(e.data);
-        if (data.act === "join" && !isHost) options.onopen();
+        if (data.act === "join") console.warn("JOIN ALERT !!");
+        if (data.act === "join" && !isHost) options.onopen(data.index);
         else game = data;
 
         if (data.theme) {
-            console.log("Theme is yes!");
             theme.current = data.theme;
             getButtonById("LANGameTheme").text = `Theme: ${data.theme}`;
         }
