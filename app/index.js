@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain, screen, dialog, globalShortcut, utilityProc
 const { join } = require("path");
 
 const network = require("./network");
-const { version } = require("../package-lock.json");
+const { version } = require("../package.json");
 
 
 /** @type {BrowserWindow} */
