@@ -251,8 +251,6 @@ Button.items = [
         state: state.MAIN_MENU,
         x: () => c.width(1/4),
         y: () => c.height(1/2) - 50,
-        width: Button.width,
-        height: Button.height,
         onclick: function() {
             this.hovering = false;
             state.change.to(state.LOCAL_GAME_MENU, false);
@@ -264,8 +262,6 @@ Button.items = [
         state: state.MAIN_MENU,
         x: () => c.width(1/2),
         y: () => c.height(1/2) - 50,
-        width: Button.width,
-        height: Button.height,
         onclick: function() {
             this.hovering = false;
             state.change.to(state.LAN_GAME_MENU, false);
@@ -276,8 +272,6 @@ Button.items = [
         state: state.MAIN_MENU,
         x: () => c.width(3/4),
         y: () => c.height(1/2) - 50,
-        width: Button.width,
-        height: Button.height,
         onclick: function() {
             this.hovering = false;
             state.change.to(state.PLAYING_FREEPLAY, false, () => water.flood.enable());
@@ -288,8 +282,6 @@ Button.items = [
         state: state.MAIN_MENU,
         x: () => c.width(1/3),
         y: () => c.height(3/4) - 100,
-        width: Button.width,
-        height: Button.height,
         onclick: function() {
             this.hovering = false;
             state.change.to(state.SETTINGS, false);
@@ -300,8 +292,6 @@ Button.items = [
         state: state.MAIN_MENU,
         x: () => c.width(2/3),
         y: () => c.height(3/4) - 100,
-        width: Button.width,
-        height: Button.height,
         onclick: function() {
             this.hovering = false;
             ipcRenderer.send("quit");
@@ -341,11 +331,9 @@ Button.items = [
         state: state.LAN_GAME_MENU,
         x: () => c.width(1/2),
         y: () => c.height(1/4) + 20,
-        width: Button.width,
-        height: Button.height,
         onclick: function() {
             setConnectElementsState(true);
-            ipcRenderer.send("start-gameserver");
+            ipcRenderer.send("start-gameserver", theme.current);
             ipcRenderer.once("gameserver-created", () => connect(true));
         }
     }),
@@ -355,8 +343,6 @@ Button.items = [
         state: state.LAN_GAME_MENU,
         x: () => c.width(1/2),
         y: () => c.height(1/2) + Button.height + 100,
-        width: Button.width,
-        height: Button.height,
         disabled: true,
         onclick: function() {
             if (!network.isValidIP(getEnteredIP())) {
@@ -450,10 +436,8 @@ Button.items = [
         state: state.SETTINGS,
         x: () => c.width(1/2),
         y: () => 280,
-        width: Button.width,
-        height: Button.height,
         onclick: function() {
-            config.graphics.theme = theme.cycle();
+            config.graphics.theme = theme.current = theme.cycle();
             this.text = `Theme: ${theme.current}`;
             settings.set(config);
         }
@@ -464,8 +448,6 @@ Button.items = [
         state: state.SETTINGS,
         x: () => c.width(1/2),
         y: () => 380,
-        width: Button.width,
-        height: Button.height,
         onclick: function() {
             ipcRenderer.send("toggle-fullscreen");
             this.hovering = false;
@@ -477,8 +459,6 @@ Button.items = [
         state: state.SETTINGS,
         x: () => c.width(1/2),
         y: () => 480,
-        width: Button.width,
-        height: Button.height,
         onclick: function() {
             config.graphics.waterFlow = !config.graphics.waterFlow;
             this.text = `Water flow: ${config.graphics.waterFlow ? "ON":"OFF"}`;
@@ -491,8 +471,6 @@ Button.items = [
         state: state.SETTINGS,
         x: () => c.width(1/2),
         y: () => 580,
-        width: Button.width,
-        height: Button.height,
         onclick: function() {
             config.graphics.menuSprites = !config.graphics.menuSprites;
             this.text = `Menu sprites: ${config.graphics.menuSprites ? "ON":"OFF"}`;
@@ -518,8 +496,6 @@ Button.items = [
         state: state.ABOUT,
         x: () => c.width(1/2) - Button.width - 50,
         y: () => c.height(9/10) - 25,
-        width: Button.width,
-        height: Button.height,
         onclick: function() {
             shell.openExternal("https://nm-games.eu");
         }
@@ -529,8 +505,6 @@ Button.items = [
         state: state.ABOUT,
         x: () => c.width(1/2),
         y: () => c.height(9/10) - 25,
-        width: Button.width,
-        height: Button.height,
         onclick: function() {
             shell.openExternal("https://github.com/NM-Games/super-splash-bros-2");
         }
@@ -540,8 +514,6 @@ Button.items = [
         state: state.ABOUT,
         x: () => c.width(1/2) + Button.width + 50,
         y: () => c.height(9/10) - 25,
-        width: Button.width,
-        height: Button.height,
         onclick: function() {
             shell.openExternal("https://discord.gg/CaMaGRXDqB");
         }
@@ -587,11 +559,8 @@ Button.items = [
         state: state.WAITING_LAN_HOST,
         x: () => c.width(1/2) - 250,
         y: () => c.height(17/20),
-        width: Button.width,
-        height: Button.height,
         onclick: function() {
-            theme.cycle();
-            this.text = `Theme: ${theme.current}`;
+            ipcRenderer.send("lan-cycle-theme");
         }
     }),
     new Button({
@@ -600,8 +569,6 @@ Button.items = [
         state: state.WAITING_LAN_HOST,
         x: () => c.width(1/2) + 250,
         y: () => c.height(17/20),
-        width: Button.width,
-        height: Button.height,
         disabled: true,
         onclick: function() {
             // todo: start the game

@@ -4,7 +4,9 @@
  * @callback EmptyCallback
  */
 
+const theme = require("./theme");
 const { port } = require("../network");
+const { getButtonById } = require("../class/ui/Button");
 const { version } = require("../../package.json");
 
 /** @type {WebSocket} */
@@ -83,6 +85,12 @@ const open = (options) => {
         const data = parse(e.data);
         if (data.act === "join" && !isHost) options.onopen();
         else game = data;
+
+        if (data.theme) {
+            console.log("Theme is yes!");
+            theme.current = data.theme;
+            getButtonById("LANGameTheme").text = `Theme: ${data.theme}`;
+        }
     });
 };
 

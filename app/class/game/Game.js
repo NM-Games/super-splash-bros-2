@@ -1,7 +1,14 @@
+/**
+ * @typedef {import("../../preload/theme").Themes} Themes
+ * @typedef {import("../../preload/settings").Settings["appearance"]} Appearance
+ */
+
 const Player = require("./Player");
 const { version } = require("../../../package.json");
 
 class Game {
+    /** @type {Themes} */
+    theme;
     /** @type {Player[]} */
     players;
     /** @type {string[]} */
@@ -12,7 +19,12 @@ class Game {
     blacklist;
     hostIndex;
 
+    /**
+     * @constructor
+     * @param {Themes} theme 
+     */
     constructor() {
+        this.theme = "";
         this.players = [null, null, null, null, null, null, null, null];
         this.ips = [null, null, null, null, null, null, null, null];
         this.started = false;
@@ -22,7 +34,7 @@ class Game {
 
     /**
      * Let a player join the game.
-     * @param {import("../../preload/settings").Settings["appearance"]} appearance
+     * @param {Appearance} appearance
      * @param {string} ip
      * @returns {number}
      */
@@ -90,6 +102,7 @@ class Game {
 
         return {
             act: "update",
+            theme: this.theme,
             version,
             players: this.players,
             connected,

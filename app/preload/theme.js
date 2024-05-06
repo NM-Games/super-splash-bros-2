@@ -31,16 +31,15 @@ module.exports = {
     current: "daylight",
 
     /** 
-     * Cycle themes
+     * Get the next theme in the cycle. This does NOT actually change it!
+     * @param {Themes} from
      * @returns {Themes}
      */
-    cycle: function() {
-        if (this.current === "daylight") this.current = "sunset";
-        else if (this.current === "sunset") this.current = "night";
-        else if (this.current === "night") this.current = "synthwave";
-        else if (this.current === "synthwave") this.current = "daylight";
-
-        return this.current;
+    cycle: function(from = this.current) {
+        if (from === "daylight") return "sunset";
+        else if (from === "sunset") return "night";
+        else if (from === "night") return "synthwave";
+        else if (from === "synthwave") return "daylight";
     },
     /**
      * Check whether the theme is a dark theme for optimal text colors.

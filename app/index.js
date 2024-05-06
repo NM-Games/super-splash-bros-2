@@ -73,8 +73,9 @@ app.on("ready", () => {
             window.webContents.send("fullscreen-status", false);
         });
 
-        ipcMain.on("start-gameserver", () => {
+        ipcMain.on("start-gameserver", (_e, theme) => {
             gameserver = utilityProcess.fork(join(__dirname, "gameserver.js"));
+            gameserver.postMessage(`theme:${theme}`);
             gameserver.on("message", (msg) => {
                 if (msg === "listening") window.webContents.send("gameserver-created");
             });
@@ -82,6 +83,9 @@ app.on("ready", () => {
         ipcMain.on("stop-gameserver", () => {
             if (gameserver.kill()) window.webContents.send("gameserver-stopped");
         });
+        ipcMain.on("lan-cycle-theme", () => {
+            gameserver.postMessage("theme");
+        })
     }).catch((err) => {
         dialog.showErrorBox("Cannot start Super Splash Bros 2", `${err}: The Super Splash Bros 2 port, ${network.port}, is already in use.`);
         app.exit(2);

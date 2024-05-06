@@ -16,12 +16,17 @@
 const { WebSocketServer } = require("ws");
 
 const { port } = require("./network");
+const { cycle } = require("./preload/theme");
 const { version } = require("../package.json");
 const Game = require("./class/game/Game");
 
 
 process.parentPort.on("message", (msg) => {
+    console.log(`Incoming post message: ${msg.data}`);
+
     if (msg.data === "start") game.start();
+    else if (msg.data === "theme") game.theme = cycle(game.theme);
+    else if (msg.data.startsWith("theme:")) game.theme = msg.data.slice(6);
     else if (msg.data.startsWith("ban:")) game.ban(+msg.data.slice(4));
 });
 
