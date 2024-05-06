@@ -111,7 +111,7 @@ const connect = (asHost) => {
             connectionMessage.show("Connection timed out!", theme.colors.error.foreground, 3);
             setConnectElementsState(false);
         }
-    })
+    });
 };
 
 /** Check the LAN availability and kick the player out of a menu if needed. */
@@ -346,7 +346,6 @@ Button.items = [
         onclick: function() {
             setConnectElementsState(true);
             ipcRenderer.send("start-gameserver");
-            ipcRenderer.on("gameserver-created", () => connect(true));
         }
     }),
     new Button({
@@ -556,13 +555,8 @@ Button.items = [
         width: Button.width / 1.5,
         height: Button.height / 1.5,
         onclick: function() {
+            this.hovering = false;
             ipcRenderer.send("stop-gameserver");
-            ipcRenderer.on("gameserver-stopped", () => {
-                this.hovering = false;
-                theme.current = config.graphics.theme;
-                state.change.to(state.LAN_GAME_MENU, true);
-                errorAlert.suppress();
-            });
         }
     }),
     new Button({
@@ -837,6 +831,12 @@ addEventListener("DOMContentLoaded", () => {
         versions.electron = electronV;
         versions.chromium = chromiumV;
         MenuSprite.generate(maxWidth);
+    });
+    ipcRenderer.on("gameserver-created", () => connect(true));
+    ipcRenderer.on("gameserver-stopped", () => {
+        theme.current = config.graphics.theme;
+        state.change.to(state.LAN_GAME_MENU, true);
+        errorAlert.suppress();
     });
 
     addEventListener("keydown", (e) => {
