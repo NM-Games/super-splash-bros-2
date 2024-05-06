@@ -95,11 +95,16 @@ const connect = (asHost) => {
             state.change.to(asHost ? state.WAITING_LAN_HOST : state.WAITING_LAN_GUEST, false, () => setConnectElementsState(false));
         },
         onclose: (e) => {
-            const reason = (e && e.reason) ? e.reason : "You have been disconnected because the game you were in was closed.";
-            state.change.to(state.LAN_GAME_MENU, true, () => errorAlert.show(reason));
+            if (state.current === state.LAN_GAME_MENU && e.reason) {
+                connectionMessage.show(e.reason, theme.colors.error.foreground, 3);
+                setConnectElementsState(false);
+            } else {
+                const reason = (e.reason) ? e.reason : "You have been disconnected because the game you were in was closed.";
+                state.change.to(state.LAN_GAME_MENU, true, () => errorAlert.show(reason));
+            }
         },
         onerror: () => {
-            connectionMessage.show("Connection error!", theme.colors.error.foreground, 3);
+            connectionMessage.show("Failed to connect!", theme.colors.error.foreground, 3);
             setConnectElementsState(false);
         },
         ontimeout: () => {
@@ -178,7 +183,6 @@ const dialog = {
         dialog.header = header;
         dialog.text = text;
         Button.dialogItems = buttons;
-        console.log(Button.dialogItems);
     },
     close: () => {
         dialog.visible = false;
@@ -1062,10 +1066,6 @@ addEventListener("DOMContentLoaded", () => {
                 const x = (i % 2 === 0) ? c.width(0.5) - 510 : c.width(0.5) + 10;
                 const y = Math.floor(i / 2);
                 
-                console.log(i);
-                console.log(game);
-                console.log(game.players[i]);
-                console.log("--=--=--");
                 if (game.players[i] === null) c.options.setOpacity(0.5);
                 c.draw.fill.rect(theme.colors.players[`p${i + 1}`], x + state.change.x, c.height(0.2) + y * 100, 500, 80, 8);
                 c.draw.croppedImage(image.sprites, i * 128, 0, 128, 128, x + 8 + state.change.x, c.height(0.2) + y * 100 + 8, 64, 64);
