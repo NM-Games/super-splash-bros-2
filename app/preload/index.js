@@ -95,7 +95,7 @@ const connect = (asHost) => {
             state.change.to(asHost ? state.WAITING_LAN_HOST : state.WAITING_LAN_GUEST, false, () => setConnectElementsState(false));
         },
         onclose: (e) => {
-            const reason = (e.reason) ? e.reason : "You have been disconnected because the game you were in was closed.";
+            const reason = (e && e.reason) ? e.reason : "You have been disconnected because the game you were in was closed.";
             state.change.to(state.LAN_GAME_MENU, true, () => errorAlert.show(reason));
         },
         onerror: () => {
