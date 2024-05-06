@@ -49,11 +49,11 @@ class Game {
     }
 
     /**
-     * Kick a player from the game.
+     * Remove a player from the game. Note that this does not equal kicking, this game only has banning!
      * @param {number} index
      */
-    kick(index) {
-        if (this.players[index] !== null && index !== this.hostIndex) this.players[index] = this.ips[index] = null;
+    remove(index) {
+        if (this.players[index] !== null) this.players[index] = this.ips[index] = null;
     }
 
     /**
@@ -64,7 +64,7 @@ class Game {
         if (index === this.hostIndex) return;
 
         this.blacklist.push(this.ips[index]);
-        this.kick(index);
+        this.remove(index);
     }
 
     /** Start the game. */

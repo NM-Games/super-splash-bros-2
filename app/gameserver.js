@@ -22,7 +22,7 @@ const Game = require("./class/game/Game");
 
 process.parentPort.on("message", (msg) => {
     if (msg.data === "start") game.start();
-    else if (msg.data.startsWith("kick:")) game.kick(+msg.data.slice(5));
+    else if (msg.data.startsWith("ban:")) game.ban(+msg.data.slice(4));
 });
 
 const game = new Game();
@@ -42,8 +42,7 @@ wss.on("listening", () => {
                 const clientIndex = game.ips.indexOf(client.ip);
 
                 if (clientIndex === -1 && game.blacklist.includes(client.ip)) client.close(1000, "You have been banned from this game!");
-                else if (clientIndex === -1) client.close(1000, "You have been kicked from this game!");
-                else if (error && clientIndex > -1) game.kick(clientIndex);
+                else if (error && clientIndex > -1) game.remove(clientIndex);
                 else client.send(JSON.stringify(game.export()));
             });
         });
@@ -83,6 +82,6 @@ wss.on("connection", (socket, request) => {
     });
     socket.on("close", () => {
         const clientIndex = game.ips.indexOf(socket.ip);
-        if (clientIndex > -1) game.kick(clientIndex);
+        if (clientIndex > -1) game.remove(clientIndex);
     });
 });
