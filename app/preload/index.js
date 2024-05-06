@@ -250,7 +250,7 @@ Button.items = [
         text: "Local mode",
         state: state.MAIN_MENU,
         x: () => c.width(1/4),
-        y: () => c.height(1/2) + -50,
+        y: () => c.height(1/2) - 50,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -263,7 +263,7 @@ Button.items = [
         text: "LAN mode",
         state: state.MAIN_MENU,
         x: () => c.width(1/2),
-        y: () => c.height(1/2) + -50,
+        y: () => c.height(1/2) - 50,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -275,7 +275,7 @@ Button.items = [
         text: "Practice mode",
         state: state.MAIN_MENU,
         x: () => c.width(3/4),
-        y: () => c.height(1/2) + -50,
+        y: () => c.height(1/2) - 50,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -287,7 +287,7 @@ Button.items = [
         text: "Settings",
         state: state.MAIN_MENU,
         x: () => c.width(1/3),
-        y: () => c.height(3/4) + -100,
+        y: () => c.height(3/4) - 100,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -299,7 +299,7 @@ Button.items = [
         text: "Quit game",
         state: state.MAIN_MENU,
         x: () => c.width(2/3),
-        y: () => c.height(3/4) + -100,
+        y: () => c.height(3/4) - 100,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -385,7 +385,7 @@ Button.items = [
     new Button({
         text: "About...",
         state: state.SETTINGS,
-        x: () => c.width(1) + -Button.width / 3 - 20,
+        x: () => c.width(1) - Button.width / 3 - 20,
         y: () => Button.height / 3 + 20,
         width: Button.width / 1.5,
         height: Button.height / 1.5,
@@ -398,7 +398,7 @@ Button.items = [
     new Button({
         text: "◂ Previous",
         state: state.SETTINGS,
-        x: () => c.width(1/5) + -Button.width / 4 - 20,
+        x: () => c.width(1/5) - Button.width / 4 - 20,
         y: () => 470,
         width: Button.width / 2,
         height: Button.height / 2,
@@ -423,7 +423,7 @@ Button.items = [
     new Button({
         text: "◂ Previous",
         state: state.SETTINGS,
-        x: () => c.width(1/5) + -Button.width / 4 - 20,
+        x: () => c.width(1/5) - Button.width / 4 - 20,
         y: () => 650,
         width: Button.width / 2,
         height: Button.height / 2,
@@ -516,8 +516,8 @@ Button.items = [
     new Button({
         text: "Website",
         state: state.ABOUT,
-        x: () => c.width(1/2) + -Button.width - 50,
-        y: () => c.height(9/10) + -25,
+        x: () => c.width(1/2) - Button.width - 50,
+        y: () => c.height(9/10) - 25,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -528,7 +528,7 @@ Button.items = [
         text: "GitHub",
         state: state.ABOUT,
         x: () => c.width(1/2),
-        y: () => c.height(9/10) + -25,
+        y: () => c.height(9/10) - 25,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -539,7 +539,7 @@ Button.items = [
         text: "Discord",
         state: state.ABOUT,
         x: () => c.width(1/2) + Button.width + 50,
-        y: () => c.height(9/10) + -25,
+        y: () => c.height(9/10) - 25,
         width: Button.width,
         height: Button.height,
         onclick: function() {
@@ -585,7 +585,7 @@ Button.items = [
         id: "LANGameTheme",
         text: "Theme",
         state: state.WAITING_LAN_HOST,
-        x: () => c.width(1/2) + -250,
+        x: () => c.width(1/2) - 250,
         y: () => c.height(17/20),
         width: Button.width,
         height: Button.height,
@@ -629,7 +629,7 @@ Input.items = [
     new Input({
         id: "IP-1",
         state: state.LAN_GAME_MENU,
-        x: () => c.width(1/2) + -180,
+        x: () => c.width(1/2) - 180,
         y: () => c.height(1/2) + 100,
         width: 100,
         maxLength: 3,
@@ -648,7 +648,7 @@ Input.items = [
     new Input({
         id: "IP-2",
         state: state.LAN_GAME_MENU,
-        x: () => c.width(1/2) + -60,
+        x: () => c.width(1/2) - 60,
         y: () => c.height(1/2) + 100,
         width: 100,
         maxLength: 3,
