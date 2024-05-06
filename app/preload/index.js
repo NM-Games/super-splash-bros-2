@@ -136,6 +136,46 @@ const introLogo = {
         else this.a = Math.min(this.a + this.va, 1);
     }
 };
+const dialog = {
+    visible: false,
+    header: "",
+    text: "",
+    /**
+     * Show a dialog.
+     * @param {string} header
+     * @param {string} text
+     * @param  {...Button} buttons 
+     */
+    show: (header, text, ...buttons) => {
+        dialog.visible = true;
+        dialog.header = header;
+        dialog.text = text;
+        Button.dialogItems = buttons;
+        console.log(Button.dialogItems);
+    },
+    close: () => {
+        dialog.visible = false;
+    }
+};
+const errorAlert = {
+    visible: false,
+    y: -100,
+    vy: 7,
+    text: "",
+    duration: 0,
+    shownAt: -6e9,
+    /** 
+     * Show an error in the top of the screen.
+     * @param {string} text
+     * @param {number} duration
+     */
+    show: (text, duration = 5) => {
+        errorAlert.visible = true;
+        errorAlert.text = text;
+        errorAlert.duration = duration * 60;
+        errorAlert.shownAt = frames;
+    },
+};
 const konamiEasterEgg = {
     keys: ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"],
     index: 0,
@@ -289,7 +329,7 @@ Button.items = [
         disabled: true,
         onclick: function() {
             const ip = getEnteredIP();
-            if (!network.isValidIP(ip)) connectionMessage.show("Invalid IP address!", theme.colors.ui.error, 3); else {
+            if (!network.isValidIP(ip)) connectionMessage.show("Invalid IP address!", theme.colors.error.foreground, 3); else {
                 setConnectElementsState(true);
                 connectionMessage.show("Connecting...");
 
@@ -301,12 +341,12 @@ Button.items = [
                         connectionMessage.show("");
                     },
                     onerror: () => {
-                        connectionMessage.show("Connection error!", theme.colors.ui.error, 3);
+                        connectionMessage.show("Connection error!", theme.colors.error.foreground, 3);
                         setConnectElementsState(false);    
                     },
                     ontimeout: () => {
                         setConnectElementsState(false);
-                        connectionMessage.show("Connection timed out!", theme.colors.ui.error, 3);
+                        connectionMessage.show("Connection timed out!", theme.colors.error.foreground, 3);
                     }
                 });
             }
@@ -794,14 +834,21 @@ addEventListener("DOMContentLoaded", () => {
     });
 
     addEventListener("mousemove", (e) => {
-        for (const button of Button.items) {
-            if (button.state !== state.current) {
-                button.hovering = false;
-                continue;
+        if (dialog.visible) {
+            for (const button of Button.dialogItems) {
+                button.hovering = (e.clientX > button.x() - button.width / 2 && e.clientX < button.x() + button.width / 2
+                 && e.clientY > button.y() - button.height / 2 && e.clientY < button.y() + button.height / 2 && !button.disabled);
             }
-
-            button.hovering = (e.clientX > button.x() - button.width / 2 && e.clientX < button.x() + button.width / 2 && !water.flood.enabled
-             && e.clientY > button.y() - button.height / 2 && e.clientY < button.y() + button.height / 2 && !button.disabled && !state.change.active);
+        } else {
+            for (const button of Button.items) {
+                if (button.state !== state.current) {
+                    button.hovering = false;
+                    continue;
+                }
+    
+                button.hovering = (e.clientX > button.x() - button.width / 2 && e.clientX < button.x() + button.width / 2 && !water.flood.enabled
+                 && e.clientY > button.y() - button.height / 2 && e.clientY < button.y() + button.height / 2 && !button.disabled && !state.change.active);
+            }
         }
         for (const input of Input.items) {
             if (input.state !== state.current) {
@@ -809,13 +856,13 @@ addEventListener("DOMContentLoaded", () => {
                 continue;
             }
 
-            input.hovering = (e.clientX > input.x() - input.width / 2 && e.clientX < input.x() + input.width / 2 && !water.flood.enabled
+            input.hovering = (e.clientX > input.x() - input.width / 2 && e.clientX < input.x() + input.width / 2 && !water.flood.enabled && !dialog.visible
              && e.clientY > input.y() - input.getHeight(0.5) && e.clientY < input.y() + input.getHeight(0.5) && !input.disabled && !state.change.active);
         }
     });
 
     addEventListener("mousedown", (_e) => {
-        for (const button of Button.items) {
+        for (const button of (dialog.visible ? Button.dialogItems : Button.items)) {
             if (button.hovering && !state.change.active) {
                 button.active = true;
                 break;
@@ -828,7 +875,7 @@ addEventListener("DOMContentLoaded", () => {
         }
     });
     addEventListener("mouseup", (_e) => {
-        for (const button of Button.items) {
+        for (const button of (dialog.visible ? Button.dialogItems : Button.items)) {
             if (button.active && button.hovering && !button.disabled) {
                 button.active = false;
                 button.onclick();
@@ -862,7 +909,7 @@ addEventListener("DOMContentLoaded", () => {
         MenuSprite.update(frames, config.graphics.menuSprites, konamiEasterEgg.activated);
 
         let hoverings = {button: 0, input: 0};
-        for (const button of Button.items) {
+        for (const button of (dialog.visible ? Button.dialogItems : Button.items)) {
             if (button.hovering) hoverings.button++;
         }
         for (const input of Input.items) {
@@ -889,6 +936,11 @@ addEventListener("DOMContentLoaded", () => {
             }
         } else water.flood.level = (water.flood.enabled) ? 0 : c.height();
         if (frames === introLogo.duration) water.flood.disable();
+
+        if (frames - errorAlert.shownAt >= errorAlert.duration && errorAlert.visible) errorAlert.visible = false;
+
+        if (errorAlert.visible) errorAlert.y = Math.min(50, errorAlert.y + errorAlert.vy);
+        else errorAlert.y = Math.max(-100, errorAlert.y - errorAlert.vy);
 
         document.body.style.cursor = (hoverings.button > 0) ? "pointer" : (hoverings.input > 0) ? "text" : "default";
     };
@@ -922,9 +974,9 @@ addEventListener("DOMContentLoaded", () => {
         }
 
         if (state.current === state.MAIN_MENU) {
-            if (theme.isDark()) c.options.setFilter("brightness(100)");
+            if (theme.isDark()) c.options.filter.add("brightness(100)");
             c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.change.x, 25, image.logo.width, image.logo.height);
-            c.options.setFilter();
+            c.options.filter.remove("brightness");
         } else if (state.current === state.LOCAL_GAME_MENU) {
             c.draw.text({text: "LOCAL MODE", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold"}});
         } else if (state.current === state.LAN_GAME_MENU) {
@@ -958,9 +1010,9 @@ addEventListener("DOMContentLoaded", () => {
             for (let i=0; i<keybinds.length; i++)
                 c.draw.text({text: keybinds[i], x: c.width(0.8) - Button.width / 2 - 25 + state.change.x, y: 250 + i * 60, font: {size: 24}, alignment: "left"});
         } else if (state.current === state.ABOUT) {
-            if (theme.isDark()) c.options.setFilter("brightness(100)");
+            if (theme.isDark()) c.options.filter.add("brightness(100)");
             c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.change.x, 25, image.logo.width, image.logo.height);
-            c.options.setFilter();
+            c.options.filter.remove("brightness");
 
             c.draw.text({text: "by", x: c.width(0.5) + state.change.x, y: c.height(0.4) - 10, font: {size: 24, style: "bold"}, alignment: "bottom"});
             c.draw.image(image.logo_nmgames, c.width(0.5) - image.logo_nmgames.width / 4 + state.change.x, c.height(0.4), image.logo_nmgames.width / 2, image.logo_nmgames.height / 2);
@@ -1028,6 +1080,20 @@ addEventListener("DOMContentLoaded", () => {
                 image.logo_nmgames.height + introLogo.movement * (image.logo_nmgames.height / image.logo_nmgames.width)
             );
             c.options.setOpacity(1);
+        }
+
+        const alertWidth = c.draw.text({text: errorAlert.text, x: 80, y: errorAlert.y + 25, color: theme.colors.text.light, font: {size: 32}, alignment: "left", measure: true}) + 30;
+        c.options.setShadow(theme.colors.error.foreground, 16);
+        c.draw.fill.rect(theme.colors.error.background, (c.width() - alertWidth) / 2, errorAlert.y, alertWidth, 50, 12);
+        c.options.setShadow();
+        c.draw.text({text: errorAlert.text, x: c.width(0.5), y: errorAlert.y + 35, color: theme.colors.text.light, font: {size: 32}});
+        
+        if (dialog.visible) {
+            c.draw.fill.rect(theme.colors.overlay, 0, 0, c.width(), c.height());
+            c.draw.text({text: dialog.header, x: c.width(0.5), y: c.height(0.42), color: theme.colors.text.light, font: {size: 64, style: "bold"}});
+            c.draw.text({text: dialog.text, x: c.width(0.5), y: c.height(0.5), color: theme.colors.text.light, font: {size: 32}});
+
+            for (const button of Button.dialogItems) c.draw.button(button, 0);
         }
     };
     

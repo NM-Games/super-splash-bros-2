@@ -19,8 +19,10 @@ const colors = {
         p7: "#ee00ff",
         p8: "#7b7b7b"
     },
-    ui: {primary: "#42cbe0", secondary: "#32a4d9", error: "#e00"},
-    text: {dark: "#505050", light: "#ffffff"}
+    ui: {primary: "#42cbe0", secondary: "#32a4d9"},
+    error: {background: "#700", foreground: "#e00"},
+    text: {dark: "#505050", light: "#ffffff"},
+    overlay: "rgba(0, 0, 0, 0.75)"
 };
 
 module.exports = {

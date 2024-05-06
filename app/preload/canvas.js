@@ -1,6 +1,9 @@
 const image = require("./image");
 const theme = require("./theme");
 
+/** @type {string[]} */
+const filters = [];
+
 /** @type {HTMLCanvasElement} */
 let canvas;
 /** @type {CanvasRenderingContext2D} */
@@ -52,12 +55,26 @@ const options = {
     setOpacity: (opacity) => {
         c.globalAlpha = opacity;
     },
-    /**
-     * Apply filters to drawn objects.
-     * @param {...string} filters
-     */
-    setFilter: (...filters) => {
-        c.filter = (filters.length === 0) ? "none" : filters.join(" ");
+    filter: {
+        /**
+         * Add a filter and apply it.
+         * @param {string} filter
+         */
+        add: (filter) => {
+            filters.push(filter);
+            c.filter = (filters.length === 0) ? "none" : filters.join(" ");
+        },
+        /**
+         * Remove a filter and apply it.
+         * @param {string} filter
+         */
+        remove: (filter) => {
+            for (let i=0; i<filters.length;) {
+                if (filters[i].includes(filter)) filters.splice(i, 1);
+                else i++;
+            }
+            c.filter = (filters.length === 0) ? "none" : filters.join(" ");
+        }
     },
     /**
      * Apply shadows to drawn objects.
@@ -199,15 +216,18 @@ const draw = {
      *  maxWidth?: number,
      *  alignment?: "left" | "center" | "right",
      *  baseline?: "alphabetic" | "bottom" | "middle" | "top",
-     *  font: {style?: "bold" | "italic", size: number, family?: string}
+     *  font: {style?: "bold" | "italic", size: number, family?: string},
+     *  measure?: boolean
      * }} options
+     * @returns {void | number}
      */
     text: (options) => {
         c.fillStyle = options.color ?? theme.getTextColor();
         c.textBaseline = options.baseline ?? "alphabetic";
         c.textAlign = options.alignment ?? "center";
         c.font = `${options.font.style ?? ""} ${options.font.size}px ${options.font.family ?? "Shantell Sans"}`;
-        c.fillText(options.text, options.x, options.y, options.maxWidth);
+        if (options.measure) return c.measureText(options.text).width;
+        else c.fillText(options.text, options.x, options.y, options.maxWidth);
     },
     /**
      * Draw a button on the screen.
@@ -215,7 +235,9 @@ const draw = {
      * @param {number} offsetX
      */
     button: (button, offsetX) => {
-        c.filter = (button.disabled) ? "grayscale(1)" : (button.active) ? "brightness(100)" : "none";
+        if (button.disabled) options.filter.add("grayscale(1)");
+        else if (button.active) options.filter.add("brightness(100)");
+
         draw.croppedImage(
             image.buttons,
             0,
@@ -227,7 +249,8 @@ const draw = {
             button.width,
             button.height
         );
-        c.filter = "none";
+        options.filter.remove("grayscale");
+        options.filter.remove("brightness");
         draw.text({
             text: button.text,
             x: button.x() + offsetX,
@@ -249,19 +272,19 @@ const draw = {
         const y = input.y();
         const w = input.width;
         const h = input.getHeight();
-        c.filter = (input.disabled) ? "grayscale(1)" : "none";
+        if (input.disabled) options.filter.add("grayscale(1)");
         draw.fill.rect(theme.colors.ui.primary, x - w / 2, y - h / 2, w, h, 6);
         draw.stroke.rect((input.focused) ? "white" : (input.hovering) ? "#eee" : theme.colors.ui.secondary, x - w / 2, y - h / 2, w, h, 3, 6);
         draw.text({
             text: input.value + (input.focused && trailingChar ? "_":""),
             x: x - (input.keybind ? 0 : w / 2 - 8),
             y: y + 4,
-            color: (invalid && input.keybind) ? theme.colors.ui.error : "white",
+            color: (invalid && input.keybind) ? theme.colors.error.foreground : "white",
             font: {size: input.size},
             alignment: (input.keybind) ? "center":"left", 
             baseline: "middle"
         });
-        c.filter = "none";
+        options.filter.remove("grayscale");
     }
 }
 

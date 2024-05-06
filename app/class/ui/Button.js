@@ -11,6 +11,8 @@ class Button {
     static hoveringOn = false;
     /** @type {Button[]} */
     static items = [];
+    /** @type {Button[]} */
+    static dialogItems = [];
 
     /**
      * Get the button based on its ID, given in the constructor.
