@@ -843,6 +843,33 @@ addEventListener("DOMContentLoaded", () => {
     const ipFragments = ip.split(".");
     for (let i=0; i<3; i++) Input.getInputById(`IP-${i + 1}`).value = ipFragments[i];
 
+    ipcRenderer.on("quit-check", () => {
+        if ([state.PLAYING_LOCAL, state.PLAYING_LAN, state.PLAYING_FREEPLAY].includes(state.current)) {
+            dialog.show("Are you sure you want to quit?", "You will not be able to rejoin this match.", new Button({
+                text: "Yes",
+                x: () => c.width(0.4),
+                y: () => c.height(0.75),
+                onclick: () => ipcRenderer.send("quit")
+            }), new Button({
+                text: "No",
+                x: () => c.width(0.6),
+                y: () => c.height(0.75),
+                onclick: () => dialog.close()
+            }));
+        } else if (state.current === state.WAITING_LAN_HOST && game.connected > 1) {
+            dialog.show("Are you sure you want to quit?", "Quitting will kick out everyone in your game.", new Button({
+                text: "Yes",
+                x: () => c.width(0.4),
+                y: () => c.height(0.75),
+                onclick: () => ipcRenderer.send("quit")
+            }), new Button({
+                text: "No",
+                x: () => c.width(0.6),
+                y: () => c.height(0.75),
+                onclick: () => dialog.close()
+            }));
+        } else ipcRenderer.send("quit");
+    });
     ipcRenderer.on("fullscreen-status", (_e, enabled) => {
         config.graphics.fullScreen = enabled;
         Button.getButtonById("Fullscreen").text = `Full screen: ${enabled ? "ON":"OFF"}`;
