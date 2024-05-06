@@ -29,7 +29,7 @@ class MenuSprite {
                 sprite.color = Math.floor(Math.random() * 8);
                 sprite.facing = Math.round(Math.random());
                 sprite.setAmplitude();
-            } else if (alwaysChange && frames % 5 === 0) sprite.color = Math.floor(Math.random() * 8);
+            } else if (alwaysChange && frames % 3 === 0) sprite.color = Math.floor(Math.random() * 8);
         }
     }
 
