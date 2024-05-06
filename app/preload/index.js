@@ -82,6 +82,32 @@ const getEnteredIP = () => {
     ];
 };
 
+/**
+ * Connect to a game.
+ * @param {boolean} asHost
+ */
+const connect = (asHost) => {
+    socket.open({
+        ip: (asHost) ? "127.0.0.1" : getEnteredIP().join("."),
+        appearance: config.appearance,
+        onopen: () => {
+            connectionMessage.show("");
+            state.change.to(asHost ? state.WAITING_LAN_HOST : state.WAITING_LAN_GUEST, false, () => setConnectElementsState(false));
+        },
+        onclose: () => {
+            state.change.to(state.LAN_GAME_MENU, true, () => errorAlert.show("You have been disconnected because the game you were in was closed."));
+        },
+        onerror: () => {
+            connectionMessage.show("Connection error!", theme.colors.error.foreground, 3);
+            setConnectElementsState(false);    
+        },
+        ontimeout: () => {
+            connectionMessage.show("Connection timed out!", theme.colors.error.foreground, 3);
+            setConnectElementsState(false);
+        }
+    })
+};
+
 /** Check the LAN availability and kick the player out of a menu if needed. */
 const checkLANAvailability = () => {
     const LANavailable = (network.getIPs().length > 0);
@@ -159,6 +185,7 @@ const dialog = {
 };
 const errorAlert = {
     visible: false,
+    suppressed: false,
     y: -100,
     vy: 7,
     text: "",
@@ -170,19 +197,20 @@ const errorAlert = {
      * @param {number} duration
      */
     show: (text, duration = 5) => {
+        if (errorAlert.suppressed) return;
+
         errorAlert.visible = true;
         errorAlert.text = text;
         errorAlert.duration = duration * 60;
         errorAlert.shownAt = frames;
     },
+    /** Suppress the messages, useful when quitting deliberately. */
+    suppress: () => {
+        errorAlert.suppressed = true;
+        setTimeout(() => errorAlert.suppressed = false, 500);
+    }
 };
-const konamiEasterEgg = {
-    keys: ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"],
-    index: 0,
-    activated: false
-};
-
-let connectionMessage = {
+const connectionMessage = {
     text: "",
     color: null, // null = theme dependent
     a: 1,
@@ -202,7 +230,14 @@ let connectionMessage = {
         connectionMessage.a = 1;
     }
 };
+const konamiEasterEgg = {
+    keys: ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"],
+    index: 0,
+    activated: false
+};
+
 let frames = 0;
+let game = socket.getGame();
 
 Button.items = [
     // Main menu
@@ -306,16 +341,7 @@ Button.items = [
         onclick: function() {
             setConnectElementsState(true);
             ipcRenderer.send("start-gameserver");
-            ipcRenderer.on("gameserver-created", () => {
-                socket.open({
-                    ip: "127.0.0.1",
-                    appearance: config.appearance,
-                    onopen: () => {
-                        Button.getButtonById("LANGameTheme").text = `Theme: ${theme.current}`;
-                        state.change.to(state.WAITING_LAN_HOST, false, () => setConnectElementsState(false));    
-                    }
-                });
-            });
+            ipcRenderer.on("gameserver-created", () => connect(true));
         }
     }),
     new Button({
@@ -328,27 +354,12 @@ Button.items = [
         height: Button.height,
         disabled: true,
         onclick: function() {
-            const ip = getEnteredIP();
-            if (!network.isValidIP(ip)) connectionMessage.show("Invalid IP address!", theme.colors.error.foreground, 3); else {
+            if (!network.isValidIP(getEnteredIP())) {
+                connectionMessage.show("Invalid IP address!", theme.colors.error.foreground, 3);
+            } else {
                 setConnectElementsState(true);
                 connectionMessage.show("Connecting...");
-
-                socket.open({
-                    ip: ip.join("."),
-                    appearance: config.appearance,
-                    onopen: () => {
-                        state.change.to(state.WAITING_LAN_GUEST, false, () => setConnectElementsState(false));
-                        connectionMessage.show("");
-                    },
-                    onerror: () => {
-                        connectionMessage.show("Connection error!", theme.colors.error.foreground, 3);
-                        setConnectElementsState(false);    
-                    },
-                    ontimeout: () => {
-                        setConnectElementsState(false);
-                        connectionMessage.show("Connection timed out!", theme.colors.error.foreground, 3);
-                    }
-                });
+                connect(false);
             }
         }
     }),
@@ -545,6 +556,7 @@ Button.items = [
                 this.hovering = false;
                 theme.current = config.graphics.theme;
                 state.change.to(state.LAN_GAME_MENU, true);
+                errorAlert.suppress();
             });
         }
     }),
@@ -585,6 +597,7 @@ Button.items = [
         height: Button.height / 1.5,
         onclick: function() {
             socket.close();
+            errorAlert.suppress();
             this.hovering = false;
             state.change.to(state.LAN_GAME_MENU, true);
         }
@@ -886,6 +899,7 @@ addEventListener("DOMContentLoaded", () => {
 
     const update = () => {
         frames++;
+        if (socket.isOpen()) game = socket.getGame();
 
         if (state.change.active) {
             state.change.x += state.change.vx;
@@ -1021,7 +1035,7 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text({text: `This program is free and open-source software: you are free to modify and/or redistribute it.`, x: c.width(0.5) + state.change.x, y: c.height(0.7), font: {size: 20}, baseline: "bottom"});
             c.draw.text({text: `There is NO WARRANTY, to the extent permitted by law.`, x: c.width(0.5) + state.change.x, y: c.height(0.7) + 25, font: {size: 20}, baseline: "bottom"});
             c.draw.text({text: `Read the GNU General Public License version 3 for further details.`, x: c.width(0.5) + state.change.x, y: c.height(0.7) + 50, font: {size: 20}, baseline: "bottom"});
-        } else if ([state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST].includes(state.current)) {
+        } else if ([state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST].includes(state.current) && game) {
             const ips = network.getIPs();
             const mainIP = ips.shift();
 
@@ -1039,8 +1053,17 @@ addEventListener("DOMContentLoaded", () => {
             for (let i=0; i<8; i++) {
                 const x = (i % 2 === 0) ? c.width(0.5) - 510 : c.width(0.5) + 10;
                 const y = Math.floor(i / 2);
+                
+                console.log(i);
+                console.log(game);
+                console.log(game.players[i]);
+                console.log("--=--=--");
+                if (game.players[i] === null) c.options.setOpacity(0.5);
                 c.draw.fill.rect(theme.colors.players[`p${i + 1}`], x + state.change.x, c.height(0.2) + y * 100, 500, 80, 8);
                 c.draw.croppedImage(image.sprites, i * 128, 0, 128, 128, x + 8 + state.change.x, c.height(0.2) + y * 100 + 8, 64, 64);
+                if (game.players[i] !== null)
+                    c.draw.text({text: game.players[i].name, x: x + state.change.x + 85, y: c.height(0.2) + y * 100 + 52, font: {size: 32}, color: theme.colors.text.light, alignment: "left"});
+                c.options.setOpacity(1);
             }
         }
 

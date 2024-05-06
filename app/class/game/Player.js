@@ -11,6 +11,11 @@ class Player {
     keys;
     respawn;
 
+    /**
+     * @constructor
+     * @param {string} name
+     * @param {number} superpower
+     */
     constructor(name, superpower) {
         this.name = name;
         this.x = 20;

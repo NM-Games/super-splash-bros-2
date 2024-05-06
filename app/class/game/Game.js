@@ -1,26 +1,22 @@
 const Player = require("./Player");
+const { version } = require("../../../package.json");
 
 class Game {
     /** @type {Player[]} */
     players;
+    /** @type {string[]} */
+    ips;
     started;
     startedOn;
+    /** @type {string[]} */
+    blacklist;
 
     constructor() {
         this.players = [null, null, null, null, null, null, null, null];
         this.ips = [null, null, null, null, null, null, null, null];
         this.started = false;
         this.startedOn = -6e9;
-    }
-
-    /**
-     * Retrieve player data based on its IP address.
-     * @param {string} ip
-     * @returns {Player | null}
-     */
-    getPlayerByIP(ip) {
-        const index = this.ips.indexOf(ip);
-        return (index === -1) ? null : this.players[index];
+        this.blacklist = [];
     }
 
     /**
@@ -57,6 +53,15 @@ class Game {
         if (this.players[index] !== null) this.players[index] = this.ips[index] = null;
     }
 
+    /**
+     * Ban a player from the game, based on his IP address.
+     * @param {number} index
+     */
+    ban(index) {
+        this.blacklist.push(this.ips[index]);
+        this.kick(index);
+    }
+
     /** Start the game. */
     start() {
         this.started = true;
@@ -74,6 +79,8 @@ class Game {
     /** Export the game to clients. */
     export() {
         return {
+            act: "update",
+            version,
             players: this.players,
             started: this.started
         };

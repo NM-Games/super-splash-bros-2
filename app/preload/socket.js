@@ -9,6 +9,18 @@ const { version } = require("../../package.json");
 
 /** @type {WebSocket} */
 let ws;
+let game;
+
+/** 
+ * Get the game as a client.
+ * @type {import("../class/game/Game")["export"]}
+ */
+const getGame = () => game;
+/**
+ * Check whether the socket is open.
+ * @returns {boolean}
+ */
+const isOpen = () => (ws && ws.readyState === ws.OPEN);
 
 /**
  * Send data through a WebSocket.
@@ -27,7 +39,11 @@ const send = (data) => {
  */
 const parse = (data) => {
     const payload = Buffer.isBuffer(data) ? new TextDecoder().decode(data) : data;
-    return JSON.parse(payload);
+    try {
+        return JSON.parse(payload);
+    } catch {
+        return {}
+    }
 };
 
 /**
@@ -63,7 +79,7 @@ const open = (options) => {
         if (options.onerror) options.onerror();
     });
     ws.addEventListener("message", (e) => {
-        const data = parse(e.data);
+        game = parse(e.data);
     });
 };
 
@@ -71,4 +87,4 @@ const close = () => {
     if (ws) ws.close();
 };
 
-module.exports = {open, close};
+module.exports = {open, close, isOpen, getGame};

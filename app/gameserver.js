@@ -5,7 +5,7 @@
  */
 
 /**
- * @typedef {"join" | "leave" | "keys"} SocketActions
+ * @typedef {"join" | "leave" | "update" | "keys" | "error"} SocketActions
  * @typedef {{
  *  act: SocketActions,
  *  version: string,
@@ -39,11 +39,16 @@ wss.on("listening", () => {
         connectedClients = [...wss.clients].length;
         wss.clients.forEach((client) => {
             client.ping("", false, (error) => {
-                console.log("Client IP:");
-                console.log(client.ip);
-            })
-            client.send(`Frame update ${frames}`);
-            client.send(JSON.stringify(game.export()));
+                if (error) {
+                    const clientIndex = game.ips.indexOf(client.ip);
+                    if (clientIndex > -1) game.kick(clientIndex);
+                } else {
+                    console.log("Client IP:");
+                    console.log(client.ip);
+                    console.log(`Frame update ${frames}`);
+                    client.send(JSON.stringify(game.export()));                    
+                }
+            });
         });
     }, 17);    
 });
