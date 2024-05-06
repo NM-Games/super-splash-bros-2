@@ -70,8 +70,9 @@ wss.on("connection", (socket, request) => {
 
         if (json.version !== version) {
             socket.close(1000, "Your version does not match with the host!");
-        } else if (json.act === "join" && game.join(json.appearance, socket.ip) === -1) {
-            socket.close(1000, "That game is already full!");
+        } else if (json.act === "join") {
+            if (game.join(json.appearance, socket.ip) === -1) socket.close(1000, "That game is already full!");
+            else send({act: "join"}); // welcome player to lobby
         } else if (json.act === "keys") {
 
         }

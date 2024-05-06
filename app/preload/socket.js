@@ -61,12 +61,13 @@ const parse = (data) => {
 const open = (options) => {
     ws = new WebSocket(`ws://${options.ip}:${port}`);
 
+    const isHost = (options.ip === "127.0.0.1");
     const connectTimeout = setTimeout(() => {
         if (options.ontimeout) options.ontimeout();
     }, options.timeout ?? 10000);
 
     ws.addEventListener("open", () => {
-        if (options.onopen) options.onopen();
+        if (options.onopen && isHost) options.onopen();
         clearTimeout(connectTimeout);
         send({act: "join", version, appearance: options.appearance});
     });
@@ -79,7 +80,9 @@ const open = (options) => {
         if (options.onerror) options.onerror();
     });
     ws.addEventListener("message", (e) => {
-        game = parse(e.data);
+        const data = parse(e.data);
+        if (data.act === "join" && !isHost) options.onopen();
+        else game = data;
     });
 };
 
