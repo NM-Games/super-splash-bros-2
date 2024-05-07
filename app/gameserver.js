@@ -51,6 +51,7 @@ wss.on("listening", () => {
                 else client.send(JSON.stringify(game.export()));
             });
         });
+        game.update();
     }, 17);    
 });
 
@@ -64,6 +65,7 @@ wss.on("connection", (socket, request) => {
     };
 
     if (game.blacklist.includes(request.socket.remoteAddress)) socket.close(1000, "You are banned from that game!");
+    else if (game.startState > 0) socket.close(1000, "That game has already started!");
 
     socket.ip = request.socket.remoteAddress;
     socket.on("message", (data) => {

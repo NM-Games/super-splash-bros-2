@@ -83,12 +83,9 @@ app.on("ready", () => {
         ipcMain.on("stop-gameserver", () => {
             if (gameserver.kill()) window.webContents.send("gameserver-stopped");
         });
-        ipcMain.on("lan-cycle-theme", () => {
-            gameserver.postMessage("theme");
-        });
-        ipcMain.on("ban", (_e, index) => {
-            gameserver.postMessage(`ban:${index}`);
-        });
+        ipcMain.on("lan-cycle-theme", () => gameserver.postMessage("theme"));
+        ipcMain.on("ban", (_e, index) => gameserver.postMessage(`ban:${index}`));
+        ipcMain.on("start", () => gameserver.postMessage("start"));
     }).catch((err) => {
         dialog.showErrorBox("Cannot start Super Splash Bros 2", `${err}: The Super Splash Bros 2 port, ${network.port}, is already in use.`);
         app.exit(2);

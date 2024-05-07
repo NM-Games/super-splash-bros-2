@@ -139,14 +139,15 @@ const water = {
         enabling: false,
         disabling: false,
         enable: function() {
-            if (this.enabling || this.disabling) return;
+            if (this.enabling) return;
             
             this.enabled = true;
+            this.disabling = false;
             this.enabling = true;
             this.levelSpeed = 0;
         },
         disable: function() {
-            if (this.enabling || this.disabling) return;
+            if (this.disabling) return;
             
             this.enabled = false;
             this.disabling = true;
@@ -245,6 +246,7 @@ const konamiEasterEgg = {
 
 let frames = 0;
 let game = socket.getGame();
+let lastStartState = 0;
 let playerIndex = -1;
 let banButton = {
     hoverIndex: -1,
@@ -503,27 +505,21 @@ Button.items = [
         state: state.ABOUT,
         x: () => c.width(1/2) - Button.width - 50,
         y: () => c.height(9/10) - 25,
-        onclick: function() {
-            shell.openExternal("https://nm-games.eu");
-        }
+        onclick: () => shell.openExternal("https://nm-games.eu")
     }),
     new Button({
         text: "GitHub",
         state: state.ABOUT,
         x: () => c.width(1/2),
         y: () => c.height(9/10) - 25,
-        onclick: function() {
-            shell.openExternal("https://github.com/NM-Games/super-splash-bros-2");
-        }
+        onclick: () => shell.openExternal("https://github.com/NM-Games/super-splash-bros-2")
     }),
     new Button({
         text: "Discord",
         state: state.ABOUT,
         x: () => c.width(1/2) + Button.width + 50,
         y: () => c.height(9/10) - 25,
-        onclick: function() {
-            shell.openExternal("https://discord.gg/CaMaGRXDqB");
-        }
+        onclick: () => shell.openExternal("https://discord.gg/CaMaGRXDqB")
     }),
     // LAN game waiting menu (host)
     new Button({
@@ -566,9 +562,7 @@ Button.items = [
         state: state.WAITING_LAN_HOST,
         x: () => c.width(1/2) - 250,
         y: () => c.height(17/20),
-        onclick: function() {
-            ipcRenderer.send("lan-cycle-theme");
-        }
+        onclick: () => ipcRenderer.send("lan-cycle-theme")
     }),
     new Button({
         id: "StartLANGame",
@@ -578,7 +572,8 @@ Button.items = [
         y: () => c.height(17/20),
         disabled: true,
         onclick: function() {
-            // todo: start the game
+            this.hovering = false;
+            ipcRenderer.send("start");
         }
     }),
     // LAN game waiting menu (guest)
@@ -943,6 +938,14 @@ addEventListener("DOMContentLoaded", () => {
         if (socket.isOpen()) game = socket.getGame();
         if (game) {
             Button.getButtonById("StartLANGame").disabled = (game.connected <= 1);
+
+            if (lastStartState === 0 && game.startState === 1) water.flood.enable();
+            else if (lastStartState === 1 && game.startState === 2) {
+                state.current = state.PLAYING_LAN;
+                water.flood.disable();
+            }
+
+            lastStartState = game.startState;
         }
 
         if (state.change.active) {
@@ -1019,8 +1022,12 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.fill.circle(c.options.gradient(0, c.height() - 600, 0, c.height(), {pos: 0, color: "yellow"}, {pos: 1, color: "#ff1f82"}), c.width(0.5), c.height() - 169, c.width(0.2));
         }
 
-        for (const sprite of MenuSprite.items) {
-            if (sprite.visible) c.draw.croppedImage(image.sprites, sprite.color * 128, sprite.facing * 128, 128, 128, sprite.x, sprite.y, 96, 96);
+        if ([state.MAIN_MENU, state.SETTINGS, state.ABOUT, state.LOCAL_GAME_MENU, state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST].includes(state.current)) {
+            for (const sprite of MenuSprite.items) {
+                if (sprite.visible) c.draw.croppedImage(image.sprites, sprite.color * 128, sprite.facing * 128, 128, 128, sprite.x, sprite.y, 96, 96);
+            }
+        } else if ([state.PLAYING_LAN, state.PLAYING_FREEPLAY].includes(state.current) && game) {
+            c.draw.image(image.platforms, (c.width() - image.platforms.width) / 2, c.height() - image.platforms.height);
         }
 
         water.imageX = 0;
@@ -1104,7 +1111,6 @@ addEventListener("DOMContentLoaded", () => {
                 if (i === banButton.hoverIndex) c.draw.stroke.rect(theme.colors.error[banButton.active ? "foreground":"background"], x + state.change.x, c.height(0.2) + y * 100, 500, 80, 4, 8);
                 if (game.players[i] !== null) {
                     let additionalText = false;
-                    console.log(`i: ${i}, playerIndex: ${playerIndex}, game.host: ${game.host}`);
                     if (playerIndex === game.host) {
                         additionalText = true;
                         c.draw.text({text: (i === playerIndex) ? "you":"click to ban", x: x + state.change.x + 85, y: c.height(0.2) + y * 100 + 65, font: {size: 20}, color: theme.colors.text.light, alignment: "left"})

@@ -13,7 +13,7 @@ class Game {
     players;
     /** @type {string[]} */
     ips;
-    started;
+    startState;
     startedOn;
     /** @type {string[]} */
     blacklist;
@@ -27,7 +27,7 @@ class Game {
         this.theme = "";
         this.players = [null, null, null, null, null, null, null, null];
         this.ips = [null, null, null, null, null, null, null, null];
-        this.started = false;
+        this.startState = 0;
         this.startedOn = -6e9;
         this.blacklist = [];
     }
@@ -80,16 +80,22 @@ class Game {
 
     /** Start the game. */
     start() {
-        this.started = true;
+        if (this.startState > 0) return;
+
+        this.startState = 1;
         this.startedOn = new Date().getTime();
     }
 
     /** Update the game. */
     update() {
+        const now = new Date().getTime();
         for (const p of this.players) {
-            if (p === null) return;
+            if (p === null) continue;
             p.update();
         }
+
+        if (this.startState === 1 && now - this.startedOn >= 3000) this.startState = 2;
+        else if (this.startState === 2 && now - this.startedOn >= 5000) this.startState = 3;
     }
 
     /** Export the game to clients. */
@@ -106,7 +112,7 @@ class Game {
             version,
             players: this.players,
             connected,
-            started: this.started
+            startState: this.startState
         };
     }
 }

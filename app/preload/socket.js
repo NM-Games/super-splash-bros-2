@@ -83,7 +83,6 @@ const open = (options) => {
     });
     ws.addEventListener("message", (e) => {
         const data = parse(e.data);
-        if (data.act === "join") console.warn("JOIN ALERT !!");
         if (data.act === "join" && !isHost) options.onopen(data.index);
         else game = data;
 
