@@ -79,7 +79,7 @@ wss.on("connection", (socket, request) => {
         } else if (json.act === "join") {
             const join = game.join(json.appearance, socket.ip);
             if (join === -1) socket.close(1000, "That game is already full!");
-            else if (join === -2) socket.close(1000, "You are banned from that game!");
+            else if (join === -2) socket.close(1000, "You have been banned from this game!");
             else send({act: "join", index: join}); // welcome player to game
         } else if (json.act === "keys") {
 

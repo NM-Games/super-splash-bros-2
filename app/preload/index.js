@@ -246,6 +246,10 @@ const konamiEasterEgg = {
 let frames = 0;
 let game = socket.getGame();
 let playerIndex = -1;
+let banButton = {
+    hoverIndex: -1,
+    active: false
+};
 
 Button.items = [
     // Main menu
@@ -880,6 +884,21 @@ addEventListener("DOMContentLoaded", () => {
                 button.hovering = (e.clientX > button.x() - button.width / 2 && e.clientX < button.x() + button.width / 2 && !water.flood.enabled
                  && e.clientY > button.y() - button.height / 2 && e.clientY < button.y() + button.height / 2 && !button.disabled && !state.change.active);
             }
+
+            if (state.current === state.WAITING_LAN_HOST) {
+                banButton.hoverIndex = -1;
+                for (let i=0; i<8; i++) {
+                    const x = (i % 2 === 0) ? c.width(0.5) - 510 : c.width(0.5) + 10;
+                    const y = Math.floor(i / 2) * 100 + c.height(0.2) + 8;
+                    const w = 500;
+                    const h = 80;
+
+                    if (e.clientX > x && e.clientX < x + w && e.clientY > y && e.clientY < y + h && game.players[i] !== null && i !== game.host) {
+                        banButton.hoverIndex = i;
+                        break;
+                    }
+                }
+            }
         }
         for (const input of Input.items) {
             if (input.state !== state.current) {
@@ -904,6 +923,7 @@ addEventListener("DOMContentLoaded", () => {
             input.focused = (input.hovering && !state.change.active);
             if (oldFocused && !input.focused) input.onblur();
         }
+        if (banButton.hoverIndex > -1) banButton.active = true;
     });
     addEventListener("mouseup", (_e) => {
         for (const button of (dialog.visible ? Button.dialogItems : Button.items)) {
@@ -913,6 +933,9 @@ addEventListener("DOMContentLoaded", () => {
                 break;
             } else if (button.active) button.active = false;
         }
+        if (banButton.hoverIndex > -1 && banButton.active) ipcRenderer.send("ban", banButton.hoverIndex);
+        banButton.hoverIndex = -1;
+        banButton.active = false;
     });
 
     const update = () => {
@@ -977,7 +1000,7 @@ addEventListener("DOMContentLoaded", () => {
         if (errorAlert.visible) errorAlert.y = Math.min(50, errorAlert.y + errorAlert.vy);
         else errorAlert.y = Math.max(-100, errorAlert.y - errorAlert.vy);
 
-        document.body.style.cursor = (hoverings.button > 0) ? "pointer" : (hoverings.input > 0) ? "text" : "default";
+        document.body.style.cursor = (hoverings.button > 0 || banButton.hoverIndex > -1) ? "pointer" : (hoverings.input > 0) ? "text" : "default";
     };
 
     const draw = () => {
@@ -1078,6 +1101,7 @@ addEventListener("DOMContentLoaded", () => {
                 if (game.players[i] === null) c.options.setOpacity(0.5);
                 c.draw.fill.rect(theme.colors.players[`p${i + 1}`], x + state.change.x, c.height(0.2) + y * 100, 500, 80, 8);
                 c.draw.croppedImage(image.sprites, i * 128, 0, 128, 128, x + 8 + state.change.x, c.height(0.2) + y * 100 + 8, 64, 64);
+                if (i === banButton.hoverIndex) c.draw.stroke.rect(theme.colors.error[banButton.active ? "foreground":"background"], x + state.change.x, c.height(0.2) + y * 100, 500, 80, 4, 8);
                 if (game.players[i] !== null) {
                     let additionalText = false;
                     console.log(`i: ${i}, playerIndex: ${playerIndex}, game.host: ${game.host}`);

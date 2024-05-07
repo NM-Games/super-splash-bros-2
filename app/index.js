@@ -46,7 +46,7 @@ app.on("ready", () => {
 
             window.webContents.send("information", version, process.versions.electron, process.versions.chrome, totalWidth);
         });
-        window.webContents.openDevTools();
+        // window.webContents.openDevTools();
     
         window.on("ready-to-show", () => {
             window.webContents.send("fullscreen-status", window.isFullScreen());
@@ -85,7 +85,10 @@ app.on("ready", () => {
         });
         ipcMain.on("lan-cycle-theme", () => {
             gameserver.postMessage("theme");
-        })
+        });
+        ipcMain.on("ban", (_e, index) => {
+            gameserver.postMessage(`ban:${index}`);
+        });
     }).catch((err) => {
         dialog.showErrorBox("Cannot start Super Splash Bros 2", `${err}: The Super Splash Bros 2 port, ${network.port}, is already in use.`);
         app.exit(2);
