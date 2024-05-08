@@ -18,11 +18,12 @@ let game;
  * @type {import("../class/game/Game")["export"]}
  */
 const getGame = () => game;
+
 /**
  * Check whether the socket is open.
  * @returns {boolean}
  */
-const isOpen = () => (ws && ws.readyState === ws.OPEN);
+const isOpen = () => (Boolean(ws) && ws.readyState === ws.OPEN);
 
 /**
  * Send data through a WebSocket.
@@ -34,6 +35,16 @@ const send = (data) => {
     const payload = (typeof data === "string") ? data : JSON.stringify(data);
     ws.send(payload);
 };
+/**
+ * Update the pressed keys.
+ * @param {import("./settings").Settings["controls"]} keys 
+ */
+const sendKeys = (keys) => {
+    if (!ws || ws.readyState !== ws.OPEN) return;
+
+    send({act: "keys", version, keys});
+};
+
 /**
  * Parse data received through a WebSocket.
  * @param {string | Buffer} data
@@ -76,7 +87,7 @@ const open = (options) => {
     ws.addEventListener("close", (e) => {
         if (options.onclose) options.onclose(e);
         clearTimeout(connectTimeout);
-        ws = undefined;
+        ws = game = undefined;
     });
     ws.addEventListener("error", () => {
         if (options.onerror) options.onerror();
@@ -97,4 +108,4 @@ const close = () => {
     if (ws) ws.close();
 };
 
-module.exports = {open, close, isOpen, getGame};
+module.exports = {open, close, isOpen, getGame, sendKeys};

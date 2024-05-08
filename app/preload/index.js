@@ -127,6 +127,15 @@ const checkLANAvailability = () => {
 /** @type {import("./settings").Settings} */
 const config = {appearance: {}, graphics: {}, controls: {}};
 const versions = {game: "", electron: "", chromium: ""};
+const keys = {
+    moveLeft: false,
+    moveRight: false,
+    jump: false,
+    attack: false,
+    launchRocket: false,
+    activateSuperpower: false,
+    gameMenu: false
+};
 const water = {
     imageX: 0,
     x: 0,
@@ -861,6 +870,31 @@ addEventListener("DOMContentLoaded", () => {
             konamiEasterEgg.index++;
             if (konamiEasterEgg.index >= konamiEasterEgg.keys.length) konamiEasterEgg.activated = true;
         } else konamiEasterEgg.index = 0;
+
+        if (game) {
+            let keyChange = false;
+            for (let i in config.controls) {
+                if (e.key === config.controls[i]) {
+                    keyChange = true;
+                    keys[i] = true;
+                    break;
+                }
+            }
+            if (keyChange) socket.sendKeys(keys);
+        }
+    });
+    addEventListener("keyup", (e) => {
+        if (game) {
+            let keyChange = false;
+            for (let i in config.controls) {
+                if (e.key === config.controls[i]) {
+                    keyChange = true;
+                    keys[i] = false;
+                    break;
+                }
+            }
+            if (keyChange) socket.sendKeys(keys);
+        }
     });
 
     addEventListener("mousemove", (e) => {
