@@ -5,11 +5,13 @@
  */
 
 /**
- * @typedef {"join" | "update" | "keys" | "error"} SocketActions
+ * @typedef {"join" | "update" | "keys"} SocketActions
  * @typedef {{
  *  act: SocketActions,
  *  version: string,
- *  appearance: import("./preload/settings").Settings["appearance"]
+ *  index?: number,
+ *  appearance?: import("./preload/settings").Settings["appearance"],
+ *  keys?: import("./preload/settings").Settings["controls"],
  * }} SocketData
  */
 
