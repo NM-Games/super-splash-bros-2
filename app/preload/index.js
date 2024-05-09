@@ -1061,7 +1061,15 @@ addEventListener("DOMContentLoaded", () => {
                 if (sprite.visible) c.draw.croppedImage(image.sprites, sprite.color * 128, sprite.facing * 128, 128, 128, sprite.x, sprite.y, 96, 96);
             }
         } else if ([state.PLAYING_LAN, state.PLAYING_FREEPLAY].includes(state.current) && game) {
-            c.draw.image(image.platforms, (c.width() - image.platforms.width) / 2, c.height() - image.platforms.height);
+            const offset = {x: (c.width() - image.platforms.width) / 2, y: c.height() - image.platforms.height};
+
+            c.draw.image(image.platforms, offset.x, offset.y);
+            for (let i=0; i<game.players.length; i++) {
+                const p = game.players[i];
+                if (p === null) continue;
+
+                c.draw.croppedImage(image.sprites, i * 128, Number(p.facing === "r") * 128, 128, 128, p.x + offset.x, p.y + offset.y, p.size, p.size);
+            }
         }
 
         water.imageX = 0;

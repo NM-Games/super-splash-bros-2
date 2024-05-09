@@ -87,7 +87,8 @@ wss.on("connection", (socket, request) => {
             if (join === -1) socket.close(1000, "That game is already full!");
             else send({act: "join", index: join}); // welcome player to game
         } else if (json.act === "keys") {
-
+            const clientIndex = game.ips.indexOf(socket.ip);
+            if (clientIndex > -1) game.players[clientIndex].setKeys(json.keys);
         }
     });
     socket.on("close", () => {

@@ -43,7 +43,7 @@ class Game {
             let success = -1;
             for (let i=0; i<this.players.length; i++) {
                 if (this.players[i] === null) {
-                    this.players[i] = new Player(appearance.playerName, appearance.superpower);
+                    this.players[i] = new Player(appearance, i);
                     this.ips[i] = ip;
                     success = i;
                     break;
@@ -51,7 +51,7 @@ class Game {
             }
             return success;
         } else {
-            this.players[appearance.preferredColor] = new Player(appearance.playerName, appearance.superpower);
+            this.players[appearance.preferredColor] = new Player(appearance);
             this.ips[appearance.preferredColor] = ip;
             if (ip.includes("127.0.0.1")) this.hostIndex = appearance.preferredColor;
         }
