@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, screen, dialog, globalShortcut, utilityProcess } = require("electron");
+const { app, BrowserWindow, Menu, ipcMain, screen, dialog, globalShortcut, utilityProcess } = require("electron");
 const { join } = require("path");
 
 const network = require("./network");
@@ -10,9 +10,25 @@ let window;
 /** @type {Electron.UtilityProcess} */
 let gameserver;
 
+app.setName("Super Splash Bros 2");
+if (process.platform === "darwin") {
+    Menu.setApplicationMenu(Menu.buildFromTemplate([{
+        label: app.name,
+        submenu: [
+            {role: "about"},
+            {type: "separator"},
+            {role: "hide"},
+            {role: "hideOthers"},
+            {role: "unhide"},
+            {type: "separator"},
+            {role: "quit"}
+        ]
+    }]));
+}
+
 app.on("ready", () => {
     if (!app.requestSingleInstanceLock()) {
-        dialog.showErrorBox("Cannot start Super Splash Bros 2", "You already have an instance running on this device!");
+        dialog.showErrorBox(`Cannot start ${app.name}`, "You already have an instance running on this device!");
         app.exit(1);
         return;
     }
@@ -31,13 +47,14 @@ app.on("ready", () => {
             webPreferences: {
                 sandbox: false,
                 contextIsolation: false,
+                devTools: !app.isPackaged,
                 preload: join(__dirname, "preload", "index.js")
             }
         });
     
         window.maximize();
         window.removeMenu();
-        window.setTitle("Super Splash Bros 2");
+        window.setTitle(app.name);
         window.loadFile(join(__dirname, "window", "index.html"));
         window.setIcon(join(__dirname, "img", "icon.png"));
         window.webContents.on("dom-ready", () => {
@@ -46,7 +63,6 @@ app.on("ready", () => {
 
             window.webContents.send("information", version, process.versions.electron, process.versions.chrome, totalWidth);
         });
-        // window.webContents.openDevTools();
     
         window.on("ready-to-show", () => {
             window.webContents.send("fullscreen-status", window.isFullScreen());
@@ -66,6 +82,7 @@ app.on("ready", () => {
         
         ipcMain.on("toggle-fullscreen", toggleFullScreen);
         globalShortcut.register("F11", toggleFullScreen);
+        globalShortcut.register("F12", () => window.webContents.openDevTools());
         window.on("enter-full-screen", () => {
             window.webContents.send("fullscreen-status", true);
         });
@@ -87,7 +104,7 @@ app.on("ready", () => {
         ipcMain.on("ban", (_e, index) => gameserver.postMessage(`ban:${index}`));
         ipcMain.on("start", () => gameserver.postMessage("start"));
     }).catch((err) => {
-        dialog.showErrorBox("Cannot start Super Splash Bros 2", `${err}: The Super Splash Bros 2 port, ${network.port}, is already in use.`);
+        dialog.showErrorBox(`Cannot start ${app.name}`, `${err}: The ${app.name} port, ${network.port}, is already in use.`);
         app.exit(2);
     });
 });
