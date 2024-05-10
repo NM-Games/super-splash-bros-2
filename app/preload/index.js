@@ -100,9 +100,13 @@ const connect = (asHost) => {
                 connectionMessage.show(e.reason, theme.colors.error.foreground, 3);
                 setConnectElementsState(false);
             } else {
+                if (state.current === state.PLAYING_LAN) water.flood.enable(true);
                 const reason = (e.reason) ? e.reason : "You have been disconnected because the game you were in was closed.";
-                state.change.to(state.LAN_GAME_MENU, true, () => errorAlert.show(reason));
-                theme.current = config.graphics.theme;
+                state.change.to(state.LAN_GAME_MENU, true, () => {
+                    water.flood.disable();    
+                    errorAlert.show(reason)
+                    theme.current = config.graphics.theme;
+                });
             }
         },
         onerror: () => {
@@ -147,13 +151,13 @@ const water = {
         levelAcceleration: 0.5, // for enabling only
         enabling: false,
         disabling: false,
-        enable: function() {
+        enable: function(boost = false) {
             if (this.enabling) return;
             
             this.enabled = true;
             this.disabling = false;
             this.enabling = true;
-            this.levelSpeed = 0;
+            this.levelSpeed = Number(boost) * c.height() / 10;
         },
         disable: function() {
             if (this.disabling) return;
@@ -1068,7 +1072,7 @@ addEventListener("DOMContentLoaded", () => {
                 const p = game.players[i];
                 if (p === null) continue;
 
-                c.draw.croppedImage(image.sprites, i * 128, Number(p.facing === "r") * 128, 128, 128, p.x + offset.x, p.y + offset.y, p.size, p.size);
+                c.draw.croppedImage(image.sprites, i * 128, Number(p.facing === "l") * 128, 128, 128, p.x + offset.x, p.y + offset.y, p.size, p.size);
             }
         }
 

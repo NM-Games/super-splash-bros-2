@@ -7,6 +7,8 @@ const Player = require("./Player");
 const { version } = require("../../../package.json");
 
 class Game {
+    static floodDelay = 180;
+
     /** @type {Themes} */
     theme;
     /** @type {Player[]} */
@@ -18,6 +20,7 @@ class Game {
     /** @type {string[]} */
     blacklist;
     hostIndex;
+    ping;
 
     /**
      * @constructor
@@ -88,14 +91,29 @@ class Game {
 
     /** Update the game. */
     update() {
-        const now = new Date().getTime();
+        this.ping = new Date().getTime();
         for (const p of this.players) {
             if (p === null) continue;
             p.update();
         }
 
-        if (this.startState === 1 && now - this.startedOn >= 3000) this.startState = 2;
-        else if (this.startState === 2 && now - this.startedOn >= 5000) this.startState = 3;
+        if (this.startState === 1 && this.ping - this.startedOn >= 3000) this.startState = 2;
+        else if (this.startState === 2 && this.ping - this.startedOn >= 5000) this.startState = 3;
+
+        for (let i=0; i<this.players.length; i++) {
+            for (let j=0; j<this.players.length; j++) {
+                const p1 = this.players[i];
+                const p2 = this.players[j];
+                if (p1 === null || p2 === null || i === j) continue;
+
+
+                if (p1.x < p2.x + p2.size && p1.x + p1.size > p2.x &&
+                 p1.y < p2.y + p2.size && p1.y + p1.size > p2.y) {
+                    console.warn("kaboomski");   
+                }
+            }
+        }
+
     }
 
     /** Export the game to clients. */
