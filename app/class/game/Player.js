@@ -21,8 +21,11 @@ class Player {
         {x: 1035, y: 328, w: 200, h: 27} // right
     ];
 
+    index;
     x;
     y;
+    lx;
+    ly;
     vx;
     vy;
     size;
@@ -42,10 +45,10 @@ class Player {
      * @param {number | undefined} index
      */
     constructor(appearance, index) {
-        const i = index ?? appearance.preferredColor;
+        this.index = index ?? appearance.preferredColor;
         this.name = appearance.playerName;
-        this.x = Player.initialCoordinates[i].x;
-        this.y = Player.initialCoordinates[i].y;
+        this.x = this.lx = Player.initialCoordinates[this.index].x;
+        this.y = this.ly = Player.initialCoordinates[this.index].y;
         this.vx = 0;
         this.vy = 0;
         this.size = 64;
@@ -96,6 +99,7 @@ class Player {
         this.keys.superpower = keys.activateSuperpower;
     }
 
+    /** Update a player. Collision detection between players is done in the Game class. */
     update() {
         this.x += this.vx;
         this.y += this.vy;
@@ -120,11 +124,28 @@ class Player {
         for (const platform of Player.platforms) {
             if (this.x < platform.x + platform.w && this.x + this.size > platform.x &&
              this.y < platform.y + platform.h && this.y + this.size > platform.y) {
-                this.y = platform.y - this.size;
-                this.jump.used = this.vy = 0;
-                this.jump.active = false;
+                if (this.lx + this.size <= platform.x) {
+                    this.x = platform.x - this.size;
+                    this.vx = 0;
+                } else if (this.lx >= platform.x + platform.w) {
+                    this.x = platform.x + platform.w;
+                    this.vx = 0;
+                } else if (platform.y + platform.h <= this.ly) {
+                    this.y = platform.y + platform.h;
+                    this.vy = 0;
+                } else {
+                    this.y = platform.y - this.size;
+                    this.jump.used = this.vy = 0;
+                    this.jump.active = false;
+                }
             }
         }
+    }
+
+    /** Update last coordinates, used at the end of a frame update. */
+    updateCoordinates() {
+        this.lx = this.x;
+        this.ly = this.y;
     }
 }
 

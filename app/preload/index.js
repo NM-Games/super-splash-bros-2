@@ -586,6 +586,7 @@ Button.items = [
         disabled: true,
         onclick: function() {
             this.hovering = false;
+            banButton.hoverIndex = -1;
             ipcRenderer.send("start");
         }
     }),
@@ -918,7 +919,7 @@ addEventListener("DOMContentLoaded", () => {
                  && e.clientY > button.y() - button.height / 2 && e.clientY < button.y() + button.height / 2 && !button.disabled && !state.change.active);
             }
 
-            if (state.current === state.WAITING_LAN_HOST) {
+            if (state.current === state.WAITING_LAN_HOST && !water.flood.enabled) {
                 banButton.hoverIndex = -1;
                 for (let i=0; i<8; i++) {
                     const x = (i % 2 === 0) ? c.width(0.5) - 510 : c.width(0.5) + 10;
@@ -1068,11 +1069,9 @@ addEventListener("DOMContentLoaded", () => {
             const offset = {x: (c.width() - image.platforms.width) / 2, y: c.height() - image.platforms.height};
 
             c.draw.image(image.platforms, offset.x, offset.y);
-            for (let i=0; i<game.players.length; i++) {
-                const p = game.players[i];
+            for (const p of game.players) {
                 if (p === null) continue;
-
-                c.draw.croppedImage(image.sprites, i * 128, Number(p.facing === "l") * 128, 128, 128, p.x + offset.x, p.y + offset.y, p.size, p.size);
+                c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, p.x + offset.x, p.y + offset.y, p.size, p.size);
             }
         }
 

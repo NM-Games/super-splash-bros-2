@@ -81,6 +81,18 @@ class Game {
         this.remove(index);
     }
 
+    /**
+     * Get all the players in a game, without `null` values.
+     * @returns {Player[]}
+     */
+    getPlayers() {
+        const output = [];
+        for (const p of this.players) {
+            if (p !== null) output.push(p);
+        }
+        return output;
+    }
+
     /** Start the game. */
     start() {
         if (this.startState > 0) return;
@@ -92,28 +104,38 @@ class Game {
     /** Update the game. */
     update() {
         this.ping = new Date().getTime();
-        for (const p of this.players) {
-            if (p === null) continue;
-            p.update();
-        }
+        for (const p of this.getPlayers()) p.update();
 
         if (this.startState === 1 && this.ping - this.startedOn >= 3000) this.startState = 2;
         else if (this.startState === 2 && this.ping - this.startedOn >= 5000) this.startState = 3;
 
-        for (let i=0; i<this.players.length; i++) {
-            for (let j=0; j<this.players.length; j++) {
-                const p1 = this.players[i];
-                const p2 = this.players[j];
-                if (p1 === null || p2 === null || i === j) continue;
-
+        for (const p1 of this.getPlayers()) {
+            for (const p2 of this.getPlayers()) {
+                if (p1.index === p2.index) continue;
 
                 if (p1.x < p2.x + p2.size && p1.x + p1.size > p2.x &&
                  p1.y < p2.y + p2.size && p1.y + p1.size > p2.y) {
-                    console.warn("kaboomski");   
+                    console.warn("kaboomski");
+                    if (p1.lx + p1.size <= p2.x) {
+                        if (Math.abs(p1.vx) >= Math.abs(p2.vx)) p2.x = p1.x + p1.size;
+                        else p1.x = p2.x + p2.size;
+                        p1.vx /= 1.1;
+                    } else if (p1.lx >= p2.x + p2.size) {
+                        if (Math.abs(p1.vx) >= Math.abs(p2.vx)) p2.x = p1.x - p1.size;
+                        else p1.x = p2.x - p2.size;
+                        p1.vx /= 1.1;
+                    } else if (p1.ly + p1.size <= p2.y) {
+                        p1.y = p2.y - p2.size;
+                        p1.vy = p1.jump.used = 0;
+                        p1.jump.active = false;
+                    } else if (p2.jump.active) {
+                        p1.y = p2.y - p2.size;
+                    }
                 }
             }
         }
 
+        for (const p of this.getPlayers()) p.updateCoordinates();
     }
 
     /** Export the game to clients. */
