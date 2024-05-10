@@ -2,9 +2,12 @@
   "name": "supersplashbros2",
   "version": "1.0.0",
   "description": "Super Splash Bros 2 - the one and only Super Splash Bros successor!",
-  "main": "index.js",
+  "main": "app/index.js",
   "scripts": {
-    "start": "electron app"
+    "start": "electron app",
+    "build-windows": "electron-builder -w",
+    "build-mac": "electron-builder -m",
+    "build-linux": "electron-builder -l"
   },
   "repository": {
     "type": "git",

@@ -18,11 +18,11 @@ const { readdirSync } = require("fs");
  */
 const image = {};
 
-readdirSync(join(__dirname, "..", "img")).forEach((file) => {
+readdirSync(join(__dirname, "..", "img", "game")).forEach((file) => {
    const name = file.replace(/\.[^/.]+$/, "");
 
    image[name] = new Image();
-   image[name].src = join(__dirname, "..", "img", file);
+   image[name].src = join(__dirname, "..", "img", "game", file);
 });
 
 module.exports = image;

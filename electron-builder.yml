@@ -1,0 +1,63 @@
+appId: eu.nm-games.supersplashbros2
+productName: Super Splash Bros 2
+linux:
+  icon: app/img/icons
+  executableName: supersplashbros2
+  category: Game;Application;
+  maintainer: N&M Games
+  publish:
+  target:
+    - target: AppImage
+      arch:
+        - x64
+        - arm64
+    - target: deb
+      arch:
+        - x64
+        - arm64
+    - target: rpm
+      arch:
+        - x64
+        - arm64
+mac:
+  category: public.app-category.games
+  icon: app/img/icons
+  publish:
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+win:
+  icon: app/img/icons/512x512.png
+  legalTrademarks: Copyright © N&M Games | Licensed as free software (GPL-3.0 or later)
+  publish:
+  target:
+    - target: nsis
+      arch:
+        - x64
+nsis:
+  differentialPackage: false
+  oneClick: false
+  license: LICENSE
+  createDesktopShortcut: false
+  allowToChangeInstallationDirectory: true
+dmg:
+  background: app/img/misc/mac-installer.tiff
+  icon: app/img/icons/128x128.png
+  iconSize: 128
+  iconTextSize: 12
+  contents:
+    - x: 105
+      y: 160
+    - x: 695
+      y: 160
+      type: link
+      path: /Applications
+
+protocols:
+  - name: WebSocket
+    schemes:
+      - ws
+      - wss
+copyright: Copyright © N&M Games | Licensed as free software (GPL-3.0 or later)

@@ -56,7 +56,7 @@ app.on("ready", () => {
         window.removeMenu();
         window.setTitle(app.name);
         window.loadFile(join(__dirname, "window", "index.html"));
-        window.setIcon(join(__dirname, "img", "icon.png"));
+        window.setIcon(join(__dirname, "img", "icons", "128x128.png"));
         window.webContents.on("dom-ready", () => {
             let totalWidth = 0;
             for (const scr of screen.getAllDisplays()) totalWidth += scr.bounds.width;
