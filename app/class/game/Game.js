@@ -4,6 +4,7 @@
  */
 
 const Player = require("./Player");
+const Rocket = require("./Rocket");
 const { version } = require("../../../package.json");
 
 class Game {
@@ -15,6 +16,8 @@ class Game {
     players;
     /** @type {string[]} */
     ips;
+    /** @type {Rocket[]} */
+    rockets;
     startState;
     startedOn;
     /** @type {string[]} */
@@ -30,6 +33,7 @@ class Game {
         this.theme = "";
         this.players = [null, null, null, null, null, null, null, null];
         this.ips = [null, null, null, null, null, null, null, null];
+        this.rockets = [];
         this.startState = 0;
         this.startedOn = -6e9;
         this.blacklist = [];
@@ -133,6 +137,20 @@ class Game {
                     }
                 }
             }
+
+            if (p1.keys.rocket && p1.attacks.rocket.count > 0 && this.ping - p1.attacks.rocket.lastPerformed >= p1.attacks.rocket.cooldown) {
+                p1.attacks.rocket.lastPerformed = this.ping;
+                p1.attacks.rocket.count--;
+                this.rockets.push(new Rocket(p1.index, p1.x, p1.y, p1.facing));
+            }
+        }
+
+        for (const rocket of this.rockets) {
+            rocket.update();
+            for (const p of this.getPlayers()) {
+                if (rocket.player !== p.index && rocket.x < p.x + p.size && rocket.x + rocket.width > p.x && rocket.y > p.y && rocket.y < p.y + p.size)
+                 rocket.explode();
+            }
         }
 
         for (const p of this.getPlayers()) p.updateCoordinates();
@@ -151,6 +169,7 @@ class Game {
             host: this.hostIndex,
             version,
             players: this.players,
+            rockets: this.rockets,
             connected,
             startState: this.startState
         };

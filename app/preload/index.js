@@ -976,7 +976,7 @@ addEventListener("DOMContentLoaded", () => {
         frames++;
         if (socket.isOpen()) game = socket.getGame();
         if (game) {
-            Button.getButtonById("StartLANGame").disabled = (game.connected <= 1);
+            Button.getButtonById("StartLANGame").disabled = (game.connected < 1);
 
             if (lastStartState === 0 && game.startState === 1) water.flood.enable();
             else if (lastStartState === 1 && game.startState === 2) {
@@ -1072,6 +1072,19 @@ addEventListener("DOMContentLoaded", () => {
             for (const p of game.players) {
                 if (p === null) continue;
                 c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, p.x + offset.x, p.y + offset.y, p.size, p.size);
+                c.options.setShadow(theme.colors.text.dark, 5);
+                c.draw.text({text: p.name, x: p.x + p.size / 2 + offset.x, y: p.y + offset.y - 10, font: {size: 20}});
+                c.options.setShadow();
+            }
+            for (const r of game.rockets) {
+                c.options.setOpacity(r.trail.a);
+                c.draw.line(theme.colors.players[r.player], r.trail.startX + offset.x, r.y + offset.y, r.x + offset.x, r.y + offset.y, 5);
+                c.options.setOpacity(1);
+                if (r.explosion.active) {
+                    c.options.setOpacity(r.explosion.a);
+                    c.draw.image(image.explosion, r.x - r.explosion.size / 2 + offset.x, r.y - r.explosion.size / 2, r.explosion.size, r.explosion.size);
+                    c.options.setOpacity(1);
+                } else c.draw.line(theme.getTextColor(), r.x + offset.x, r.y + offset.y, r.x + r.width + offset.x, r.y + offset.y, 9);
             }
         }
 
@@ -1151,7 +1164,7 @@ addEventListener("DOMContentLoaded", () => {
                 const y = Math.floor(i / 2);
                 
                 if (game.players[i] === null) c.options.setOpacity(0.5);
-                c.draw.fill.rect(theme.colors.players[`p${i + 1}`], x + state.change.x, c.height(0.2) + y * 100, 500, 80, 8);
+                c.draw.fill.rect(theme.colors.players[i], x + state.change.x, c.height(0.2) + y * 100, 500, 80, 8);
                 c.draw.croppedImage(image.sprites, i * 128, 0, 128, 128, x + 8 + state.change.x, c.height(0.2) + y * 100 + 8, 64, 64);
                 if (i === banButton.hoverIndex) c.draw.stroke.rect(theme.colors.error[banButton.active ? "foreground":"background"], x + state.change.x, c.height(0.2) + y * 100, 500, 80, 4, 8);
                 if (game.players[i] !== null) {

@@ -207,6 +207,25 @@ const draw = {
         c.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
     },
     /**
+     * Draw a line on the screen.
+     * @param {string | CanvasGradient | CanvasPattern} color
+     * @param {number} x1
+     * @param {number} y1
+     * @param {number} x2
+     * @param {number} y2
+     * @param {number} lw
+     * @param {"butt" | "round"} lc
+     */
+    line: (color, x1, y1, x2, y2, lw = 2, lc = "round") => {
+        c.strokeStyle = color;
+        c.lineWidth = lw;
+        c.lineCap = lc;
+        c.beginPath();
+        c.moveTo(x1, y1);
+        c.lineTo(x2, y2);
+        c.stroke();
+    },
+    /**
      * Draw text on the screen.
      * @param {{
      *  text: string,

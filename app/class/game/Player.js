@@ -63,11 +63,13 @@ class Player {
         };
         this.attacks = {
             melee: {
-                data: [],
+                cooldown: 500,
                 lastPerformed: -6e9
             },
             rocket: {
-                data: [],
+                count: 2,
+                cooldown: 5000,
+                regenerationInterval: 20000,
                 lastPerformed: -6e9
             },
             superpower: {

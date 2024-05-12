@@ -9,16 +9,16 @@ const colors = {
         night: "#000000",
         synthwave: "#1b023b",
     },
-    players: {
-        p1: "#ffd900",
-        p2: "#47d727",
-        p3: "#ff1200",
-        p4: "#002eff",
-        p5: "#ff7f00",
-        p6: "#00e9ff",
-        p7: "#ee00ff",
-        p8: "#7b7b7b"
-    },
+    players: [
+        "#ffd900", // yellow
+        "#47d727", // green
+        "#ff1200", // red
+        "#002eff", // blue
+        "#ff7f00", // orange
+        "#00e9ff", // cyan
+        "#ee00ff", // purple
+        "#7b7b7b"  // gray
+    ],
     ui: {primary: "#42cbe0", secondary: "#32a4d9"},
     error: {background: "#700", foreground: "#e00"},
     text: {dark: "#505050", light: "#ffffff"},
