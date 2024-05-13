@@ -33,6 +33,8 @@ class Rocket {
      */
     update() {
         if (this.explosion.active) {
+            this.trail.a = Math.max(0, this.trail.a - 0.02);
+
             if (this.explosion.size < 400) this.explosion.size += 15;
             else if (this.explosion.a > 0) this.explosion.a = Math.max(0, this.explosion.a - 0.014);
             else return false;

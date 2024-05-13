@@ -9,6 +9,7 @@ const network = require("../network");
 const Button = require("../class/ui/Button");
 const Input = require("../class/ui/Input");
 const MenuSprite = require("../class/ui/MenuSprite");
+const { getMaxListeners } = require("ws");
 
 
 const state = {
@@ -1086,6 +1087,11 @@ addEventListener("DOMContentLoaded", () => {
                     c.options.setOpacity(1);
                 } else c.draw.line(theme.getTextColor(), r.x + offset.x, r.y + offset.y, r.x + r.width + offset.x, r.y + offset.y, 9);
             }
+            for (const s of game.splashes) {
+                c.options.setOpacity(s.a);
+                c.draw.image(image.splash, s.x - image.splash.width / 2 + offset.x, offset.y + 560);
+            }
+            c.options.setOpacity(1);
         }
 
         water.imageX = 0;

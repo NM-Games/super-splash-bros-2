@@ -103,25 +103,27 @@ class Player {
 
     /** Update a player. Collision detection between players is done in the Game class. */
     update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.vy += Player.g;
-
-        if (this.keys.left && !this.keys.right) {
-            this.facing = "l";
-            this.vx -= Player.acceleration;
-        } else if (!this.keys.left && this.keys.right) {
-            this.facing = "r";
-            this.vx += Player.acceleration;
-        } else this.vx /= Player.deceleration;
-
-        if (this.keys.jump && !this.jump.heldKey && this.jump.used < Player.maxJumps) {
-            this.jump.active = true;
-            this.jump.used++;
-            this.y -= 2;
-            this.vy = -Player.jumpForce;
-        }
-        this.jump.heldKey = this.keys.jump;
+        if (this.lives > 0) {
+            this.x += this.vx;
+            this.y += this.vy;
+            this.vy += Player.g;
+    
+            if (this.keys.left && !this.keys.right) {
+                this.facing = "l";
+                this.vx -= Player.acceleration;
+            } else if (!this.keys.left && this.keys.right) {
+                this.facing = "r";
+                this.vx += Player.acceleration;
+            } else this.vx /= Player.deceleration;
+    
+            if (this.keys.jump && !this.jump.heldKey && this.jump.used < Player.maxJumps) {
+                this.jump.active = true;
+                this.jump.used++;
+                this.y -= 2;
+                this.vy = -Player.jumpForce;
+            }
+            this.jump.heldKey = this.keys.jump;
+        } else this.x = this.y = -1e8;
 
         for (const platform of Player.platforms) {
             if (this.x < platform.x + platform.w && this.x + this.size > platform.x &&

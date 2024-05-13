@@ -5,6 +5,7 @@
 
 const Player = require("./Player");
 const Rocket = require("./Rocket");
+const Splash = require("./Splash");
 const { version } = require("../../../package.json");
 
 class Game {
@@ -18,6 +19,8 @@ class Game {
     ips;
     /** @type {Rocket[]} */
     rockets;
+    /** @type {Splash[]} */
+    splashes;
     startState;
     startedOn;
     /** @type {string[]} */
@@ -34,6 +37,7 @@ class Game {
         this.players = [null, null, null, null, null, null, null, null];
         this.ips = [null, null, null, null, null, null, null, null];
         this.rockets = [];
+        this.splashes = [];
         this.startState = 0;
         this.startedOn = -6e9;
         this.blacklist = [];
@@ -108,12 +112,13 @@ class Game {
     /** Update the game. */
     update() {
         this.ping = new Date().getTime();
-        for (const p of this.getPlayers()) p.update();
 
         if (this.startState === 1 && this.ping - this.startedOn >= 3000) this.startState = 2;
         else if (this.startState === 2 && this.ping - this.startedOn >= 5000) this.startState = 3;
 
         for (const p1 of this.getPlayers()) {
+            p1.update();
+
             for (const p2 of this.getPlayers()) {
                 if (p1.index === p2.index) continue;
 
@@ -138,6 +143,16 @@ class Game {
                 }
             }
 
+            console.log(this.splashes);
+            if (p1.y > 700) {
+                p1.lives--;
+                this.splashes.push(new Splash(p1.x + p1.size / 2));
+                if (p1.lives > 0) {
+                    p1.respawn = this.ping;
+                    p1.x = Player.initialCoordinates[p1.index].x;
+                    p1.y = Player.initialCoordinates[p1.index].y;                    
+                }
+            }
             if (p1.keys.rocket && p1.attacks.rocket.count > 0 && this.ping - p1.attacks.rocket.lastPerformed >= p1.attacks.rocket.cooldown) {
                 p1.attacks.rocket.lastPerformed = this.ping;
                 p1.attacks.rocket.count--;
@@ -145,12 +160,20 @@ class Game {
             }
         }
 
-        for (const rocket of this.rockets) {
-            rocket.update();
+        for (let i=0; i<this.rockets.length;) {
+            const rocket = this.rockets[i];
+
             for (const p of this.getPlayers()) {
                 if (rocket.player !== p.index && rocket.x < p.x + p.size && rocket.x + rocket.width > p.x && rocket.y > p.y && rocket.y < p.y + p.size)
-                 rocket.explode();
+                    rocket.explode();
             }
+
+            if (rocket.update()) i++;
+            else this.rockets.splice(i, 1);
+        }
+        for (let i=0; i<this.splashes.length;) {
+            if (this.splashes[i].update()) i++;
+            else this.splashes.splice(i, 1);
         }
 
         for (const p of this.getPlayers()) p.updateCoordinates();
@@ -170,6 +193,7 @@ class Game {
             version,
             players: this.players,
             rockets: this.rockets,
+            splashes: this.splashes,
             connected,
             startState: this.startState
         };
