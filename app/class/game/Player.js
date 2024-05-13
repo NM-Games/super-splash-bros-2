@@ -38,6 +38,7 @@ class Player {
     attacks;
     keys;
     respawn;
+    spawnProtection;
 
     /**
      * @constructor
@@ -55,7 +56,8 @@ class Player {
         this.facing = "r";
         this.lives = 3;
         this.jump = {used: 0, active: false, heldKey: false};
-        this.respawn = new Date().getTime() - 5000;
+        this.spawnProtection = 5000;
+        this.respawn = new Date().getTime() - this.spawnProtection;
         this.hit = {
             percentage: 0,
             cooldown: false,

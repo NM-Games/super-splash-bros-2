@@ -206,6 +206,7 @@ class Game {
             theme: this.theme,
             host: this.hostIndex,
             version,
+            ping: this.ping,
             players: this.players,
             rockets: this.rockets,
             splashes: this.splashes,

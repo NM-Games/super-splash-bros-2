@@ -1072,7 +1072,8 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.image(image.platforms, offset.x, offset.y);
             for (const p of game.players) {
                 if (p === null) continue;
-                c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, p.x + offset.x, p.y + offset.y, p.size, p.size);
+                
+                if (frames % 4 < 2 || game.ping - p.respawn >= p.spawnProtection) c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, p.x + offset.x, p.y + offset.y, p.size, p.size);
                 c.options.setShadow(theme.colors.text.dark, 5);
                 c.draw.text({text: p.name, x: p.x + p.size / 2 + offset.x, y: p.y + offset.y - 10, font: {size: 20}});
                 c.options.setShadow();
