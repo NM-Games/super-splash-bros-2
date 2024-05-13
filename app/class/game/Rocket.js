@@ -1,5 +1,6 @@
 class Rocket {
     static speed = 25;
+    static impact = 18;
 
     player;
     x;

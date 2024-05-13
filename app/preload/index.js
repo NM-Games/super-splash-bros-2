@@ -1083,7 +1083,7 @@ addEventListener("DOMContentLoaded", () => {
                 c.options.setOpacity(1);
                 if (r.explosion.active) {
                     c.options.setOpacity(r.explosion.a);
-                    c.draw.image(image.explosion, r.x - r.explosion.size / 2 + offset.x, r.y - r.explosion.size / 2, r.explosion.size, r.explosion.size);
+                    c.draw.image(image.explosion, r.x - r.explosion.size / 2 + offset.x, r.y - r.explosion.size / 2 + offset.y, r.explosion.size, r.explosion.size);
                     c.options.setOpacity(1);
                 } else c.draw.line(theme.getTextColor(), r.x + offset.x, r.y + offset.y, r.x + r.width + offset.x, r.y + offset.y, 9);
             }

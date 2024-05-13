@@ -143,32 +143,47 @@ class Game {
                 }
             }
 
-            console.log(this.splashes);
             if (p1.y > 700) {
-                p1.lives--;
                 this.splashes.push(new Splash(p1.x + p1.size / 2));
-                if (p1.lives > 0) {
+                if (p1.lives-- > 1) {
                     p1.respawn = this.ping;
                     p1.x = Player.initialCoordinates[p1.index].x;
-                    p1.y = Player.initialCoordinates[p1.index].y;                    
+                    p1.y = Player.initialCoordinates[p1.index].y;  
+                    p1.vx = p1.vy = 0;
                 }
             }
             if (p1.keys.rocket && p1.attacks.rocket.count > 0 && this.ping - p1.attacks.rocket.lastPerformed >= p1.attacks.rocket.cooldown) {
                 p1.attacks.rocket.lastPerformed = this.ping;
                 p1.attacks.rocket.count--;
-                this.rockets.push(new Rocket(p1.index, p1.x, p1.y, p1.facing));
+                this.rockets.push(new Rocket(p1.index, p1.x + Number(p1.facing === "r") * p1.size, p1.y, p1.facing));
             }
         }
 
         for (let i=0; i<this.rockets.length;) {
             const rocket = this.rockets[i];
+            const updateResult = rocket.update();
 
             for (const p of this.getPlayers()) {
-                if (rocket.player !== p.index && rocket.x < p.x + p.size && rocket.x + rocket.width > p.x && rocket.y > p.y && rocket.y < p.y + p.size)
+                if (rocket.player !== p.index && rocket.x < p.x + p.size && rocket.x + rocket.width > p.x && rocket.y > p.y && rocket.y < p.y + p.size && !rocket.explosion.active) {
+                    p.vx += (rocket.direction === "r") ? Rocket.impact : -Rocket.impact;
+                    rocket.explode();
+                }
+            }
+            for (const platform of Player.platforms) {
+                if (rocket.x < platform.x + platform.w && rocket.x + rocket.width > platform.x && rocket.y > platform.y && rocket.y < platform.y + platform.h && !rocket.explosion.active)
                     rocket.explode();
             }
+            for (let j=0; j<this.rockets.length; j++) {
+                const rocket2 = this.rockets[j];
+                if (i === j || rocket.player === rocket2.player) continue;
 
-            if (rocket.update()) i++;
+                if (rocket.x < rocket2.x + rocket2.width && rocket.x + rocket.width > rocket2.x && rocket.y === rocket2.y && !rocket.explosion.active && !rocket2.explosion.active) {
+                    rocket.explode();
+                    rocket2.explode();
+                }
+            }
+
+            if (updateResult) i++;
             else this.rockets.splice(i, 1);
         }
         for (let i=0; i<this.splashes.length;) {
