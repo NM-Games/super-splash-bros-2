@@ -26,6 +26,7 @@ class Game {
     /** @type {string[]} */
     blacklist;
     hostIndex;
+    startPlayerCount;
     ping;
 
     /**
@@ -41,6 +42,7 @@ class Game {
         this.startState = 0;
         this.startedOn = -6e9;
         this.blacklist = [];
+        this.startPlayerCount = 1;
     }
 
     /**
@@ -107,6 +109,7 @@ class Game {
 
         this.startState = 1;
         this.startedOn = new Date().getTime();
+        this.startPlayerCount = this.getPlayers().length;
     }
 
     /** Update the game. */
@@ -211,7 +214,8 @@ class Game {
             rockets: this.rockets,
             splashes: this.splashes,
             connected,
-            startState: this.startState
+            startState: this.startState,
+            startPlayerCount: this.startPlayerCount
         };
     }
 }

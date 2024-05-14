@@ -168,6 +168,25 @@ const draw = {
             c.lineTo(tx, y + h);
             c.closePath();
             c.fill();
+        },
+        /**
+         * Fill a parallellogram on the screen.
+         * @param {string | CanvasGradient | CanvasPattern} color
+         * @param {number} x
+         * @param {number} y
+         * @param {number} w
+         * @param {number} h
+         * @param {number} d
+         */
+        parallellogram: (color, x, y, w, h, d = 15) => {
+            c.fillStyle = color;
+            c.beginPath();
+            c.moveTo(x + d, y);
+            c.lineTo(x + w, y);
+            c.lineTo(x + w - d, y + h);
+            c.lineTo(x, y + h);
+            c.closePath();
+            c.fill();
         }
     },
     stroke: {
