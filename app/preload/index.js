@@ -1075,8 +1075,9 @@ addEventListener("DOMContentLoaded", () => {
                 
                 if (frames % 4 < 2 || game.ping - p.respawn >= p.spawnProtection) c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, p.x + offset.x, p.y + offset.y, p.size, p.size);
                 c.options.setShadow(theme.colors.text.dark, 5);
-                c.draw.text({text: p.name, x: p.x + p.size / 2 + offset.x, y: p.y + offset.y - 10, font: {size: 20}});
+                c.draw.text({text: p.name, x: p.x + p.size / 2 + offset.x, y: p.y + offset.y - (playerIndex === p.index ? 42 : 10), font: {size: 20}});
                 c.options.setShadow();
+                if (playerIndex === p.index) c.draw.fill.triangle(theme.colors.ui.indicator, p.x + p.size / 2 + offset.x, p.y + offset.y - 32, 40, 20);
             }
             for (const r of game.rockets) {
                 c.options.setOpacity(r.trail.a);

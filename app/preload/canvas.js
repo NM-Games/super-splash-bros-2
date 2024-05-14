@@ -151,6 +151,23 @@ const draw = {
             c.beginPath();
             c.arc(x, y, r, 0, Math.PI * 2);
             c.fill();
+        },
+        /**
+         * Fill a down-pointing triangle on the screen.
+         * @param {string | CanvasGradient | CanvasPattern} color
+         * @param {number} tx
+         * @param {number} y
+         * @param {number} w
+         * @param {number} h
+         */
+        triangle: (color, tx, y, w, h) => {
+            c.fillStyle = color;
+            c.beginPath();
+            c.moveTo(tx - w / 2, y);
+            c.lineTo(tx + w / 2, y);
+            c.lineTo(tx, y + h);
+            c.closePath();
+            c.fill();
         }
     },
     stroke: {
