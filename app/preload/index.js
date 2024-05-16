@@ -1095,22 +1095,34 @@ addEventListener("DOMContentLoaded", () => {
             }
             c.options.setOpacity(1);
 
-            const parallellogramWidth = Math.max(150, (c.width() - 150) / game.startPlayerCount);
+            const parallellogramWidth = Math.min(350, Math.max(150, (c.width() - 150) / game.startPlayerCount));
             const spacing = (c.width() - game.startPlayerCount * parallellogramWidth) / game.startPlayerCount;
             let i = 0;
             for (const p of game.players) {
                 if (p === null) continue;
 
                 const x = spacing / 2 + i * (parallellogramWidth + spacing);
+                const offsets = (parallellogramWidth > 250) ? {
+                    sprite: -3,
+                    lives: 84,
+                    percentage: 90
+                } : {
+                    sprite: c.width(-2),
+                    lives: 28,
+                    percentage: 20
+                };
+                const nameSize = Math.min(24, (parallellogramWidth - 150) / 8 + 16);
                 c.options.setShadow(theme.colors.text.dark, 6);
                 c.draw.fill.parallellogram(theme.colors.players[p.index], x, 36, parallellogramWidth, 95);
-                c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x - 3, 15, 80, 80);
-                c.draw.text({text: p.name, x: x + 15, y: 120, color: theme.colors.text.light, font: {size: 24}, alignment: "left"});
-                c.draw.text({text: Math.floor(p.hit.percentage), x: x + 90, y: 97, color: theme.colors.text.light, font: {size: 54, style: "bold"}, alignment: "left", baseline: "bottom"});
+                c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.sprite, 15, 80, 80);
+                c.draw.text({text: p.name, x: x + 11, y: 120, color: theme.colors.text.light, font: {size: nameSize}, alignment: "left", maxWidth: parallellogramWidth - 35});
+                c.draw.text({text: Math.floor(p.hit.percentage), x: x + offsets.percentage, y: 97, color: theme.colors.text.light, font: {size: 54, style: "bold"}, alignment: "left", baseline: "bottom"});
+                
                 const decimalOffset = c.draw.text({text: Math.floor(p.hit.percentage), font: {size: 48, style: "bold"}, measure: true});
-                c.draw.text({text: p.hit.percentage.toFixed(1).slice(1) + "%", x: x + decimalOffset + 94, y: 90, color: theme.colors.text.light, font: {size: 25, style: "bold"}, alignment: "left", baseline: "bottom"});
+                const decimalText = (parallellogramWidth > 250) ? p.hit.percentage.toFixed(1).slice(1) + "%" : "%";
+                c.draw.text({text: decimalText, x: x + decimalOffset + offsets.percentage + 3, y: 90, color: theme.colors.text.light, font: {size: 25, style: "bold"}, alignment: "left", baseline: "bottom"});
                 c.options.setShadow();
-                for (let l=0; l<p.lives; l++) c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + 80 + l * 20, 10, 16, 16);
+                for (let l=0; l<p.lives; l++) c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.lives + l * 20, 12, 16, 16);
                 i++;
             }
         }
