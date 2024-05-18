@@ -129,6 +129,8 @@ const checkLANAvailability = () => {
         state.change.to(state.MAIN_MENU, true);
 };
 
+const keyChange = () => (JSON.stringify(keys) !== JSON.stringify(lastKeys));
+
 /** @type {import("./settings").Settings} */
 const config = {appearance: {}, graphics: {}, controls: {}};
 const versions = {game: "", electron: "", chromium: ""};
@@ -266,6 +268,7 @@ let banButton = {
     hoverIndex: -1,
     active: false
 };
+let lastKeys = JSON.parse(JSON.stringify(keys));
 
 Button.items = [
     // Main menu
@@ -878,28 +881,26 @@ addEventListener("DOMContentLoaded", () => {
         } else konamiEasterEgg.index = 0;
 
         if (game) {
-            let keyChange = false;
             for (let i in config.controls) {
                 if (e.key === config.controls[i]) {
-                    keyChange = true;
                     keys[i] = true;
                     break;
                 }
             }
-            if (keyChange) socket.sendKeys(keys);
+            if (keyChange()) socket.sendKeys(keys);
+            lastKeys = JSON.parse(JSON.stringify(keys));
         }
     });
     addEventListener("keyup", (e) => {
         if (game) {
-            let keyChange = false;
             for (let i in config.controls) {
                 if (e.key === config.controls[i]) {
-                    keyChange = true;
                     keys[i] = false;
                     break;
                 }
             }
-            if (keyChange) socket.sendKeys(keys);
+            if (keyChange()) socket.sendKeys(keys);
+            lastKeys = JSON.parse(JSON.stringify(keys));
         }
     });
 
