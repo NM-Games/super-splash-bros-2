@@ -5,6 +5,7 @@
   "main": "app/index.js",
   "scripts": {
     "start": "electron app",
+    "update": "npx -y Jelmerro/nus",
     "build-windows": "electron-builder -w",
     "build-mac": "electron-builder -m",
     "build-linux": "electron-builder -l"
@@ -26,10 +27,10 @@
   },
   "homepage": "https://github.com/NM-Games/super-splash-bros-2#readme",
   "devDependencies": {
-    "electron": "^30.0.1",
-    "electron-builder": "^24.13.3"
+    "electron": "30.0.6",
+    "electron-builder": "24.13.3"
   },
   "dependencies": {
-    "ws": "^8.16.0"
+    "ws": "8.17.0"
   }
 }
