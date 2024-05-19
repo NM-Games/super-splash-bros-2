@@ -28,6 +28,7 @@ class Game {
     startedOn;
     /** @type {string[]} */
     blacklist;
+    /** @type {number} */
     hostIndex;
     startPlayerCount;
     ping;
