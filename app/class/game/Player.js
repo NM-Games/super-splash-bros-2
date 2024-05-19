@@ -104,6 +104,14 @@ class Player {
         this.keys.superpower = keys.activateSuperpower;
     }
 
+    /**
+     * Get the speed amplifier for attacks like rockets, based on hit percentage.
+     * @returns {number}
+     */
+    getImpactAmplifier() {
+        return this.hit.percentage / 80 + 1;
+    }
+
     /** Update a player. Collision detection between players is done in the Game class. */
     update() {
         if (this.lives > 0) {

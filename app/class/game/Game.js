@@ -4,6 +4,7 @@
  */
 
 const Player = require("./Player");
+const Attack = require("./Attack");
 const Rocket = require("./Rocket");
 const Splash = require("./Splash");
 const { version } = require("../../../package.json");
@@ -17,6 +18,8 @@ class Game {
     players;
     /** @type {string[]} */
     ips;
+    /** @type {Attack[]} */
+    attacks;
     /** @type {Rocket[]} */
     rockets;
     /** @type {Splash[]} */
@@ -37,6 +40,7 @@ class Game {
         this.theme = "";
         this.players = [null, null, null, null, null, null, null, null];
         this.ips = [null, null, null, null, null, null, null, null];
+        this.attacks = [];
         this.rockets = [];
         this.splashes = [];
         this.startState = 0;
@@ -153,9 +157,16 @@ class Game {
                     p1.respawn = this.ping;
                     p1.x = Player.initialCoordinates[p1.index].x;
                     p1.y = Player.initialCoordinates[p1.index].y;  
+                    p1.hit.percentage = 0;
                     p1.vx = p1.vy = 0;
                 }
             }
+
+            if (p1.keys.attack && this.ping - p1.attacks.melee.lastPerformed >= p1.attacks.melee.cooldown) {
+                p1.attacks.melee.lastPerformed = this.ping;
+                this.attacks.push(new Attack(p1.index, p1.x + p1.size / 2, p1.y + p1.size / 2));
+            }
+
             if (p1.keys.rocket && p1.attacks.rocket.count > 0 && this.ping - p1.attacks.rocket.lastPerformed >= p1.attacks.rocket.cooldown) {
                 p1.attacks.rocket.lastPerformed = this.ping;
                 p1.attacks.rocket.count--;
@@ -167,13 +178,39 @@ class Game {
             }
         }
 
+        for (let i=0; i<this.attacks.length;) {
+            const attack = this.attacks[i];
+            const updateResult = attack.update();
+            if (attack.canDealDamage()) {
+                for (const p of this.getPlayers()) {
+                    if (p.index === attack.player) continue;
+
+                    const px = p.x + p.size / 2;
+                    const py = p.y + p.size / 2;
+                    const distance = Math.sqrt(Math.abs(px - attack.x) ** 2 + Math.abs(py - attack.y) ** 2);
+                    
+                    if (distance <= p.size / 2 + attack.size && this.ping - p.hit.cooldownSince >= p.hit.cooldown) {
+                        p.hit.cooldownSince = this.ping;
+                        p.hit.percentage += Math.random() * 3 + 2;
+                        p.vx += (this.players[attack.player].x - p.x < 0 ? Attack.impact : -Attack.impact) * p.getImpactAmplifier();
+                    }
+                }
+            }
+
+            if (updateResult) i++;
+            else this.attacks.splice(i, 1);
+        }
         for (let i=0; i<this.rockets.length;) {
             const rocket = this.rockets[i];
             const updateResult = rocket.update();
 
             for (const p of this.getPlayers()) {
                 if (rocket.player !== p.index && rocket.x < p.x + p.size && rocket.x + rocket.width > p.x && rocket.y > p.y && rocket.y < p.y + p.size && !rocket.explosion.active) {
-                    p.vx += (rocket.direction === "r") ? Rocket.impact : -Rocket.impact;
+                    p.vx += (rocket.direction === "r" ? Rocket.impact : -Rocket.impact) * p.getImpactAmplifier();
+                    if (this.ping - p.hit.cooldownSince >= p.hit.cooldown) {
+                        p.hit.cooldownSince = this.ping;
+                        p.hit.percentage += Math.random() * 20 + 30;
+                    }
                     rocket.explode();
                 }
             }
@@ -211,11 +248,12 @@ class Game {
 
         return {
             act: "update",
+            version,
             theme: this.theme,
             host: this.hostIndex,
-            version,
             ping: this.ping,
             players: this.players,
+            attacks: this.attacks,
             rockets: this.rockets,
             splashes: this.splashes,
             connected,
