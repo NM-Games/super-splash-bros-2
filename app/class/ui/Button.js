@@ -13,6 +13,8 @@ class Button {
     static items = [];
     /** @type {Button[]} */
     static dialogItems = [];
+    /** @type {Button[]} */
+    static gameMenuItems = [];
 
     /**
      * Get the button based on its ID, given in the constructor.

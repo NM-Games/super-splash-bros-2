@@ -1,3 +1,5 @@
+/** @callback EmptyCallback */
+
 const { ipcRenderer, clipboard, shell } = require("electron");
 
 const c = require("./canvas");
@@ -9,7 +11,6 @@ const network = require("../network");
 const Button = require("../class/ui/Button");
 const Input = require("../class/ui/Input");
 const MenuSprite = require("../class/ui/MenuSprite");
-const { getMaxListeners } = require("ws");
 
 
 const state = {
@@ -84,6 +85,16 @@ const getEnteredIP = () => {
 };
 
 /**
+ * Get the buttons which can be hovered on, depending on visible overlays.
+ * @returns {Button[]}
+ */
+const getHoverableButtons = () => {
+    if (dialog.visible) return Button.dialogItems;
+    else if (gameMenu.visible) return Button.gameMenuItems;
+    else return Button.items;
+};
+
+/**
  * Connect to a game.
  * @param {boolean} asHost
  */
@@ -104,8 +115,8 @@ const connect = (asHost) => {
                 if (state.current === state.PLAYING_LAN) water.flood.enable(true);
                 const reason = (e.reason) ? e.reason : "You have been disconnected because the game you were in was closed.";
                 state.change.to(state.LAN_GAME_MENU, true, () => {
-                    water.flood.disable();    
-                    errorAlert.show(reason)
+                    water.flood.disable();
+                    errorAlert.show(reason);
                     theme.current = config.graphics.theme;
                 });
             }
@@ -154,19 +165,32 @@ const water = {
         levelAcceleration: 0.5, // for enabling only
         enabling: false,
         disabling: false,
-        enable: function(boost = false) {
+        onfinishedenabling: () => {},
+        onfinisheddisabling: () => {},
+        /**
+         * Enable flooding.
+         * @param {boolean} boost 
+         * @param {EmptyCallback} onfinished 
+         */
+        enable: function(boost = false, onfinished = () => {}) {
             if (this.enabling) return;
             
             this.enabled = true;
             this.disabling = false;
             this.enabling = true;
+            this.onfinishedenabling = onfinished;
             this.levelSpeed = Number(boost) * c.height() / 10;
         },
-        disable: function() {
+        /**
+         * Disable flooding.
+         * @param {EmptyCallback} onfinished
+         */
+        disable: function(onfinished = () => {}) {
             if (this.disabling) return;
             
             this.enabled = false;
             this.disabling = true;
+            this.onfinisheddisabling = onfinished;
             this.levelSpeed = Math.ceil(c.height() / 36);
         }
     }
@@ -185,6 +209,17 @@ const introLogo = {
 
         if (this.progress >= this.duration - (1 / this.va) - 15) this.a = Math.max(this.a - this.va, 0);
         else this.a = Math.min(this.a + this.va, 1);
+    }
+};
+const gameMenu = {
+    visible: false,
+    x: 0,
+    vx: 20,
+    darkness: 0,
+    holdingKey: false,
+    toggle: () => {
+        if (![state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL].includes(state.current)) return;
+        gameMenu.visible = !gameMenu.visible;
     }
 };
 const dialog = {
@@ -565,12 +600,6 @@ Button.items = [
                     onclick: () => dialog.close()
                 }));
             } else ipcRenderer.send("stop-gameserver");
-
-            ipcRenderer.once("gameserver-stopped", () => {
-                theme.current = config.graphics.theme;
-                state.change.to(state.LAN_GAME_MENU, true);
-                errorAlert.suppress();
-            });        
         }
     }),
     new Button({
@@ -610,6 +639,37 @@ Button.items = [
             state.change.to(state.LAN_GAME_MENU, true);
         }
     }),
+];
+Button.gameMenuItems = [
+    new Button({
+        text: "Leave game",
+        x: () => gameMenu.x - 210,
+        y: () => 300,
+        onclick: function() {
+            this.hovering = false;
+            dialog.show("Are you sure you want to leave?", "You will not be able to rejoin this game.", new Button({
+                text: "Yes",
+                x: () => c.width(0.35),
+                y: () => c.height(0.75),
+                onclick: () => {
+                    dialog.close();
+                    gameMenu.toggle();
+                    water.flood.enable(false, () => {
+                        if (playerIndex === game.host) ipcRenderer.send("stop-gameserver"); else {
+                            socket.close();
+                            errorAlert.suppress();
+                            state.change.to(state.LAN_GAME_MENU, true, () => water.flood.disable());
+                        }
+                    });
+                }
+            }), new Button({
+                text: "No",
+                x: () => c.width(0.65),
+                y: () => c.height(0.75),
+                onclick: () => dialog.close()
+            }));
+        }
+    })
 ];
 
 Input.items = [
@@ -832,7 +892,7 @@ addEventListener("DOMContentLoaded", () => {
 
     ipcRenderer.on("quit-check", () => {
         if ([state.PLAYING_LOCAL, state.PLAYING_LAN, state.PLAYING_FREEPLAY].includes(state.current)) {
-            dialog.show("Are you sure you want to quit?", "You will not be able to rejoin this match.", new Button({
+            dialog.show("Are you sure you want to quit?", "You will not be able to rejoin this game.", new Button({
                 text: "Yes",
                 x: () => c.width(0.35),
                 y: () => c.height(0.75),
@@ -868,6 +928,11 @@ addEventListener("DOMContentLoaded", () => {
         versions.chromium = chromiumV;
         MenuSprite.generate(maxWidth);
     });
+    ipcRenderer.on("gameserver-stopped", () => {
+        theme.current = config.graphics.theme;
+        state.change.to(state.LAN_GAME_MENU, true);
+        errorAlert.suppress();
+    });
 
     addEventListener("keydown", (e) => {
         const button = Button.getButtonById(`Back-${state.current}`);
@@ -875,7 +940,12 @@ addEventListener("DOMContentLoaded", () => {
         else if (e.key.toLowerCase() === "v" && e.ctrlKey && Input.getInputById("Username").focused) {
             Input.getInputById("Username").value += clipboard.readText();
             Input.getInputById("Username").value = Input.getInputById("Username").value.slice(0, Input.getInputById("Username").maxLength);
-        } else if (e.key === konamiEasterEgg.keys[konamiEasterEgg.index]) {
+        } else if (e.key === config.controls.gameMenu && !gameMenu.holdingKey) {
+            gameMenu.holdingKey = true;
+            gameMenu.toggle();
+        }
+        
+        if (e.key === konamiEasterEgg.keys[konamiEasterEgg.index]) {
             konamiEasterEgg.index++;
             if (konamiEasterEgg.index >= konamiEasterEgg.keys.length) konamiEasterEgg.activated = true;
         } else konamiEasterEgg.index = 0;
@@ -902,11 +972,13 @@ addEventListener("DOMContentLoaded", () => {
             if (keyChange()) socket.sendKeys(keys);
             lastKeys = JSON.parse(JSON.stringify(keys));
         }
+
+        if (e.key === config.controls.gameMenu) gameMenu.holdingKey = false; 
     });
 
     addEventListener("mousemove", (e) => {
-        if (dialog.visible) {
-            for (const button of Button.dialogItems) {
+        if (dialog.visible || gameMenu.visible) {
+            for (const button of getHoverableButtons()) {
                 button.hovering = (e.clientX > button.x() - button.width / 2 && e.clientX < button.x() + button.width / 2
                  && e.clientY > button.y() - button.height / 2 && e.clientY < button.y() + button.height / 2 && !button.disabled);
             }
@@ -948,7 +1020,7 @@ addEventListener("DOMContentLoaded", () => {
     });
 
     addEventListener("mousedown", (_e) => {
-        for (const button of (dialog.visible ? Button.dialogItems : Button.items)) {
+        for (const button of getHoverableButtons()) {
             if (button.hovering && !state.change.active) {
                 button.active = true;
                 break;
@@ -962,7 +1034,7 @@ addEventListener("DOMContentLoaded", () => {
         if (banButton.hoverIndex > -1) banButton.active = true;
     });
     addEventListener("mouseup", (_e) => {
-        for (const button of (dialog.visible ? Button.dialogItems : Button.items)) {
+        for (const button of getHoverableButtons()) {
             if (button.active && button.hovering && !button.disabled) {
                 button.active = false;
                 button.onclick();
@@ -1011,7 +1083,7 @@ addEventListener("DOMContentLoaded", () => {
         MenuSprite.update(frames, config.graphics.menuSprites, konamiEasterEgg.activated);
 
         let hoverings = {button: 0, input: 0};
-        for (const button of (dialog.visible ? Button.dialogItems : Button.items)) {
+        for (const button of getHoverableButtons()) {
             if (button.hovering) hoverings.button++;
         }
         for (const input of Input.items) {
@@ -1028,6 +1100,7 @@ addEventListener("DOMContentLoaded", () => {
             if (water.flood.level <= 0) {
                 water.flood.level = 0;
                 water.flood.enabling = false;
+                water.flood.onfinishedenabling();
             }
         } else if (water.flood.disabling) {
             water.flood.level += water.flood.levelSpeed;
@@ -1035,6 +1108,7 @@ addEventListener("DOMContentLoaded", () => {
             if (water.flood.level >= c.height()) {
                 water.flood.level = c.height();
                 water.flood.disabling = false;
+                water.flood.onfinisheddisabling();
             }
         } else water.flood.level = (water.flood.enabled) ? 0 : c.height();
         if (frames === introLogo.duration) water.flood.disable();
@@ -1043,6 +1117,14 @@ addEventListener("DOMContentLoaded", () => {
 
         if (errorAlert.visible) errorAlert.y = Math.min(50, errorAlert.y + errorAlert.vy);
         else errorAlert.y = Math.max(-100, errorAlert.y - errorAlert.vy);
+
+        if (gameMenu.visible) {
+            gameMenu.x = Math.min(420, gameMenu.x + gameMenu.vx);
+            gameMenu.darkness = Math.min(0.4, gameMenu.darkness + 0.01);
+        } else {
+            gameMenu.x = Math.max(0, gameMenu.x - gameMenu.vx);
+            gameMenu.darkness = Math.max(0, gameMenu.darkness - 0.01);
+        }
 
         document.body.style.cursor = (hoverings.button > 0 || banButton.hoverIndex > -1) ? "pointer" : (hoverings.input > 0) ? "text" : "default";
     };
@@ -1286,6 +1368,15 @@ addEventListener("DOMContentLoaded", () => {
                 image.logo_nmgames.height + introLogo.movement * (image.logo_nmgames.height / image.logo_nmgames.width)
             );
             c.options.setOpacity(1);
+        }
+
+        c.draw.fill.rect(`rgba(0, 0, 0, ${gameMenu.darkness})`, 0, 0, c.width(), c.height());
+        if (gameMenu.x > 0) {
+            c.options.filter.add("brightness(0.75)");
+            c.draw.fill.rect(theme.colors.ui.secondary, 0, 0, gameMenu.x, c.height());
+            c.options.filter.remove("brightness");
+
+            for (const button of Button.gameMenuItems) c.draw.button(button, 0);
         }
 
         const alertWidth = c.draw.text({text: errorAlert.text, font: {size: 32}, measure: true}) + 30;
