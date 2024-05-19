@@ -72,6 +72,7 @@ class Player {
                 count: 2,
                 cooldown: 5000,
                 regenerationInterval: 20000,
+                lastRegenerated: -6e9,
                 lastPerformed: -6e9
             },
             superpower: {

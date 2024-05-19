@@ -214,6 +214,25 @@ const draw = {
             c.quadraticCurveTo(x, y + h, x, y + h - r);
             c.closePath();
             c.stroke();
+        },
+        /**
+         * Stroke an (incomplete) arc on the screen.
+         * @param {*} color
+         * @param {*} x
+         * @param {*} y
+         * @param {*} r
+         * @param {*} lw
+         * @param {*} part
+         */
+        arc: (color, x, y, r, lw = 2, part = 1) => {
+            const angle1 = -0.5 * Math.PI;
+            const angle2 = part * 2 * Math.PI + angle1;
+
+            c.strokeStyle = color;
+            c.lineWidth = lw;
+            c.beginPath();
+            c.arc(x, y, r, angle1, angle2);
+            c.stroke();
         }
     },
     /**

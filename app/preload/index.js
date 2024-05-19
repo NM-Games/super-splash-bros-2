@@ -1075,14 +1075,17 @@ addEventListener("DOMContentLoaded", () => {
                 if (p === null) continue;
                 
                 if (frames % 4 < 2 || game.ping - p.respawn >= p.spawnProtection) c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, p.x + offset.x, p.y + offset.y, p.size, p.size);
-                c.options.setShadow(theme.colors.text.dark, 5);
-                c.draw.text({text: p.name, x: p.x + p.size / 2 + offset.x, y: p.y + offset.y - (playerIndex === p.index ? 42 : 10), font: {size: 20}});
-                c.options.setShadow();
                 if (playerIndex === p.index) c.draw.fill.triangle(theme.colors.ui.indicator, p.x + p.size / 2 + offset.x, p.y + offset.y - 32, 40, 20);
             }
+            c.options.setShadow(theme.colors.text.dark, 5);
+            for (const p of game.players) {
+                if (p === null) continue;
+                c.draw.text({text: p.name, x: p.x + p.size / 2 + offset.x, y: p.y + offset.y - (playerIndex === p.index ? 42 : 10), font: {size: 20}});
+            }
+            c.options.setShadow();
             for (const r of game.rockets) {
                 c.options.setOpacity(r.trail.a);
-                c.draw.line(theme.colors.players[r.player], r.trail.startX + offset.x, r.y + offset.y, r.x + offset.x, r.y + offset.y, 5);
+                c.draw.line(theme.colors.players[r.player], r.trail.startX + r.width / 2 + offset.x, r.y + offset.y, r.x + r.width / 2 + offset.x, r.y + offset.y, 5);
                 c.options.setOpacity(1);
                 if (r.explosion.active) {
                     c.options.setOpacity(r.explosion.a);
@@ -1124,6 +1127,18 @@ addEventListener("DOMContentLoaded", () => {
                 c.draw.text({text: decimalText, x: x + decimalOffset + offsets.percentage + 3, y: 90, color: theme.colors.text.light, font: {size: 25, style: "bold"}, alignment: "left", baseline: "bottom"});
                 c.options.setShadow();
                 for (let l=0; l<p.lives; l++) c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.lives + l * 20, 12, 16, 16);
+
+                c.draw.image(image.explosion, x + parallellogramWidth - 52, 45, 36, 36);
+                if (frames % 4 < 2 || p.attacks.rocket.count === 0 || game.ping - p.attacks.rocket.lastPerformed >= p.attacks.rocket.cooldown) c.draw.text({
+                    text: p.attacks.rocket.count,
+                    x: x + parallellogramWidth - 34,
+                    y: 65,
+                    color: (p.attacks.rocket.count === 0) ? theme.colors.error.foreground : theme.getTextColor(),
+                    font: {size: 24},
+                    baseline: "middle"
+                });
+                c.draw.stroke.arc(theme.getTextColor(), x + parallellogramWidth - 34, 63, 20, 2, (game.ping - p.attacks.rocket.lastRegenerated) / p.attacks.rocket.regenerationInterval);
+
                 i++;
             }
         }

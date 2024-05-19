@@ -18,14 +18,12 @@ class Rocket {
      */
     constructor(index, x, y, direction) {
         this.player = index;
-        this.x = x;
-        this.y = y + 48;
         this.width = 40;
         this.direction = direction;
-        this.trail = {startX: x, a: 1};
+        this.x = x - (this.direction === "l" ? this.width : 0);
+        this.y = y + 48;
+        this.trail = {startX: this.x, a: 1};
         this.explosion = {active: false, size: 0, a: 1};
-
-        if (this.direction === "l") this.x -= this.width;
     }
 
     /**
