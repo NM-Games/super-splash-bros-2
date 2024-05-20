@@ -602,6 +602,7 @@ Button.items = [
                         text: "Yes",
                         x: () => c.width(0.35),
                         y: () => c.height(0.75),
+                        danger: true,
                         onclick: () => {
                             dialog.close();
                             ipcRenderer.send("stop-gameserver");
@@ -668,6 +669,7 @@ Button.gameMenuItems = [
         text: "Leave game",
         x: () => gameMenu.x - gameMenu.width / 2,
         y: () => 575,
+        danger: true,
         onclick: function() {
             this.hovering = false;
             dialog.show(
@@ -677,6 +679,7 @@ Button.gameMenuItems = [
                     text: "Yes",
                     x: () => c.width(0.35),
                     y: () => c.height(0.75),
+                    danger: true,
                     onclick: () => {
                         dialog.close();
                         gameMenu.set(false);
@@ -926,6 +929,7 @@ addEventListener("DOMContentLoaded", () => {
                     text: "Yes",
                     x: () => c.width(0.35),
                     y: () => c.height(0.75),
+                    danger: true,
                     onclick: () => ipcRenderer.send("quit")
                 }), new Button({
                     text: "No",
@@ -942,6 +946,7 @@ addEventListener("DOMContentLoaded", () => {
                     text: "Yes",
                     x: () => c.width(0.35),
                     y: () => c.height(0.75),
+                    danger: true,
                     onclick: () => ipcRenderer.send("quit")
                 }), new Button({
                     text: "No",
@@ -1086,6 +1091,7 @@ addEventListener("DOMContentLoaded", () => {
         if (socket.isOpen()) game = socket.getGame();
         if (game) {
             Button.getButtonById("StartLANGame").disabled = (game.connected < 1);
+            Button.getButtonById(`Back-${state.WAITING_LAN_HOST}`).danger = (game.connected > 1);
 
             if (lastStartState === 0 && game.startState === 1) water.flood.enable();
             else if (lastStartState === 1 && game.startState === 2) {

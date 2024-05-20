@@ -57,21 +57,23 @@ const options = {
     },
     filter: {
         /**
-         * Add a filter and apply it.
-         * @param {string} filter
+         * Add filters and apply them.
+         * @param {...string} newFilters
          */
-        add: (filter) => {
-            filters.push(filter);
+        add: (...newFilters) => {
+            filters.push(...newFilters);
             c.filter = (filters.length === 0) ? "none" : filters.join(" ");
         },
         /**
-         * Remove a filter and apply it.
-         * @param {string} filter
+         * Remove filters and apply them.
+         * @param {...string} oldFilters
          */
-        remove: (filter) => {
-            for (let i=0; i<filters.length;) {
-                if (filters[i].includes(filter)) filters.splice(i, 1);
-                else i++;
+        remove: (...oldFilters) => {
+            for (let i=0; i<oldFilters.length; i++) {
+                for (let j=0; j<filters.length;) {
+                    if (filters[j].includes(oldFilters[i])) filters.splice(j, 1);
+                    else j++;
+                }
             }
             c.filter = (filters.length === 0) ? "none" : filters.join(" ");
         }
@@ -293,7 +295,7 @@ const draw = {
      *  font: {style?: "bold" | "italic", size: number, family?: string},
      *  measure?: boolean
      * }} options
-     * @returns {void | number}
+     * @returns {undefined | number}
      */
     text: (options) => {
         c.fillStyle = options.color ?? theme.getTextColor();
@@ -309,8 +311,16 @@ const draw = {
      * @param {number} offsetX
      */
     button: (button, offsetX) => {
-        if (button.disabled) options.filter.add("grayscale(1)");
-        else if (button.active) options.filter.add("brightness(100)");
+        let color = theme.colors.text.light;
+
+        if (button.disabled) {
+            options.filter.add("grayscale(1)");
+        } else if (button.active) {
+            options.filter.add("brightness(100)");
+            color = (button.danger) ? theme.colors.error.foreground : theme.colors.ui.primary;
+        } else if (button.danger) {
+            options.filter.add("hue-rotate(180deg)", "saturate(7)");
+        }
 
         draw.croppedImage(
             image.buttons,
@@ -323,16 +333,8 @@ const draw = {
             button.width,
             button.height
         );
-        options.filter.remove("grayscale");
-        options.filter.remove("brightness");
-        draw.text({
-            text: button.text,
-            x: button.x() + offsetX,
-            y: button.y(),
-            color: (button.active) ? theme.colors.ui.primary : "white",
-            font: {size: 32 * button.scale},
-            baseline: "middle"
-        });
+        options.filter.remove("grayscale", "brightness", "hue-rotate", "saturate");
+        draw.text({text: button.text, x: button.x() + offsetX, y: button.y(), color, font: {size: 32 * button.scale}, baseline: "middle"});
     },
     /**
      * Draw an input field on the screen.

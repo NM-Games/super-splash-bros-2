@@ -43,6 +43,7 @@ class Button {
     onclick;
     hovering;
     active;
+    danger;
     disabled;
 
     /**
@@ -56,6 +57,7 @@ class Button {
      *  y: CoordinateCallback,
      *  width?: number,
      *  height?: number,
+     *  danger?: boolean,
      *  disabled?: boolean,
      *  onclick?: EmptyCallback
      * }} options
@@ -72,6 +74,7 @@ class Button {
         this.onclick = options.onclick ?? function() {};
         this.hovering = false;
         this.active = false;
+        this.danger = options.danger ?? false;
         this.disabled = options.disabled ?? false;
     }
 }
