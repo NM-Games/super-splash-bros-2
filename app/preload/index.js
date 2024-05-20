@@ -239,7 +239,11 @@ const gameMenu = {
     holdingKey: false,
     /** Toggle the game menu visibility state. */
     toggle: () => {
-        if (![state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL].includes(state.current)) return;
+        if (
+            ![state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL].includes(state.current)
+            || water.flood.enabling
+            || (game && game.startState < 6)
+        ) return;
         gameMenu.visible = !gameMenu.visible;
     },
     /**
@@ -247,7 +251,11 @@ const gameMenu = {
      * @param {boolean} to
      */
     set: (to) => {
-        if (![state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL].includes(state.current)) return;
+        if (
+            ![state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL].includes(state.current)
+            || water.flood.enabling
+            || (game && game.startState < 6)
+        ) return;
         gameMenu.visible = to;
     }
 };
@@ -1224,7 +1232,27 @@ addEventListener("DOMContentLoaded", () => {
                 if (p === null) continue;
                 
                 if (frames % 4 < 2 || game.ping - p.respawn >= p.spawnProtection) c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, p.x + offset.x, p.y + offset.y, p.size, p.size);
-                if (playerIndex === p.index) c.draw.fill.triangle(theme.colors.ui.indicator, p.x + p.size / 2 + offset.x, p.y + offset.y - 32, 40, 20);
+                if (playerIndex === p.index) c.draw.fill.triangleUD(theme.colors.ui.indicator, p.x + p.size / 2 + offset.x, p.y + offset.y - 32, 40, 20);
+
+                const offScreen = {
+                    x: Math.min(c.width() - p.size - 35, Math.max(25, p.x + offset.x)),
+                    y: Math.min(c.height() - p.size - 35, Math.max(25, p.y + offset.y)),
+                    triangleX: Math.min(c.width() - p.size - 15, Math.max(5, p.x + offset.x)),
+                    triangleY: Math.min(c.height() - p.size - 15, Math.max(5, p.y + offset.y))
+                };
+                if (p.x + offset.x < -p.size && p.lives > 0) {
+                    c.draw.fill.rect(theme.colors.players[p.index], 25, offScreen.y - 10, p.size + 20, p.size + 20, 8);
+                    c.draw.fill.triangleLR(theme.colors.players[p.index], 25, offScreen.triangleY + p.size / 2, -20, 30);
+                    c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, 35, offScreen.y, p.size, p.size);
+                } else if (p.x + offset.x > c.width() && p.lives > 0) {
+                    c.draw.fill.rect(theme.colors.players[p.index], c.width() - p.size - 45, offScreen.y - 10, p.size + 20, p.size + 20, 8);
+                    c.draw.fill.triangleLR(theme.colors.players[p.index], c.width() - 25, offScreen.triangleY + p.size / 2, 20, 30);
+                    c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, c.width() - p.size - 35, offScreen.y, p.size, p.size);
+                } else if (p.y + offset.y < -p.size && p.lives > 0) {
+                    c.draw.fill.rect(theme.colors.players[p.index], offScreen.x - 10, 25, p.size + 20, p.size + 20, 8);
+                    c.draw.fill.triangleUD(theme.colors.players[p.index], offScreen.triangleX + p.size / 2, 25, 30, -20);
+                    c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, offScreen.x, 35, p.size, p.size);
+                }
             }
             c.options.setShadow(theme.colors.text.dark, 5);
             for (const p of game.players) {

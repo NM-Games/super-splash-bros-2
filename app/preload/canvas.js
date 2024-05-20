@@ -155,19 +155,36 @@ const draw = {
             c.fill();
         },
         /**
-         * Fill a down-pointing triangle on the screen.
+         * Fill an up or down pointing triangle on the screen.
          * @param {string | CanvasGradient | CanvasPattern} color
-         * @param {number} tx
+         * @param {number} bx
          * @param {number} y
          * @param {number} w
          * @param {number} h
          */
-        triangle: (color, tx, y, w, h) => {
+        triangleUD: (color, bx, y, w, h) => {
             c.fillStyle = color;
             c.beginPath();
-            c.moveTo(tx - w / 2, y);
-            c.lineTo(tx + w / 2, y);
-            c.lineTo(tx, y + h);
+            c.moveTo(bx - w / 2, y);
+            c.lineTo(bx + w / 2, y);
+            c.lineTo(bx, y + h);
+            c.closePath();
+            c.fill();
+        },
+        /**
+         * Fill a left or right pointing triangle on the screen.
+         * @param {string | CanvasGradient | CanvasPattern} color
+         * @param {number} x
+         * @param {number} ty
+         * @param {number} w
+         * @param {number} h
+         */
+        triangleLR: (color, x, by, w, h) => {
+            c.fillStyle = color;
+            c.beginPath();
+            c.moveTo(x, by - h / 2);
+            c.lineTo(x, by + h / 2);
+            c.lineTo(x + w, by);
             c.closePath();
             c.fill();
         },
@@ -219,12 +236,12 @@ const draw = {
         },
         /**
          * Stroke an (incomplete) arc on the screen.
-         * @param {*} color
-         * @param {*} x
-         * @param {*} y
-         * @param {*} r
-         * @param {*} lw
-         * @param {*} part
+         * @param {string | CanvasGradient | CanvasPattern} color
+         * @param {number} x
+         * @param {number} y
+         * @param {number} r
+         * @param {number} lw
+         * @param {number} part
          */
         arc: (color, x, y, r, lw = 2, part = 1) => {
             const angle1 = -0.5 * Math.PI;
