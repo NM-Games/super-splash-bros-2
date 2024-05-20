@@ -5,14 +5,14 @@ class Player {
     static deceleration = 1.05;
     static maxJumps = 5;
     static initialCoordinates = [
+        {x: 393, y: 350},
+        {x: 393, y: 25},
+        {x: 593, y: 350},
+        {x: 793, y: 25},
+        {x: 793, y: 350},
+        {x: 593, y: 25},
         {x: 83, y: 150},
         {x: 1103, y: 150},
-        {x: 593, y: 350},
-        {x: 593, y: 25},
-        {x: 83, y: 50},
-        {x: 1103, y: 50},
-        {x: 593, y: 250},
-        {x: 593, y: -75}
     ];
     static platforms = [
         {x: 15, y: 328, w: 200, h: 27}, // left
