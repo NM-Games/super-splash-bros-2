@@ -211,6 +211,25 @@ const introLogo = {
         else this.a = Math.min(this.a + this.va, 1);
     }
 };
+const countdown = {
+    size: 450,
+    defaultSize: 450,
+    v: 60,
+    a: 1,
+    text: "",
+    color: "",
+    /**
+     * Show a countdown announcement.
+     * @param {string} text
+     * @param {string} color
+     */
+    show: (text, color) => {
+        countdown.text = text;
+        countdown.color = color;
+        countdown.size = countdown.defaultSize * 2;
+        countdown.a = 0;
+    }
+};
 const gameMenu = {
     visible: false,
     x: 0,
@@ -1097,7 +1116,10 @@ addEventListener("DOMContentLoaded", () => {
             else if (lastStartState === 1 && game.startState === 2) {
                 state.current = state.PLAYING_LAN;
                 water.flood.disable();
-            }
+            } else if (lastStartState === 2 && game.startState === 3) countdown.show("3", theme.colors.countdown._3);
+            else if (lastStartState === 3 && game.startState === 4) countdown.show("2", theme.colors.countdown._2);
+            else if (lastStartState === 4 && game.startState === 5) countdown.show("1", theme.colors.countdown._1);
+            else if (lastStartState === 5 && game.startState === 6) countdown.show("GO!", theme.colors.countdown.go);
 
             lastStartState = game.startState;
         }
@@ -1122,6 +1144,10 @@ addEventListener("DOMContentLoaded", () => {
 
         introLogo.update();
         MenuSprite.update(frames, config.graphics.menuSprites, konamiEasterEgg.activated);
+
+        countdown.size = Math.max(countdown.defaultSize, countdown.size - countdown.v);
+        if (countdown.size > countdown.defaultSize) countdown.a = Math.min(2, countdown.a + 0.2);
+        else countdown.a = Math.max(0, countdown.a - 0.03);
 
         let hoverings = {button: 0, input: 0};
         for (const button of getHoverableButtons()) {
@@ -1181,7 +1207,7 @@ addEventListener("DOMContentLoaded", () => {
         else if (theme.current === "synthwave") {
             c.options.setOpacity(0.1);
             c.draw.fill.rect(c.options.pattern(image.stars), 0, 0, c.width(), c.height());
-            c.options.setOpacity(1);
+            c.options.setOpacity();
             c.draw.fill.rect(c.options.gradient(0, c.height(0.3), 0, c.height(), {pos: 0, color: "transparent"}, {pos: 1, color: "#d51ec4"}), 0, 0, c.width(), c.height());
             c.draw.fill.circle(c.options.gradient(0, c.height() - 600, 0, c.height(), {pos: 0, color: "yellow"}, {pos: 1, color: "#ff1f82"}), c.width(0.5), c.height() - 169, c.width(0.2));
         }
@@ -1213,16 +1239,16 @@ addEventListener("DOMContentLoaded", () => {
                 c.options.setOpacity(a.a / 2);
                 c.draw.stroke.arc(theme.colors.players[a.player], a.x + offset.x, a.y + offset.y, a.border, 15);
             }
-            c.options.setOpacity(1);
+            c.options.setOpacity();
 
             for (const r of game.rockets) {
                 c.options.setOpacity(r.trail.a);
                 c.draw.line(theme.colors.players[r.player], r.trail.startX + r.width / 2 + offset.x, r.y + offset.y, r.x + r.width / 2 + offset.x, r.y + offset.y, 5);
-                c.options.setOpacity(1);
+                c.options.setOpacity();
                 if (r.explosion.active) {
                     c.options.setOpacity(r.explosion.a);
                     c.draw.image(image.explosion, r.x - r.explosion.size / 2 + offset.x, r.y - r.explosion.size / 2 + offset.y, r.explosion.size, r.explosion.size);
-                    c.options.setOpacity(1);
+                    c.options.setOpacity();
                 } else c.draw.line(theme.getTextColor(), r.x + offset.x, r.y + offset.y, r.x + r.width + offset.x, r.y + offset.y, 9);
             }
 
@@ -1230,7 +1256,7 @@ addEventListener("DOMContentLoaded", () => {
                 c.options.setOpacity(s.a);
                 c.draw.image(image.splash, s.x - image.splash.width / 2 + offset.x, offset.y + 560);
             }
-            c.options.setOpacity(1);
+            c.options.setOpacity();
 
             const parallellogramWidth = Math.min(350, Math.max(150, (c.width() - 150) / game.startPlayerCount));
             const spacing = (c.width() - game.startPlayerCount * parallellogramWidth) / game.startPlayerCount;
@@ -1297,7 +1323,7 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text({text: "IP address:", x: c.width(0.5) - 230 + state.change.x, y: c.height(0.5) + 60, font: {size: 24}, alignment: "left"});
             c.options.setOpacity(connectionMessage.a);
             c.draw.text({text: connectionMessage.text, x: c.width(0.5) + state.change.x, y: c.height(0.5) + Button.height + 180, color: connectionMessage.color ?? theme.getTextColor(), font: {size: 30, style: "bold"}});
-            c.options.setOpacity(1);
+            c.options.setOpacity();
             for (let i=0; i<3; i++)
                 c.draw.text({text: ".", x: c.width(0.5) - 125 + state.change.x + i * 120, y: c.height(0.5) + 120, font: {size: 40}, alignment: "left"});
         } else if (state.current === state.SETTINGS) {
@@ -1369,7 +1395,7 @@ addEventListener("DOMContentLoaded", () => {
                     }
                     c.draw.text({text: game.players[i].name, x: x + state.change.x + 85, y: c.height(0.2) + y * 100 + (additionalText ? 39 : 52), font: {size: 32}, color: theme.colors.text.light, alignment: "left"});
                 }
-                c.options.setOpacity(1);
+                c.options.setOpacity();
             }
         }
 
@@ -1408,7 +1434,15 @@ addEventListener("DOMContentLoaded", () => {
                 image.logo_nmgames.width + introLogo.movement,
                 image.logo_nmgames.height + introLogo.movement * image._getAspectRatio(image.logo_nmgames)
             );
-            c.options.setOpacity(1);
+            c.options.setOpacity();
+        }
+
+        if (countdown.a > 0) {
+            c.options.setOpacity(countdown.a);
+            c.options.setShadow(countdown.color, 16, 1, 1);
+            c.draw.text({text: countdown.text, x: c.width(0.5), y: c.height(0.4), font: {size: countdown.size, style: "bold"}, baseline: "middle"});
+            c.options.setShadow();
+            c.options.setOpacity();
         }
 
         c.draw.fill.rect(`rgba(0, 0, 0, ${gameMenu.darkness})`, 0, 0, c.width(), c.height());

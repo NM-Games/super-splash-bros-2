@@ -20,6 +20,7 @@ const colors = {
         "#7b7b7b"  // gray
     ],
     ui: {primary: "#42cbe0", secondary: "#32a4d9", indicator: "#800e00"},
+    countdown: {_3: "red", _2: "orange", _1: "yellow", go: "green"},
     error: {background: "#700", foreground: "#e00"},
     text: {dark: "#505050", light: "#fff"},
     overlay: "rgba(0, 0, 0, 0.75)"

@@ -52,7 +52,7 @@ const options = {
      * Set the opacity of drawn objects.
      * @param {number} opacity
      */
-    setOpacity: (opacity) => {
+    setOpacity: (opacity = 1) => {
         c.globalAlpha = opacity;
     },
     filter: {

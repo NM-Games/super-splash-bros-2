@@ -113,7 +113,7 @@ class Game {
     start() {
         if (this.startState > 0) return;
 
-        this.startState = 1;
+        this.startState = 1; // enable flooding
         this.startedOn = new Date().getTime();
         this.startPlayerCount = this.getPlayers().length;
     }
@@ -122,8 +122,13 @@ class Game {
     update() {
         this.ping = new Date().getTime();
 
-        if (this.startState === 1 && this.ping - this.startedOn >= 3000) this.startState = 2;
-        else if (this.startState === 2 && this.ping - this.startedOn >= 5000) this.startState = 3;
+        if (this.startState === 1 && this.ping - this.startedOn >= 3000) this.startState = 2; // disable flooding
+        else if (this.startState === 2 && this.ping - this.startedOn >= 5000) this.startState = 3; // countdown '3'
+        else if (this.startState === 3 && this.ping - this.startedOn >= 6000) this.startState = 4; // countdown '2'
+        else if (this.startState === 4 && this.ping - this.startedOn >= 7000) this.startState = 5; // countdown '1'
+        else if (this.startState === 5 && this.ping - this.startedOn >= 8000) this.startState = 6; // countdown 'GO!'
+
+        if (this.startState < 6) return;
 
         for (const p1 of this.getPlayers()) {
             p1.update();
