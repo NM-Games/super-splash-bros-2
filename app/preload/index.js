@@ -215,11 +215,21 @@ const gameMenu = {
     visible: false,
     x: 0,
     vx: 20,
+    width: 420,
     darkness: 0,
     holdingKey: false,
+    /** Toggle the game menu visibility state. */
     toggle: () => {
         if (![state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL].includes(state.current)) return;
         gameMenu.visible = !gameMenu.visible;
+    },
+    /**
+     * Set the game menu visibility state.
+     * @param {boolean} to
+     */
+    set: (to) => {
+        if (![state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL].includes(state.current)) return;
+        gameMenu.visible = to;
     }
 };
 const dialog = {
@@ -585,20 +595,24 @@ Button.items = [
         onclick: function() {
             this.hovering = false;
             if (game.connected > 1) {
-                dialog.show("Are you sure you want to quit?", "Quitting will kick out everyone in your game.", new Button({
-                    text: "Yes",
-                    x: () => c.width(0.35),
-                    y: () => c.height(0.75),
-                    onclick: () => {
-                        dialog.close();
-                        ipcRenderer.send("stop-gameserver");
-                    }
-                }), new Button({
-                    text: "No",
-                    x: () => c.width(0.65),
-                    y: () => c.height(0.75),
-                    onclick: () => dialog.close()
-                }));
+                dialog.show(
+                    "Are you sure you want to quit?",
+                    "Quitting will kick out everyone in your game.",
+                        new Button({
+                        text: "Yes",
+                        x: () => c.width(0.35),
+                        y: () => c.height(0.75),
+                        onclick: () => {
+                            dialog.close();
+                            ipcRenderer.send("stop-gameserver");
+                        }
+                    }), new Button({
+                        text: "No",
+                        x: () => c.width(0.65),
+                        y: () => c.height(0.75),
+                        onclick: () => dialog.close()
+                    })
+                );
             } else ipcRenderer.send("stop-gameserver");
         }
     }),
@@ -642,32 +656,45 @@ Button.items = [
 ];
 Button.gameMenuItems = [
     new Button({
-        text: "Leave game",
-        x: () => gameMenu.x - 210,
-        y: () => 300,
+        text: "Return to game",
+        x: () => gameMenu.x - gameMenu.width / 2,
+        y: () => 425,
         onclick: function() {
             this.hovering = false;
-            dialog.show("Are you sure you want to leave?", "You will not be able to rejoin this game.", new Button({
-                text: "Yes",
-                x: () => c.width(0.35),
-                y: () => c.height(0.75),
-                onclick: () => {
-                    dialog.close();
-                    gameMenu.toggle();
-                    water.flood.enable(false, () => {
-                        if (playerIndex === game.host) ipcRenderer.send("stop-gameserver"); else {
-                            socket.close();
-                            errorAlert.suppress();
-                            state.change.to(state.LAN_GAME_MENU, true, () => water.flood.disable());
-                        }
-                    });
-                }
-            }), new Button({
-                text: "No",
-                x: () => c.width(0.65),
-                y: () => c.height(0.75),
-                onclick: () => dialog.close()
-            }));
+            gameMenu.set(false);
+        }
+    }),
+    new Button({
+        text: "Leave game",
+        x: () => gameMenu.x - gameMenu.width / 2,
+        y: () => 575,
+        onclick: function() {
+            this.hovering = false;
+            dialog.show(
+                "Are you sure you want to leave?",
+                (playerIndex === game.host) ? "Because you are the host, you will kick everyone out!" : "You will not be able to rejoin this game.",
+                new Button({
+                    text: "Yes",
+                    x: () => c.width(0.35),
+                    y: () => c.height(0.75),
+                    onclick: () => {
+                        dialog.close();
+                        gameMenu.set(false);
+                        water.flood.enable(false, () => {
+                            if (playerIndex === game.host) ipcRenderer.send("stop-gameserver"); else {
+                                socket.close();
+                                errorAlert.suppress();
+                                state.change.to(state.LAN_GAME_MENU, true, () => water.flood.disable());
+                            }
+                        });
+                    }
+                }), new Button({
+                    text: "No",
+                    x: () => c.width(0.65),
+                    y: () => c.height(0.75),
+                    onclick: () => dialog.close()
+                })
+            );
         }
     })
 ];
@@ -892,29 +919,37 @@ addEventListener("DOMContentLoaded", () => {
 
     ipcRenderer.on("quit-check", () => {
         if ([state.PLAYING_LOCAL, state.PLAYING_LAN, state.PLAYING_FREEPLAY].includes(state.current)) {
-            dialog.show("Are you sure you want to quit?", "You will not be able to rejoin this game.", new Button({
-                text: "Yes",
-                x: () => c.width(0.35),
-                y: () => c.height(0.75),
-                onclick: () => ipcRenderer.send("quit")
-            }), new Button({
-                text: "No",
-                x: () => c.width(0.65),
-                y: () => c.height(0.75),
-                onclick: () => dialog.close()
-            }));
+            dialog.show(
+                "Are you sure you want to quit?",
+                "You will not be able to rejoin this game.",
+                new Button({
+                    text: "Yes",
+                    x: () => c.width(0.35),
+                    y: () => c.height(0.75),
+                    onclick: () => ipcRenderer.send("quit")
+                }), new Button({
+                    text: "No",
+                    x: () => c.width(0.65),
+                    y: () => c.height(0.75),
+                    onclick: () => dialog.close()
+                })
+            );
         } else if (state.current === state.WAITING_LAN_HOST && game.connected > 1) {
-            dialog.show("Are you sure you want to quit?", "Quitting will kick out everyone in your game.", new Button({
-                text: "Yes",
-                x: () => c.width(0.35),
-                y: () => c.height(0.75),
-                onclick: () => ipcRenderer.send("quit")
-            }), new Button({
-                text: "No",
-                x: () => c.width(0.65),
-                y: () => c.height(0.75),
-                onclick: () => dialog.close()
-            }));
+            dialog.show(
+                "Are you sure you want to quit?",
+                "Quitting will kick out everyone in your game.",
+                new Button({
+                    text: "Yes",
+                    x: () => c.width(0.35),
+                    y: () => c.height(0.75),
+                    onclick: () => ipcRenderer.send("quit")
+                }), new Button({
+                    text: "No",
+                    x: () => c.width(0.65),
+                    y: () => c.height(0.75),
+                    onclick: () => dialog.close()
+                })
+            );
         } else ipcRenderer.send("quit");
     });
     ipcRenderer.on("fullscreen-status", (_e, enabled) => {
@@ -1119,7 +1154,7 @@ addEventListener("DOMContentLoaded", () => {
         else errorAlert.y = Math.max(-100, errorAlert.y - errorAlert.vy);
 
         if (gameMenu.visible) {
-            gameMenu.x = Math.min(420, gameMenu.x + gameMenu.vx);
+            gameMenu.x = Math.min(gameMenu.width, gameMenu.x + gameMenu.vx);
             gameMenu.darkness = Math.min(0.4, gameMenu.darkness + 0.01);
         } else {
             gameMenu.x = Math.max(0, gameMenu.x - gameMenu.vx);
@@ -1363,19 +1398,24 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.image(
                 image.logo_nmgames,
                 (c.width() - image.logo_nmgames.width) / 2 - introLogo.movement / 2,
-                (c.height() - image.logo_nmgames.height) / 2 - introLogo.movement * (image.logo_nmgames.height / image.logo_nmgames.width) / 2,
+                (c.height() - image.logo_nmgames.height) / 2 - introLogo.movement * image._getAspectRatio(image.logo_nmgames) / 2,
                 image.logo_nmgames.width + introLogo.movement,
-                image.logo_nmgames.height + introLogo.movement * (image.logo_nmgames.height / image.logo_nmgames.width)
+                image.logo_nmgames.height + introLogo.movement * image._getAspectRatio(image.logo_nmgames)
             );
             c.options.setOpacity(1);
         }
 
         c.draw.fill.rect(`rgba(0, 0, 0, ${gameMenu.darkness})`, 0, 0, c.width(), c.height());
         if (gameMenu.x > 0) {
+            const gameMenuGrd = c.options.gradient(0, 0, 0, c.height(), {pos: 0, color: theme.colors.ui.secondary}, {pos: 1, color: theme.colors.ui.primary});
+            const logoY = (gameMenu.width - 40) * image._getAspectRatio(image.logo);
             c.options.filter.add("brightness(0.75)");
-            c.draw.fill.rect(theme.colors.ui.secondary, 0, 0, gameMenu.x, c.height());
+            c.draw.fill.rect(gameMenuGrd, 0, 0, gameMenu.x, c.height());
+            c.options.filter.add("brightness(200)");
+            c.draw.image(image.logo, gameMenu.x - gameMenu.width + 20, 20, gameMenu.width - 40, logoY);
             c.options.filter.remove("brightness");
 
+            c.draw.text({text: "Game menu", x: gameMenu.x - gameMenu.width / 2, y: logoY + 75, color: theme.colors.text.light, font: {size: 50, style: "bold"}});
             for (const button of Button.gameMenuItems) c.draw.button(button, 0);
         }
 

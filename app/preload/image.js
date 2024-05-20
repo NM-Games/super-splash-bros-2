@@ -1,3 +1,9 @@
+/**
+ * @callback AspectRatioCallback
+ * @param {HTMLImageElement} image
+ * @returns {number}
+ */
+
 const { join } = require("path");
 const { readdirSync } = require("fs");
 
@@ -13,16 +19,21 @@ const { readdirSync } = require("fs");
  *  splash: HTMLImageElement,
  *  sprites: HTMLImageElement,
  *  stars: HTMLImageElement,
- *  water: HTMLImageElement
+ *  water: HTMLImageElement,
+ *  _getAspectRatio: AspectRatioCallback
  * }}
  */
-const image = {};
+const image = {
+    _getAspectRatio: (image) => image.height / image.width
+};
 
 readdirSync(join(__dirname, "..", "img", "game")).forEach((file) => {
-   const name = file.replace(/\.[^/.]+$/, "");
-
-   image[name] = new Image();
-   image[name].src = join(__dirname, "..", "img", "game", file);
+    const name = file.replace(/\.[^/.]+$/, "");
+   
+    if (!name.startsWith("_")) {
+        image[name] = new Image();
+        image[name].src = join(__dirname, "..", "img", "game", file);
+    }
 });
 
 module.exports = image;
