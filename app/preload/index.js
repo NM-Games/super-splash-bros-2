@@ -334,6 +334,7 @@ const konamiEasterEgg = {
 
 let frames = 0;
 let game = socket.getGame();
+let isInGame = false;
 let lastStartState = 0;
 let playerIndex = -1;
 let banButton = {
@@ -709,12 +710,14 @@ Button.gameMenuItems = [
                     danger: true,
                     onclick: () => {
                         dialog.close();
+                        isInGame = false;
                         gameMenu.set(false);
                         water.flood.enable(false, () => {
                             if (playerIndex === game.host) ipcRenderer.send("stop-gameserver"); else {
                                 socket.close();
                                 errorAlert.suppress();
-                                state.change.to(state.LAN_GAME_MENU, true, () => water.flood.disable());
+                                state.current = state.LAN_GAME_MENU;
+                                water.flood.disable();
                             }
                         });
                     }
@@ -1007,7 +1010,7 @@ addEventListener("DOMContentLoaded", () => {
         else if (e.key.toLowerCase() === "v" && e.ctrlKey && Input.getInputById("Username").focused) {
             Input.getInputById("Username").value += clipboard.readText();
             Input.getInputById("Username").value = Input.getInputById("Username").value.slice(0, Input.getInputById("Username").maxLength);
-        } else if (e.key === config.controls.gameMenu && !gameMenu.holdingKey) {
+        } else if (e.key === config.controls.gameMenu && !gameMenu.holdingKey && isInGame) {
             gameMenu.holdingKey = true;
             gameMenu.toggle();
         }
@@ -1123,6 +1126,7 @@ addEventListener("DOMContentLoaded", () => {
             if (lastStartState === 0 && game.startState === 1) water.flood.enable();
             else if (lastStartState === 1 && game.startState === 2) {
                 state.current = state.PLAYING_LAN;
+                isInGame = true;
                 water.flood.disable();
             } else if (lastStartState === 2 && game.startState === 3) countdown.show("3", theme.colors.countdown._3);
             else if (lastStartState === 3 && game.startState === 4) countdown.show("2", theme.colors.countdown._2);
