@@ -32,7 +32,7 @@ const state = {
          * Change the current game state.
          * @param {number} toState
          * @param {boolean} inverted
-         * @param {import("./socket").EmptyCallback} onchanged
+         * @param {EmptyCallback} onchanged
          */
         to: (toState, inverted, onchanged = () => {}) => {
             state.change.newState = toState;
@@ -342,6 +342,23 @@ let banButton = {
     active: false
 };
 let lastKeys = JSON.parse(JSON.stringify(keys));
+let parallellogram = {
+    visible: false,
+    moving: false,
+    offset: 119,
+    y: 1e8,
+    vy: 10,
+    show: () => {
+        if (parallellogram.visible) return;
+        parallellogram.visible = true;
+        parallellogram.moving = true;
+    },
+    hide: () => {
+        if (!parallellogram.visible) return;
+        parallellogram.visible = false;
+        parallellogram.moving = true;
+    }
+};
 
 Button.items = [
     // Main menu
@@ -1128,8 +1145,10 @@ addEventListener("DOMContentLoaded", () => {
                 state.current = state.PLAYING_LAN;
                 isInGame = true;
                 water.flood.disable();
-            } else if (lastStartState === 2 && game.startState === 3) countdown.show("3", theme.colors.countdown._3);
-            else if (lastStartState === 3 && game.startState === 4) countdown.show("2", theme.colors.countdown._2);
+            } else if (lastStartState === 2 && game.startState === 3) {
+                countdown.show("3", theme.colors.countdown._3);
+                parallellogram.show();
+            } else if (lastStartState === 3 && game.startState === 4) countdown.show("2", theme.colors.countdown._2);
             else if (lastStartState === 4 && game.startState === 5) countdown.show("1", theme.colors.countdown._1);
             else if (lastStartState === 5 && game.startState === 6) countdown.show("GO!", theme.colors.countdown.go);
 
@@ -1197,6 +1216,16 @@ addEventListener("DOMContentLoaded", () => {
         if (errorAlert.visible) errorAlert.y = Math.min(50, errorAlert.y + errorAlert.vy);
         else errorAlert.y = Math.max(-100, errorAlert.y - errorAlert.vy);
 
+        if (!isInGame) parallellogram.hide();
+        if (parallellogram.visible && parallellogram.moving) {
+            parallellogram.y = Math.max(c.height() + 20 - parallellogram.offset, parallellogram.y - parallellogram.vy);
+            if (parallellogram.y === c.height() + 20 - parallellogram.offset) parallellogram.moving = false;
+        } else if (parallellogram.visible) parallellogram.y = c.height() + 20 - parallellogram.offset;
+        else {
+            parallellogram.y = Math.min(c.height() + 20, parallellogram.y + parallellogram.vy);
+            if (parallellogram.y === c.height() + 20) parallellogram.moving = false;
+        }
+
         if (gameMenu.visible) {
             gameMenu.x = Math.min(gameMenu.width, gameMenu.x + gameMenu.vx);
             gameMenu.darkness = Math.min(0.4, gameMenu.darkness + 0.01);
@@ -1224,10 +1253,21 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.fill.circle(c.options.gradient(0, c.height() - 600, 0, c.height(), {pos: 0, color: "yellow"}, {pos: 1, color: "#ff1f82"}), c.width(0.5), c.height() - 169, c.width(0.2));
         }
 
+        const drawWater = () => {
+            water.imageX = 0;
+            if (!water.flood.enabling && !water.flood.disabling) {
+                while (water.imageX < c.width() + image.water.width) {
+                    c.draw.image(image.water, water.x + water.imageX, water.flood.level - image.water.height);
+                    water.imageX += image.water.width;
+                }
+            }    
+        };
+
         if ([state.MAIN_MENU, state.SETTINGS, state.ABOUT, state.LOCAL_GAME_MENU, state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST].includes(state.current)) {
             for (const sprite of MenuSprite.items) {
                 if (sprite.visible) c.draw.croppedImage(image.sprites, sprite.color * 128, sprite.facing * 128, 128, 128, sprite.x, sprite.y, 96, 96);
             }
+            drawWater();
         } else if ([state.PLAYING_LAN, state.PLAYING_FREEPLAY].includes(state.current) && game) {
             const offset = {x: (c.width() - image.platforms.width) / 2, y: c.height() - image.platforms.height};
 
@@ -1283,6 +1323,7 @@ addEventListener("DOMContentLoaded", () => {
                     c.options.setOpacity();
                 } else c.draw.line(theme.getTextColor(), r.x + offset.x, r.y + offset.y, r.x + r.width + offset.x, r.y + offset.y, 9);
             }
+            drawWater();
 
             for (const s of game.splashes) {
                 c.options.setOpacity(s.a);
@@ -1297,50 +1338,46 @@ addEventListener("DOMContentLoaded", () => {
                 if (p === null) continue;
 
                 const x = spacing / 2 + i * (parallellogramWidth + spacing);
+                const y = parallellogram.y;
                 const offsets = (parallellogramWidth > 250) ? {
                     sprite: -3,
-                    lives: 84,
-                    percentage: 90
+                    lives: 80,
+                    percentage: 82,
+                    rockets: 22
                 } : {
                     sprite: c.width(-2),
                     lives: 28,
-                    percentage: 20
+                    percentage: 20,
+                    rockets: 22
                 };
                 const nameSize = Math.min(24, (parallellogramWidth - 150) / 8 + 16);
                 c.options.setShadow(theme.colors.text.dark, 6);
-                c.draw.fill.parallellogram(theme.colors.players[p.index], x, 36, parallellogramWidth, 95);
-                c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.sprite, 15, 80, 80);
-                c.draw.text({text: p.name, x: x + 11, y: 120, color: theme.colors.text.light, font: {size: nameSize}, alignment: "left", maxWidth: parallellogramWidth - 35});
-                c.draw.text({text: Math.floor(p.hit.percentage), x: x + offsets.percentage, y: 97, color: theme.colors.text.light, font: {size: 54, style: "bold"}, alignment: "left", baseline: "bottom"});
+                c.draw.fill.parallellogram(theme.colors.players[p.index], x, parallellogram.y, parallellogramWidth, 95);
+                c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.sprite, parallellogram.y - 10, 72, 72);
+                c.draw.text({text: p.name, x: x + 11, y: parallellogram.y + 85, color: theme.colors.text.light, font: {size: nameSize}, alignment: "left", maxWidth: parallellogramWidth - 35});
+                c.draw.text({text: Math.floor(p.hit.percentage), x: x + offsets.percentage, y: parallellogram.y + 64, color: theme.colors.text.light, font: {size: 54, style: "bold"}, alignment: "left", baseline: "bottom"});
                 
                 const decimalOffset = c.draw.text({text: Math.floor(p.hit.percentage), font: {size: 48, style: "bold"}, measure: true});
                 const decimalText = (parallellogramWidth > 250) ? p.hit.percentage.toFixed(1).slice(-2) + "%" : "%";
-                c.draw.text({text: decimalText, x: x + decimalOffset + offsets.percentage + 4, y: 90, color: theme.colors.text.light, font: {size: 20, style: "bold"}, alignment: "left", baseline: "bottom"});
+                c.draw.text({text: decimalText, x: x + decimalOffset + offsets.percentage + 4, y: parallellogram.y + 57, color: theme.colors.text.light, font: {size: 20, style: "bold"}, alignment: "left", baseline: "bottom"});
                 c.options.setShadow();
-                for (let l=0; l<p.lives; l++) c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.lives + l * 20, 12, 16, 16);
+                for (let l=0; l<p.lives; l++) c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.lives + l * 20, y - 19, 16, 16);
 
-                c.draw.image(image.explosion, x + parallellogramWidth - 52, 45, 36, 36);
+                c.draw.image(image.explosion, x + parallellogramWidth - offsets.rockets - 12, y + 5, 24, 24);
                 if (frames % 4 < 2 || p.attacks.rocket.count === 0 || game.ping - p.attacks.rocket.lastPerformed >= p.attacks.rocket.cooldown) c.draw.text({
                     text: p.attacks.rocket.count,
-                    x: x + parallellogramWidth - 34,
-                    y: 65,
-                    color: (p.attacks.rocket.count === 0) ? theme.colors.error.foreground : theme.getTextColor(),
-                    font: {size: 24},
+                    x: x + parallellogramWidth - offsets.rockets,
+                    y: y + 18,
+                    color: (p.attacks.rocket.count === 0) ? theme.colors.error.foreground : theme.colors.text.light,
+                    font: {size: 18},
                     baseline: "middle"
                 });
-                c.draw.stroke.arc(theme.getTextColor(), x + parallellogramWidth - 34, 63, 20, 2, (game.ping - p.attacks.rocket.lastRegenerated) / p.attacks.rocket.regenerationInterval);
+                c.draw.stroke.arc(theme.colors.text.light, x + parallellogramWidth - offsets.rockets, y + 17, 13, 2, (game.ping - p.attacks.rocket.lastRegenerated) / p.attacks.rocket.regenerationInterval);
 
                 i++;
             }
-        }
+        } else drawWater();
 
-        water.imageX = 0;
-        if (!water.flood.enabling && !water.flood.disabling) {
-            while (water.imageX < c.width()) {
-                c.draw.image(image.water, water.x + water.imageX, water.flood.level - image.water.height);
-                water.imageX += image.water.width;
-            }
-        }
 
         if (state.current === state.MAIN_MENU) {
             if (theme.isDark()) c.options.filter.add("brightness(100)");
@@ -1443,12 +1480,11 @@ addEventListener("DOMContentLoaded", () => {
         }
 
         if (water.flood.enabling || water.flood.disabling) {
-            while (water.imageX < c.width()) {
+            while (water.imageX < c.width() + image.water.width) {
                 c.draw.image(image.water, water.x + water.imageX, water.flood.level - image.water.height);
                 water.imageX += image.water.width;
             }
         }
-        c.draw.image(image.water, water.x + water.imageX, water.flood.level - image.water.height);
         c.draw.fill.rect(
             c.options.gradient(0, water.flood.level, 0, water.flood.level + c.height(),
                 {pos: 0, color: theme.colors.ui.secondary}, {pos: 0.5, color: theme.colors.ui.primary}, {pos: 1, color: theme.colors.ui.secondary}),
