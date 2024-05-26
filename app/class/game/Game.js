@@ -26,6 +26,7 @@ class Game {
     splashes;
     startState;
     startedOn;
+    local;
     /** @type {string[]} */
     blacklist;
     /** @type {number} */
@@ -35,10 +36,11 @@ class Game {
 
     /**
      * @constructor
-     * @param {Themes} theme 
+     * @param {boolean} local
      */
-    constructor() {
+    constructor(local = false) {
         this.theme = "";
+        this.local = local;
         this.players = [null, null, null, null, null, null, null, null];
         this.ips = [null, null, null, null, null, null, null, null];
         this.attacks = [];
@@ -77,6 +79,20 @@ class Game {
 
         return appearance.preferredColor;
     }
+
+    /**
+     * Fill the game with dummy players. Only for local games.
+     */
+    addDummies() {
+        if (!this.local) return;
+
+        for (let i=0; i<this.players.length; i++) {
+            if (this.players[i] === null) {
+                this.players[i] = new Player({playerName: `Dummy ${i + 1}`, preferredColor: i, superpower: 0}, i);
+                this.ips[i] = `10.0.0.${i}`;
+            }
+        }
+}
 
     /**
      * Remove a player from the game. Note that this does not equal kicking, this game only has banning!
