@@ -159,7 +159,8 @@ class Game {
 
             if (p1.y > 700) {
                 this.splashes.push(new Splash(p1.x + p1.size / 2));
-                if (p1.lives-- > 1) {
+                if (this.ping - p1.respawn >= p1.spawnProtection) p1.lives--;
+                if (p1.lives >= 1) {
                     p1.respawn = this.ping;
                     p1.x = Player.initialCoordinates[p1.index].x;
                     p1.y = Player.initialCoordinates[p1.index].y;  
