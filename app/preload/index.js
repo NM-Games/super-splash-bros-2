@@ -212,9 +212,9 @@ const introLogo = {
     }
 };
 const countdown = {
-    size: 450,
-    defaultSize: 450,
-    v: 60,
+    size: 330,
+    defaultSize: 330,
+    v: 80,
     a: 1,
     text: "",
     color: "",
@@ -226,7 +226,7 @@ const countdown = {
     show: (text, color) => {
         countdown.text = text;
         countdown.color = color;
-        countdown.size = countdown.defaultSize * 2;
+        countdown.size = countdown.defaultSize * 3;
         countdown.a = 0;
     }
 };
