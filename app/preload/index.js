@@ -398,7 +398,7 @@ Button.items = [
             instance.theme = config.graphics.theme;
             instance.players[config.appearance.preferredColor] = new Player(config.appearance, config.appearance.preferredColor);
             instance.addDummies();
-            playerIndex = config.appearance.preferredColor;
+            instance.hostIndex = playerIndex = config.appearance.preferredColor;
             Button.getButtonById("FreeplayGameTheme").text = `Theme: ${instance.theme}`;
 
             this.hovering = false;
@@ -745,7 +745,8 @@ Button.items = [
         height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
-            state.change.to(state.MAIN_MENU, true);
+            state.change.to(state.MAIN_MENU, true, () => instance = game = undefined);
+            theme.current = config.graphics.theme;
         }
     }),
 ];
@@ -768,7 +769,9 @@ Button.gameMenuItems = [
             this.hovering = false;
             dialog.show(
                 "Are you sure you want to leave?",
-                (playerIndex === game.host) ? "Because you are the host, you will kick everyone out!" : "You will not be able to rejoin this game.",
+                (state.current === state.PLAYING_FREEPLAY) ? ""
+                : (playerIndex === game.host) ? "Because you are the host, you will kick everyone out!"
+                : "You will not be able to rejoin this game.",
                 new Button({
                     text: "Yes",
                     x: () => c.width(0.35),
@@ -779,12 +782,16 @@ Button.gameMenuItems = [
                         isInGame = false;
                         gameMenu.set(false);
                         water.flood.enable(false, () => {
-                            if (playerIndex === game.host) ipcRenderer.send("stop-gameserver"); else {
-                                socket.close();
-                                errorAlert.suppress();
-                                state.current = state.LAN_GAME_MENU;
-                                water.flood.disable();
+                            if (state.current === state.PLAYING_LAN) {
+                                if (playerIndex === game.host) ipcRenderer.send("stop-gameserver"); else {
+                                    socket.close();
+                                    errorAlert.suppress();
+                                    state.current = state.LAN_GAME_MENU;
+                                }
+                            } else if (state.current === state.PLAYING_FREEPLAY) {
+                                state.current = state.MAIN_MENU;
                             }
+                            water.flood.disable();
                         });
                     }
                 }), new Button({
@@ -1017,27 +1024,13 @@ addEventListener("DOMContentLoaded", () => {
     for (let i=0; i<3; i++) Input.getInputById(`IP-${i + 1}`).value = ipFragments[i];
 
     ipcRenderer.on("quit-check", () => {
-        if ([state.PLAYING_LOCAL, state.PLAYING_LAN, state.PLAYING_FREEPLAY].includes(state.current)) {
+        if ([state.PLAYING_LOCAL, state.PLAYING_LAN, state.PLAYING_FREEPLAY].includes(state.current)
+         || (state.current === state.WAITING_LAN_HOST && game.connected > 1)) {
             dialog.show(
                 "Are you sure you want to quit?",
-                "You will not be able to rejoin this game.",
-                new Button({
-                    text: "Yes",
-                    x: () => c.width(0.35),
-                    y: () => c.height(0.75),
-                    danger: true,
-                    onclick: () => ipcRenderer.send("quit")
-                }), new Button({
-                    text: "No",
-                    x: () => c.width(0.65),
-                    y: () => c.height(0.75),
-                    onclick: () => dialog.close()
-                })
-            );
-        } else if (state.current === state.WAITING_LAN_HOST && game.connected > 1) {
-            dialog.show(
-                "Are you sure you want to quit?",
-                "Quitting will kick out everyone in your game.",
+                (state.current === state.PLAYING_LAN) ? "You will not be able to rejoin this game."
+                : (state.current === state.WAITING_LAN_HOST) ? "Quitting will kick out everyone in your game."
+                : "",
                 new Button({
                     text: "Yes",
                     x: () => c.width(0.35),
@@ -1093,7 +1086,10 @@ addEventListener("DOMContentLoaded", () => {
                     break;
                 }
             }
-            if (keyChange()) socket.sendKeys(keys);
+            if (keyChange()) {
+                if (state.current === state.PLAYING_LAN) socket.sendKeys(keys);
+                else if (state.current === state.PLAYING_FREEPLAY) instance.players[instance.hostIndex].setKeys(keys);
+            }
             lastKeys = JSON.parse(JSON.stringify(keys));
         }
     });
@@ -1105,7 +1101,10 @@ addEventListener("DOMContentLoaded", () => {
                     break;
                 }
             }
-            if (keyChange()) socket.sendKeys(keys);
+            if (keyChange()) {
+                if (state.current === state.PLAYING_LAN) socket.sendKeys(keys);
+                else if (state.current === state.PLAYING_FREEPLAY) instance.players[instance.hostIndex].setKeys(keys);
+            }
             lastKeys = JSON.parse(JSON.stringify(keys));
         }
 
@@ -1129,7 +1128,7 @@ addEventListener("DOMContentLoaded", () => {
                  && e.clientY > button.y() - button.height / 2 && e.clientY < button.y() + button.height / 2 && !button.disabled && !state.change.active);
             }
 
-            if (state.current === state.WAITING_LAN_HOST && !water.flood.enabled) {
+            if ([state.WAITING_LAN_HOST, state.WAITING_FREEPLAY].includes(state.current) && !water.flood.enabled && game) {
                 banButton.hoverIndex = -1;
                 for (let i=0; i<8; i++) {
                     const x = (i % 2 === 0) ? c.width(0.5) - 510 : c.width(0.5) + 10;
@@ -1177,7 +1176,10 @@ addEventListener("DOMContentLoaded", () => {
                 break;
             } else if (button.active) button.active = false;
         }
-        if (banButton.hoverIndex > -1 && banButton.active) ipcRenderer.send("ban", banButton.hoverIndex);
+        if (banButton.hoverIndex > -1 && banButton.active) {
+            if (state.current === state.WAITING_LAN_HOST) ipcRenderer.send("ban", banButton.hoverIndex);
+            else if (state.current === state.WAITING_FREEPLAY) instance.ban(banButton.hoverIndex);
+        }
         banButton.hoverIndex = -1;
         banButton.active = false;
     });
@@ -1196,7 +1198,7 @@ addEventListener("DOMContentLoaded", () => {
 
             if (lastStartState === 0 && game.startState === 1) water.flood.enable();
             else if (lastStartState === 1 && game.startState === 2) {
-                state.current = state.PLAYING_LAN;
+                state.current = (state.current === state.WAITING_FREEPLAY) ? state.PLAYING_FREEPLAY : state.PLAYING_LAN;
                 isInGame = true;
                 water.flood.disable();
             } else if (lastStartState === 2 && game.startState === 3) {
@@ -1504,7 +1506,8 @@ addEventListener("DOMContentLoaded", () => {
                     let additionalText = false;
                     if (playerIndex === game.host || state.current === state.WAITING_FREEPLAY) {
                         additionalText = true;
-                        c.draw.text({text: (i === playerIndex) ? "you":"click to ban", x: x + state.change.x + 85, y: c.height(0.2) + y * 100 + 65, font: {size: 20}, color: theme.colors.text.light, alignment: "left"})
+                        const removalVerb = (state.current === state.WAITING_FREEPLAY) ? "remove" : "ban";
+                        c.draw.text({text: (i === playerIndex) ? "you":`click to ${removalVerb}`, x: x + state.change.x + 85, y: c.height(0.2) + y * 100 + 65, font: {size: 20}, color: theme.colors.text.light, alignment: "left"})
                     } else if (i === playerIndex) {
                         additionalText = true;
                         c.draw.text({text: "you", x: x + state.change.x + 85, y: c.height(0.2) + y * 100 + 65, font: {size: 20}, color: theme.colors.text.light, alignment: "left"})
