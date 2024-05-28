@@ -280,6 +280,7 @@ class Game {
             rockets: this.rockets,
             splashes: this.splashes,
             connected,
+            startedOn: this.startedOn,
             startState: this.startState,
             startPlayerCount: this.startPlayerCount
         };

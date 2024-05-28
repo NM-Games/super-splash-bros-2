@@ -1062,6 +1062,34 @@ addEventListener("DOMContentLoaded", () => {
         state.change.to(state.LAN_GAME_MENU, true);
         errorAlert.suppress();
     });
+    setInterval(() => {
+        const discordState = (state.current === state.PLAYING_LOCAL) ? "Local mode"
+        : (state.current === state.PLAYING_LAN) ? "LAN mode"
+        : (state.current === state.PLAYING_FREEPLAY) ? "Freeplay mode"
+        : ([state.WAITING_FREEPLAY, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_LOCAL].includes(state.current)) ? "Waiting for start"
+        : undefined;
+
+        let partySize;
+        let partyMax;
+        let startTimestamp;
+        if (game) {
+            partySize = partyMax = 0;
+            for (let i=0; i<game.players.length; i++) {
+                if (game.players[i] !== null) partySize++;
+                partyMax++;
+            }
+            if (game.startedOn > 0) startTimestamp = game.startedOn;
+        }
+
+        ipcRenderer.send("discord-activity-update",
+            discordState,
+            playerIndex ?? config.appearance.preferredColor,
+            config.appearance.playerName,
+            partySize,
+            partyMax,
+            startTimestamp
+        );
+    }, 15000);
 
     addEventListener("keydown", (e) => {
         const button = Button.getButtonById(`Back-${state.current}`);

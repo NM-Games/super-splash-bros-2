@@ -3,6 +3,7 @@ const { join } = require("path");
 
 const network = require("./network");
 const { version } = require("../package.json");
+const discord = require("./discord");
 
 
 /** @type {BrowserWindow} */
@@ -103,6 +104,15 @@ app.on("ready", () => {
         ipcMain.on("lan-cycle-theme", () => gameserver.postMessage("theme"));
         ipcMain.on("ban", (_e, index) => gameserver.postMessage(`ban:${index}`));
         ipcMain.on("start", () => gameserver.postMessage("start"));
+
+        ipcMain.on("discord-activity-update", (_e, state, playerIndex, playerName, partySize, partyMax, startTimestamp) => {
+            discord.setActivity({
+                state,
+                player: {index: playerIndex, name: playerName},
+                party: {size: partySize, max: partyMax},
+                startTimestamp
+            });
+        });
     }).catch((err) => {
         dialog.showErrorBox(`Cannot start ${app.name}`, `${err}: The ${app.name} port, ${network.port}, is already in use.`);
         app.exit(2);
