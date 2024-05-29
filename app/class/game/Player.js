@@ -60,7 +60,7 @@ class Player {
         this.respawn = new Date().getTime() - this.spawnProtection;
         this.hit = {
             percentage: 0,
-            cooldown: false,
+            cooldown: 400,
             cooldownSince: -6e9,
         };
         this.attacks = {
