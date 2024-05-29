@@ -168,19 +168,22 @@ const water = {
         levelAcceleration: 0.5, // for enabling only
         enabling: false,
         disabling: false,
+        showMessage: false,
         onfinishedenabling: () => {},
         onfinisheddisabling: () => {},
         /**
          * Enable flooding.
          * @param {boolean} boost 
+         * @param {boolean} message
          * @param {EmptyCallback} onfinished 
          */
-        enable: function(boost = false, onfinished = () => {}) {
+        enable: function(boost = false, message = false, onfinished = () => {}) {
             if (this.enabling) return;
             
             this.enabled = true;
             this.disabling = false;
             this.enabling = true;
+            this.showMessage = message;
             this.onfinishedenabling = onfinished;
             this.levelSpeed = Number(boost) * c.height() / 10;
         },
@@ -782,7 +785,7 @@ Button.gameMenuItems = [
                         dialog.close();
                         isInGame = false;
                         gameMenu.set(false);
-                        water.flood.enable(false, () => {
+                        water.flood.enable(false, false, () => {
                             if (state.current === state.PLAYING_LAN) {
                                 if (playerIndex === game.host) ipcRenderer.send("stop-gameserver"); else {
                                     socket.close();
@@ -1225,7 +1228,7 @@ addEventListener("DOMContentLoaded", () => {
             Button.getButtonById("StartLANGame").disabled = (game.connected < 1);
             Button.getButtonById(`Back-${state.WAITING_LAN_HOST}`).danger = (game.connected > 1);
 
-            if (lastStartState === 0 && game.startState === 1) water.flood.enable();
+            if (lastStartState === 0 && game.startState === 1) water.flood.enable(false, true);
             else if (lastStartState === 1 && game.startState === 2) {
                 state.current = (state.current === state.WAITING_FREEPLAY) ? state.PLAYING_FREEPLAY : state.PLAYING_LAN;
                 isInGame = true;
@@ -1292,6 +1295,7 @@ addEventListener("DOMContentLoaded", () => {
                 water.flood.level = c.height();
                 water.flood.disabling = false;
                 water.flood.onfinisheddisabling();
+                water.flood.showMessage = false;
             }
         } else water.flood.level = (water.flood.enabled) ? 0 : c.height();
         if (frames === introLogo.duration) water.flood.disable();
@@ -1345,7 +1349,7 @@ addEventListener("DOMContentLoaded", () => {
                     c.draw.image(image.water, water.x + water.imageX, water.flood.level - image.water.height);
                     water.imageX += image.water.width;
                 }
-            }    
+            }
         };
 
         if ([state.MAIN_MENU, state.SETTINGS, state.ABOUT, state.LOCAL_GAME_MENU, state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY].includes(state.current)) {
@@ -1576,12 +1580,14 @@ addEventListener("DOMContentLoaded", () => {
         }
         c.draw.fill.rect(
             c.options.gradient(0, water.flood.level, 0, water.flood.level + c.height(),
-                {pos: 0, color: theme.colors.ui.secondary}, {pos: 0.5, color: theme.colors.ui.primary}, {pos: 1, color: theme.colors.ui.secondary}),
+            {pos: 0, color: theme.colors.ui.secondary}, {pos: 0.5, color: theme.colors.ui.primary}, {pos: 1, color: theme.colors.ui.secondary}),
             0,
             water.flood.level - 2,
             c.width(),
             c.height() + 2
         );
+        if (water.flood.showMessage) c.draw.text({text: "Good luck, have fun!", x: c.width(0.5), y: water.flood.level + c.height(0.5), color: theme.colors.ui.secondary, font: {size: 100, style: "bold"}, baseline: "middle"});
+
         if (introLogo.progress < introLogo.duration) {
             c.options.setOpacity(introLogo.a);
             c.draw.image(
