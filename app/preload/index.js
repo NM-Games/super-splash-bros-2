@@ -116,6 +116,7 @@ const connect = (asHost) => {
                 setConnectElementsState(false);
             } else {
                 if (state.current === state.PLAYING_LAN) water.flood.enable(true);
+                isInGame = false;
                 const reason = (e.reason) ? e.reason : "You have been disconnected because the game you were in was closed.";
                 state.change.to(state.LAN_GAME_MENU, true, () => {
                     water.flood.disable();
@@ -1115,14 +1116,13 @@ addEventListener("DOMContentLoaded", () => {
 
     addEventListener("keydown", (e) => {
         const button = Button.getButtonById(`Back-${state.current}`);
-        if (e.key === "Escape" && button !== null && !button.disabled && !Input.isRemapping) button.onclick();
+        if (e.key === "Escape" && dialog.visible) dialog.close();
+        else if (e.key === "Escape" && button !== null && !button.disabled && !Input.isRemapping) button.onclick();
         else if (e.key.toLowerCase() === "v" && e.ctrlKey && Input.getInputById("Username").focused) {
             Input.getInputById("Username").value += clipboard.readText();
             Input.getInputById("Username").value = Input.getInputById("Username").value.slice(0, Input.getInputById("Username").maxLength);
         } else if (e.key === "Backspace" && e.ctrlKey && Input.getInputById("Username").focused) {
             Input.getInputById("Username").value = "";
-        } else if (e.key === "Escape" && dialog.visible) {
-            dialog.close();
         } else if (e.key === config.controls.gameMenu && !gameMenu.holdingKey && isInGame) {
             gameMenu.holdingKey = true;
             gameMenu.toggle();
@@ -1406,15 +1406,15 @@ addEventListener("DOMContentLoaded", () => {
                     triangleX: Math.min(c.width() - p.size - 15, Math.max(5, p.x + offset.x)),
                     triangleY: Math.min(c.height() - p.size - 15, Math.max(5, p.y + offset.y))
                 };
-                if (p.x + offset.x < -p.size && p.lives > 0) {
+                if (p.x + offset.x < -p.size && p.lives > 0 && p.connected) {
                     c.draw.fill.rect(theme.colors.players[p.index], 25, offScreen.y - 10, p.size + 20, p.size + 20, 8);
                     c.draw.fill.triangleLR(theme.colors.players[p.index], 25, offScreen.triangleY + p.size / 2, -20, 30);
                     c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, 35, offScreen.y, p.size, p.size);
-                } else if (p.x + offset.x > c.width() && p.lives > 0) {
+                } else if (p.x + offset.x > c.width() && p.lives > 0 && p.connected) {
                     c.draw.fill.rect(theme.colors.players[p.index], c.width() - p.size - 45, offScreen.y - 10, p.size + 20, p.size + 20, 8);
                     c.draw.fill.triangleLR(theme.colors.players[p.index], c.width() - 25, offScreen.triangleY + p.size / 2, 20, 30);
                     c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, c.width() - p.size - 35, offScreen.y, p.size, p.size);
-                } else if (p.y + offset.y < -p.size && p.lives > 0) {
+                } else if (p.y + offset.y < -p.size && p.lives > 0 && p.connected) {
                     c.draw.fill.rect(theme.colors.players[p.index], offScreen.x - 10, 25, p.size + 20, p.size + 20, 8);
                     c.draw.fill.triangleUD(theme.colors.players[p.index], offScreen.triangleX + p.size / 2, 25, 30, -20);
                     c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, offScreen.x, 35, p.size, p.size);
@@ -1482,7 +1482,7 @@ addEventListener("DOMContentLoaded", () => {
                 const decimalText = (parallellogramWidth > 250) ? p.hit.percentage.toFixed(1).slice(-2) + "%" : "%";
 
                 c.options.setShadow(theme.colors.shadow, 4);
-                if (p.lives < 1) c.options.setOpacity(0.3);
+                if (p.lives < 1 || !p.connected) c.options.setOpacity(0.3);
                 c.draw.fill.parallellogram(theme.colors.players[p.index], x, parallellogram.y, parallellogramWidth, 95);
                 c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.sprite, parallellogram.y - 10, 72, 72);
                 
@@ -1490,7 +1490,7 @@ addEventListener("DOMContentLoaded", () => {
                 for (let l=0; l<p.lives; l++) c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.lives + l * 20, y - 19, 16, 16);
                 c.options.setShadow(theme.colors.shadow, 3, 1, 1);
                 c.draw.text({text: p.name, x: x + 11, y: parallellogram.y + 85, color: theme.colors.text.light, font: {size: nameSize}, alignment: "left", maxWidth: parallellogramWidth - 35});
-                if (p.lives >= 1) {
+                if (p.lives >= 1 && p.connected) {
                     c.draw.text({text: Math.floor(p.hit.percentage), x: x + offsets.percentage + shake.x, y: parallellogram.y + shake.y + 64, color, font: {size: 54, style: "bold"}, alignment: "left", baseline: "bottom"});
                     c.draw.text({text: decimalText, x: x + decimalOffset + offsets.percentage + shake.x + 4, y: parallellogram.y + shake.y + 57, color, font: {size: 20, style: "bold"}, alignment: "left", baseline: "bottom"});
                     
@@ -1510,7 +1510,8 @@ addEventListener("DOMContentLoaded", () => {
                 }
                 c.options.setShadow();
                 c.options.setOpacity();
-                if (p.lives < 1) c.draw.image(image.eliminated, x + (parallellogramWidth - 115) / 2, parallellogram.y - 10, 115, 115);
+                if (!p.connected) c.draw.image(image.disconnected, x + (parallellogramWidth - 115) / 2, parallellogram.y - 10, 115, 115);
+                else if (p.lives < 1) c.draw.image(image.eliminated, x + (parallellogramWidth - 115) / 2, parallellogram.y - 10, 115, 115);
 
                 i++;
             }

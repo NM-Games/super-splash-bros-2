@@ -97,14 +97,6 @@ class Game {
                 this.ips[i] = `10.0.0.${i}`;
             }
         }
-}
-
-    /**
-     * Remove a player from the game. Note that this does not equal kicking, this game only has banning!
-     * @param {number} index
-     */
-    remove(index) {
-        if (this.players[index] !== null) this.players[index] = this.ips[index] = null;
     }
 
     /**
@@ -115,7 +107,7 @@ class Game {
         if (index === this.hostIndex) return;
 
         this.blacklist.push(this.ips[index]);
-        this.remove(index);
+        if (this.players[index] !== null) this.players[index] = this.ips[index] = null;
     }
 
     /**

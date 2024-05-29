@@ -10,6 +10,7 @@ const { readdirSync } = require("fs");
 /**
  * @type {{
  *  buttons: HTMLImageElement,
+ *  disconnected: HTMLImageElement,
  *  eliminated: HTMLImageElement,
  *  explosion: HTMLImageElement,
  *  itembox: HTMLImageElement,

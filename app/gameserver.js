@@ -49,7 +49,7 @@ wss.on("listening", () => {
                 const clientIndex = game.ips.indexOf(client.ip);
 
                 if (clientIndex === -1 && game.blacklist.includes(client.ip)) client.close(1000, "You have been banned from this game!");
-                else if (error && clientIndex > -1) game.remove(clientIndex);
+                else if (error && clientIndex > -1) game.players[clientIndex].connected = false;
                 else client.send(JSON.stringify(game.export()));
             });
         });
@@ -93,6 +93,6 @@ wss.on("connection", (socket, request) => {
     });
     socket.on("close", () => {
         const clientIndex = game.ips.indexOf(socket.ip);
-        if (clientIndex > -1) game.remove(clientIndex);
+        if (clientIndex > -1) game.players[clientIndex].connected = false;
     });
 });

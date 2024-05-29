@@ -22,6 +22,7 @@ class Player {
     ];
 
     index;
+    connected;
     x;
     y;
     lx;
@@ -47,6 +48,7 @@ class Player {
      */
     constructor(appearance, index) {
         this.index = index ?? appearance.preferredColor;
+        this.connected = true;
         this.name = appearance.playerName;
         this.x = this.lx = Player.initialCoordinates[this.index].x;
         this.y = this.ly = Player.initialCoordinates[this.index].y;
@@ -127,7 +129,7 @@ class Player {
 
     /** Update a player. Collision detection between players is done in the Game class. */
     update() {
-        if (this.lives > 0) {
+        if (this.lives > 0 && this.connected) {
             this.x += this.vx;
             this.y += this.vy;
             this.vy += Player.g;
