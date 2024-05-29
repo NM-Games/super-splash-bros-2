@@ -93,6 +93,9 @@ wss.on("connection", (socket, request) => {
     });
     socket.on("close", () => {
         const clientIndex = game.ips.indexOf(socket.ip);
-        if (clientIndex > -1) game.players[clientIndex].connected = false;
+        if (clientIndex > -1) {
+            if (game.startState > 0) game.players[clientIndex].connected = false;
+            else game.players[clientIndex] = game.ips[clientIndex] = null;
+        }
     });
 });
