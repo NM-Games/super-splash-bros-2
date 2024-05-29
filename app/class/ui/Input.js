@@ -18,6 +18,7 @@ class Input {
     static size = 32;
     static hoveringOn = false;
     static keybindsInvalid = false;
+    static isRemapping = false;
     /** @type {Input[]} */
     static items = [];
 
@@ -56,20 +57,7 @@ class Input {
         }
         return output;
     }
-    /**
-     * Get the focused input field.
-     * @returns {Input | null}
-     */
-    static getFocused() {
-        let output = null;
-        for (const input of Input.items) {
-            if (input.focused) {
-                output = input;
-                break;
-            }
-        }
-        return output;
-    }
+
     /**
      * Sanitizer for keybinds in the Settings menu.
      * @param {string} keybind
@@ -146,6 +134,7 @@ class Input {
                     this.onkeybindselected(e.key);
                     this.focused = false;
                     this.onblur();
+                    setTimeout(() => Input.isRemapping = false, 25);
                 }
             } else {
                 if (e.key.length === 1) {

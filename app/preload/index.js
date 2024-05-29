@@ -1112,10 +1112,12 @@ addEventListener("DOMContentLoaded", () => {
 
     addEventListener("keydown", (e) => {
         const button = Button.getButtonById(`Back-${state.current}`);
-        if (e.key === "Escape" && button !== null && !button.disabled) button.onclick();
+        if (e.key === "Escape" && button !== null && !button.disabled && !Input.isRemapping) button.onclick();
         else if (e.key.toLowerCase() === "v" && e.ctrlKey && Input.getInputById("Username").focused) {
             Input.getInputById("Username").value += clipboard.readText();
             Input.getInputById("Username").value = Input.getInputById("Username").value.slice(0, Input.getInputById("Username").maxLength);
+        } else if (e.key === "Backspace" && e.ctrlKey && Input.getInputById("Username").focused) {
+            Input.getInputById("Username").value = "";
         } else if (e.key === config.controls.gameMenu && !gameMenu.holdingKey && isInGame) {
             gameMenu.holdingKey = true;
             gameMenu.toggle();
@@ -1212,6 +1214,8 @@ addEventListener("DOMContentLoaded", () => {
             const oldFocused = input.focused;
             input.focused = (input.hovering && !state.change.active);
             if (oldFocused && !input.focused) input.onblur();
+
+            if (input.focused && input.keybind) Input.isRemapping = true;
         }
         if (banButton.hoverIndex > -1) banButton.active = true;
     });
