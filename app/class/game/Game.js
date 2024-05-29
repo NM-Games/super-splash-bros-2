@@ -214,7 +214,7 @@ class Game {
                     
                     if (distance <= p.size / 2 + attack.size) {
                         p.damage(this.ping, 2, 5);
-                        p.vx += (this.players[attack.player].x - p.x < 0 ? Attack.impact : -Attack.impact) * p.getImpactAmplifier();
+                        p.vx += (attack.x - p.x < 0 ? Attack.impact : -Attack.impact) * p.getImpactAmplifier();
                     }
                 }
             }
