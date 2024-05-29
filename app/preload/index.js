@@ -360,6 +360,7 @@ let frames = 0;
 let game = socket.getGame();
 /** @type {Game} */
 let instance;
+let ping = 0;
 let isInGame = false;
 let lastStartState = 0;
 let playerIndex = -1;
@@ -1023,6 +1024,7 @@ addEventListener("DOMContentLoaded", () => {
 
     checkLANAvailability();
     setInterval(checkLANAvailability, 5000);
+    setInterval(() => ping = (game) ? new Date().getTime() - game.ping : 0, 1000);
 
     Input.getInputById("Username").value = config.appearance.playerName;
 
@@ -1521,6 +1523,7 @@ addEventListener("DOMContentLoaded", () => {
             const text = (game.remaining >= 0) ? `Water starts rising in ${m}:${s}` : (game.flooded) ? "Fight to the victory!" : "Water is rising!";
             const color = (game.remaining < 0 && !game.flooded && frames % 60 < 30) ? theme.colors.error.foreground : theme.getTextColor();
             c.draw.text({text, x: 15, y: 35, color, font: {size: 28}, alignment: "left"});
+            if (state.current === state.PLAYING_LAN) c.draw.text({text: `Ping: ${ping} ms`, x: c.width() - 15, y: 25, color, font: {size: 12}, alignment: "right"});
         } else drawWater();
 
 
