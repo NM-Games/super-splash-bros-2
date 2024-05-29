@@ -23,7 +23,8 @@ const colors = {
     countdown: {_3: "red", _2: "orange", _1: "yellow", go: "green"},
     error: {background: "#700", foreground: "#e00"},
     text: {dark: "#505050", light: "#fff"},
-    overlay: "rgba(0, 0, 0, 0.75)"
+    overlay: "rgba(0, 0, 0, 0.75)",
+    shadow: "#000"
 };
 
 module.exports = {

@@ -675,6 +675,7 @@ Button.items = [
         }
     }),
     new Button({
+        id: "LANGameTheme",
         text: "Theme",
         state: state.WAITING_LAN_HOST,
         x: () => c.width(1/2) - 250,
@@ -1083,7 +1084,7 @@ addEventListener("DOMContentLoaded", () => {
 
         ipcRenderer.send("discord-activity-update",
             discordState,
-            playerIndex ?? config.appearance.preferredColor,
+            (playerIndex > -1) ? playerIndex : config.appearance.preferredColor,
             config.appearance.playerName,
             partySize,
             partyMax,
@@ -1382,7 +1383,7 @@ addEventListener("DOMContentLoaded", () => {
                     c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, offScreen.x, 35, p.size, p.size);
                 }
             }
-            c.options.setShadow(theme.colors.text.dark, 5);
+            if (theme.isDark()) c.options.setShadow(theme.colors.shadow, 2);
             for (const p of game.players) {
                 if (p === null) continue;
                 c.draw.text({text: p.name, x: p.x + p.size / 2 + offset.x, y: p.y + offset.y - (playerIndex === p.index ? 42 : 10), font: {size: 20}});
@@ -1435,19 +1436,23 @@ addEventListener("DOMContentLoaded", () => {
                     rockets: 22
                 };
                 const nameSize = Math.min(24, (parallellogramWidth - 150) / 8 + 16);
-                c.options.setShadow(theme.colors.text.dark, 6);
+                c.options.setShadow(theme.colors.shadow, 4);
                 c.draw.fill.parallellogram(theme.colors.players[p.index], x, parallellogram.y, parallellogramWidth, 95);
                 c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.sprite, parallellogram.y - 10, 72, 72);
+                
+                c.options.setShadow(theme.colors.shadow, 3, 1, 1);
                 c.draw.text({text: p.name, x: x + 11, y: parallellogram.y + 85, color: theme.colors.text.light, font: {size: nameSize}, alignment: "left", maxWidth: parallellogramWidth - 35});
                 c.draw.text({text: Math.floor(p.hit.percentage), x: x + offsets.percentage, y: parallellogram.y + 64, color: theme.colors.text.light, font: {size: 54, style: "bold"}, alignment: "left", baseline: "bottom"});
                 
                 const decimalOffset = c.draw.text({text: Math.floor(p.hit.percentage), font: {size: 48, style: "bold"}, measure: true});
                 const decimalText = (parallellogramWidth > 250) ? p.hit.percentage.toFixed(1).slice(-2) + "%" : "%";
                 c.draw.text({text: decimalText, x: x + decimalOffset + offsets.percentage + 4, y: parallellogram.y + 57, color: theme.colors.text.light, font: {size: 20, style: "bold"}, alignment: "left", baseline: "bottom"});
-                c.options.setShadow();
+                c.options.setShadow(theme.colors.shadow, 2);
                 for (let l=0; l<p.lives; l++) c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.lives + l * 20, y - 19, 16, 16);
+                c.options.setShadow();
 
                 c.draw.image(image.explosion, x + parallellogramWidth - offsets.rockets - 12, y + 5, 24, 24);
+                c.options.setShadow(theme.colors.shadow, 2);
                 if (frames % 4 < 2 || p.attacks.rocket.count === 0 || game.ping - p.attacks.rocket.lastPerformed >= p.attacks.rocket.cooldown) c.draw.text({
                     text: p.attacks.rocket.count,
                     x: x + parallellogramWidth - offsets.rockets,
@@ -1457,6 +1462,7 @@ addEventListener("DOMContentLoaded", () => {
                     baseline: "middle"
                 });
                 c.draw.stroke.arc(theme.colors.text.light, x + parallellogramWidth - offsets.rockets, y + 17, 13, 2, (game.ping - p.attacks.rocket.lastRegenerated) / p.attacks.rocket.regenerationInterval);
+                c.options.setShadow();
 
                 i++;
             }
@@ -1531,6 +1537,7 @@ addEventListener("DOMContentLoaded", () => {
                 c.draw.croppedImage(image.sprites, i * 128, 0, 128, 128, x + 8 + state.change.x, c.height(0.2) + y * 100 + 8, 64, 64);
                 if (i === banButton.hoverIndex) c.draw.stroke.rect(theme.colors.error[banButton.active ? "foreground":"background"], x + state.change.x, c.height(0.2) + y * 100, 500, 80, 4, 8);
                 if (game.players[i] !== null) {
+                    c.options.setShadow(theme.colors.shadow, 4, 1, 1);
                     let additionalText = false;
                     if (playerIndex === game.host || state.current === state.WAITING_FREEPLAY) {
                         additionalText = true;
@@ -1545,6 +1552,7 @@ addEventListener("DOMContentLoaded", () => {
                     }
                     c.draw.text({text: game.players[i].name, x: x + state.change.x + 85, y: c.height(0.2) + y * 100 + (additionalText ? 39 : 52), font: {size: 32}, color: theme.colors.text.light, alignment: "left"});
                 }
+                c.options.setShadow();
                 c.options.setOpacity();
             }
         }

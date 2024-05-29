@@ -112,6 +112,19 @@ class Player {
         return this.hit.percentage / 80 + 1;
     }
 
+    /**
+     * Damage the player.
+     * @param {number} ping
+     * @param {number} min
+     * @param {number} max
+     */
+    damage(ping, min, max) {
+        if (ping - this.hit.cooldownSince < this.hit.cooldown) return;
+
+        this.hit.cooldownSince = ping;
+        this.hit.percentage += Math.random() * (max - min) + min;
+    }
+
     /** Update a player. Collision detection between players is done in the Game class. */
     update() {
         if (this.lives > 0) {
