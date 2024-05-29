@@ -1121,6 +1121,8 @@ addEventListener("DOMContentLoaded", () => {
             Input.getInputById("Username").value = Input.getInputById("Username").value.slice(0, Input.getInputById("Username").maxLength);
         } else if (e.key === "Backspace" && e.ctrlKey && Input.getInputById("Username").focused) {
             Input.getInputById("Username").value = "";
+        } else if (e.key === "Escape" && dialog.visible) {
+            dialog.close();
         } else if (e.key === config.controls.gameMenu && !gameMenu.holdingKey && isInGame) {
             gameMenu.holdingKey = true;
             gameMenu.toggle();
