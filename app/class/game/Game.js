@@ -11,6 +11,7 @@ const { version } = require("../../../package.json");
 
 class Game {
     static floodDelay = 180;
+    static floodMaxLevel = -400;
 
     /** @type {Themes} */
     theme;
@@ -32,6 +33,8 @@ class Game {
     /** @type {number} */
     hostIndex;
     startPlayerCount;
+    floodLevel;
+    elapsed;
     ping;
 
     /**
@@ -50,6 +53,8 @@ class Game {
         this.startedOn = -6e9;
         this.blacklist = [];
         this.startPlayerCount = 1;
+        this.floodLevel = 0;
+        this.elapsed = 0;
         this.ping = new Date().getTime();
     }
 
@@ -129,7 +134,7 @@ class Game {
     start() {
         if (this.startState > 0) return;
 
-        this.startState = 1; // enable flooding
+        this.startState = 1; // enable flooding effect
         this.startedOn = new Date().getTime();
         this.startPlayerCount = this.getPlayers().length;
     }
@@ -138,13 +143,16 @@ class Game {
     update() {
         this.ping = new Date().getTime();
 
-        if (this.startState === 1 && this.ping - this.startedOn >= 3000) this.startState = 2; // disable flooding
+        if (this.startState === 1 && this.ping - this.startedOn >= 3000) this.startState = 2; // disable flooding effect
         else if (this.startState === 2 && this.ping - this.startedOn >= 5000) this.startState = 3; // countdown '3'
         else if (this.startState === 3 && this.ping - this.startedOn >= 6000) this.startState = 4; // countdown '2'
         else if (this.startState === 4 && this.ping - this.startedOn >= 7000) this.startState = 5; // countdown '1'
         else if (this.startState === 5 && this.ping - this.startedOn >= 8000) this.startState = 6; // countdown 'GO!'
 
         if (this.startState < 6) return;
+
+        this.elapsed = this.ping - this.startedOn - 8900;
+        if (this.elapsed >= Game.floodDelay * 1000) this.floodLevel = Math.max(Game.floodMaxLevel, this.floodLevel - 0.1);
 
         for (const p1 of this.getPlayers()) {
             p1.update();
@@ -173,13 +181,17 @@ class Game {
                 }
             }
 
-            if (p1.y > 700) {
-                this.splashes.push(new Splash(p1.x + p1.size / 2));
-                if (this.ping - p1.respawn >= p1.spawnProtection) p1.lives--;
-                if (p1.lives >= 1) {
+            if (p1.y > 625 + this.floodLevel) {
+                this.splashes.push(new Splash(p1.x + p1.size / 2, this.floodLevel));
+                if (this.ping - p1.respawn >= p1.spawnProtection) {
+                    p1.lives--;
                     p1.respawn = this.ping;
-                    p1.x = Player.initialCoordinates[p1.index].x;
-                    p1.y = Player.initialCoordinates[p1.index].y;  
+                }
+                if (p1.lives >= 1) {
+                    const highestCoordinates = [1, 3, 5];
+                    const spawnCoordinateIndex = (this.floodLevel < 0) ? highestCoordinates[Math.floor(Math.random() * highestCoordinates.length)] : p1.index;
+                    p1.x = Player.initialCoordinates[spawnCoordinateIndex].x;
+                    p1.y = Player.initialCoordinates[spawnCoordinateIndex].y;
                     p1.hit.percentage = 0;
                     p1.vx = p1.vy = 0;
                 }
@@ -278,7 +290,11 @@ class Game {
             connected,
             startedOn: this.startedOn,
             startState: this.startState,
-            startPlayerCount: this.startPlayerCount
+            startPlayerCount: this.startPlayerCount,
+            elapsed: this.elapsed,
+            floodLevel: this.floodLevel,
+            flooded: (this.floodLevel === Game.floodMaxLevel),
+            remaining: Math.floor((Game.floodDelay * 1000 - this.elapsed) / 1000)
         };
     }
 }

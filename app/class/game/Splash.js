@@ -1,13 +1,16 @@
 class Splash {
     x;
+    h;
     a;
 
     /**
      * @constructor
      * @param {number} x
+     * @param {number} h
      */
-    constructor(x) {
+    constructor(x, h) {
         this.x = x;
+        this.h = h;
         this.a = 1;
     }
 

@@ -337,6 +337,8 @@ const screenShake = {
     y: 0,
     intensity: 10,
     update: () => {
+        if (!game || !game.rockets) return;
+
         let explosions = 0;
         for (const r of game.rockets) {
             if (r.explosion.active && r.x > -r.explosion.size / 2 && r.x < c.width() + r.explosion.size / 2) explosions++;
@@ -669,7 +671,7 @@ Button.items = [
         height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
-            if (game.connected > 1) {
+            if (game && game.connected > 1) {
                 dialog.show(
                     "Are you sure you want to quit?",
                     "Quitting will kick out everyone in your game.",
@@ -1080,6 +1082,7 @@ addEventListener("DOMContentLoaded", () => {
         theme.current = config.graphics.theme;
         state.change.to(state.LAN_GAME_MENU, true);
         errorAlert.suppress();
+        game = undefined;
     });
     setInterval(() => {
         const discordState = (state.current === state.PLAYING_LOCAL) ? "Local mode"
@@ -1091,7 +1094,7 @@ addEventListener("DOMContentLoaded", () => {
         let partySize;
         let partyMax;
         let startTimestamp;
-        if (game) {
+        if (game && game.players) {
             partySize = partyMax = 0;
             for (let i=0; i<game.players.length; i++) {
                 if (game.players[i] !== null) partySize++;
@@ -1246,7 +1249,6 @@ addEventListener("DOMContentLoaded", () => {
         if (game) {
             Button.getButtonById("StartLANGame").disabled = (game.connected < 1);
             Button.getButtonById(`Back-${state.WAITING_LAN_HOST}`).danger = (game.connected > 1);
-            screenShake.update();
 
             if (lastStartState === 0 && game.startState === 1) water.flood.enable(false, true);
             else if (lastStartState === 1 && game.startState === 2) {
@@ -1283,7 +1285,7 @@ addEventListener("DOMContentLoaded", () => {
 
         introLogo.update();
         MenuSprite.update(frames, config.graphics.menuSprites, konamiEasterEgg.activated);
-
+        
         countdown.size = Math.max(countdown.defaultSize, countdown.size - countdown.v);
         if (countdown.size > countdown.defaultSize) countdown.a = Math.min(2, countdown.a + 0.2);
         else countdown.a = Math.max(0, countdown.a - 0.03);
@@ -1297,7 +1299,8 @@ addEventListener("DOMContentLoaded", () => {
         }
 
         if (frames - connectionMessage.shownAt >= connectionMessage.duration) connectionMessage.a = Math.max(connectionMessage.a - 0.05, 0);
-
+        screenShake.update();
+        
         water.x += Number(config.graphics.waterFlow) * water.vx;
         if (water.x < -image.water.width) water.x = 0;
         if (water.flood.enabling) {
@@ -1317,7 +1320,8 @@ addEventListener("DOMContentLoaded", () => {
                 water.flood.onfinisheddisabling();
                 water.flood.showMessage = false;
             }
-        } else water.flood.level = (water.flood.enabled) ? 0 : c.height();
+        } else if (game && isInGame) water.flood.level = (water.flood.enabled) ? 0 : c.height() + game.floodLevel;
+        else water.flood.level = (water.flood.enabled) ? 0 : c.height();
         if (frames === introLogo.duration) water.flood.disable();
 
         if (frames - errorAlert.shownAt >= errorAlert.duration && errorAlert.visible) errorAlert.visible = false;
@@ -1364,12 +1368,19 @@ addEventListener("DOMContentLoaded", () => {
 
         const drawWater = () => {
             water.imageX = 0;
-            if (!water.flood.enabling && !water.flood.disabling) {
-                while (water.imageX < c.width() + image.water.width) {
-                    c.draw.image(image.water, water.x + water.imageX, water.flood.level - image.water.height);
-                    water.imageX += image.water.width;
-                }
+            while (water.imageX < c.width() + image.water.width) {
+                c.draw.image(image.water, water.x + water.imageX, water.flood.level - image.water.height);
+                water.imageX += image.water.width;
             }
+            c.draw.fill.rect(
+                c.options.gradient(0, water.flood.level, 0, water.flood.level + c.height(),
+                {pos: 0, color: theme.colors.ui.secondary}, {pos: 0.5, color: theme.colors.ui.primary}, {pos: 1, color: theme.colors.ui.secondary}),
+                0,
+                water.flood.level - 2,
+                c.width(),
+                c.height() + 2
+            );
+            if (water.flood.showMessage) c.draw.text({text: "Good luck, have fun!", x: c.width(0.5), y: water.flood.level + c.height(0.5), color: theme.colors.ui.secondary, font: {size: 100, style: "bold"}, baseline: "middle"});        
         };
 
         if ([state.MAIN_MENU, state.SETTINGS, state.ABOUT, state.LOCAL_GAME_MENU, state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY].includes(state.current)) {
@@ -1436,7 +1447,7 @@ addEventListener("DOMContentLoaded", () => {
 
             for (const s of game.splashes) {
                 c.options.setOpacity(s.a);
-                c.draw.image(image.splash, s.x - image.splash.width / 2 + offset.x, offset.y + 560);
+                c.draw.image(image.splash, s.x - image.splash.width / 2 + offset.x, offset.y + 560 + s.h);
             }
             c.options.setOpacity();
 
@@ -1501,6 +1512,12 @@ addEventListener("DOMContentLoaded", () => {
 
                 i++;
             }
+
+            const m = Math.floor(game.remaining / 60);
+            const s = ("0" + (game.remaining % 60)).slice(-2);
+            const text = (game.remaining >= 0) ? `Water starts rising in ${m}:${s}` : (game.flooded) ? "Fight to the victory!" : "Water is rising!";
+            const color = (game.remaining < 0 && !game.flooded && frames % 60 < 30) ? theme.colors.error.foreground : theme.getTextColor();
+            c.draw.text({text, x: 15, y: 35, color, font: {size: 28}, alignment: "left"});
         } else drawWater();
 
 
@@ -1603,22 +1620,7 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.input(input, state.change.x, Input.keybindsInvalid, (frames % 40 < 20 && !input.keybind));
         }
 
-        if (water.flood.enabling || water.flood.disabling) {
-            while (water.imageX < c.width() + image.water.width) {
-                c.draw.image(image.water, water.x + water.imageX, water.flood.level - image.water.height);
-                water.imageX += image.water.width;
-            }
-        }
-        c.draw.fill.rect(
-            c.options.gradient(0, water.flood.level, 0, water.flood.level + c.height(),
-            {pos: 0, color: theme.colors.ui.secondary}, {pos: 0.5, color: theme.colors.ui.primary}, {pos: 1, color: theme.colors.ui.secondary}),
-            0,
-            water.flood.level - 2,
-            c.width(),
-            c.height() + 2
-        );
-        if (water.flood.showMessage) c.draw.text({text: "Good luck, have fun!", x: c.width(0.5), y: water.flood.level + c.height(0.5), color: theme.colors.ui.secondary, font: {size: 100, style: "bold"}, baseline: "middle"});
-
+        if (water.flood.enabled || water.flood.disabling) drawWater();
         if (introLogo.progress < introLogo.duration) {
             c.options.setOpacity(introLogo.a);
             c.draw.image(
