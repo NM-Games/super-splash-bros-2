@@ -332,6 +332,21 @@ const connectionMessage = {
         connectionMessage.a = 1;
     }
 };
+const screenShake = {
+    x: 0,
+    y: 0,
+    intensity: 10,
+    update: () => {
+        let explosions = 0;
+        for (const r of game.rockets) {
+            if (r.explosion.active && r.x > -r.explosion.size / 2 && r.x < c.width() + r.explosion.size / 2) explosions++;
+        }
+
+        const condition = (explosions > 0);
+        screenShake.x = (condition) ? (Math.random() - 0.5) * screenShake.intensity * 2 : 0;
+        screenShake.y = (condition) ? (Math.random() - 0.5) * screenShake.intensity * 2 : 0;
+    }
+};
 const konamiEasterEgg = {
     keys: ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"],
     index: 0,
@@ -1227,6 +1242,7 @@ addEventListener("DOMContentLoaded", () => {
         if (game) {
             Button.getButtonById("StartLANGame").disabled = (game.connected < 1);
             Button.getButtonById(`Back-${state.WAITING_LAN_HOST}`).danger = (game.connected > 1);
+            screenShake.update();
 
             if (lastStartState === 0 && game.startState === 1) water.flood.enable(false, true);
             else if (lastStartState === 1 && game.startState === 2) {
@@ -1358,7 +1374,7 @@ addEventListener("DOMContentLoaded", () => {
             }
             drawWater();
         } else if ([state.PLAYING_LAN, state.PLAYING_FREEPLAY].includes(state.current) && game) {
-            const offset = {x: (c.width() - image.platforms.width) / 2, y: c.height() - image.platforms.height};
+            const offset = {x: (c.width() - image.platforms.width) / 2 + screenShake.x, y: c.height() - image.platforms.height + screenShake.y};
 
             c.draw.image(image.platforms, offset.x, offset.y);
             for (const p of game.players) {
@@ -1443,6 +1459,7 @@ addEventListener("DOMContentLoaded", () => {
                 const r = Math.min(Math.max(160, 255 - (p.hit.percentage - 125)), 255);
                 const g = Math.min(Math.max(0, 255 - p.hit.percentage * 2.5), 255);
                 const b = Math.min(Math.max(0, 255 - p.hit.percentage * 5), 255);
+                const shake = (game.ping - p.hit.cooldownSince < p.hit.cooldown) ? {x: (Math.random() - 0.5) * screenShake.intensity, y: (Math.random() - 0.5) * screenShake.intensity} : {x: 0, y: 0};
                 const color = (game.ping - p.hit.cooldownSince < p.hit.cooldown) ? `hsl(${Math.random() * 360}deg 100% 70%)` : `rgb(${r}, ${g}, ${b})`;
                 const decimalOffset = c.draw.text({text: Math.floor(p.hit.percentage), font: {size: 48, style: "bold"}, measure: true});
                 const decimalText = (parallellogramWidth > 250) ? p.hit.percentage.toFixed(1).slice(-2) + "%" : "%";
@@ -1453,8 +1470,8 @@ addEventListener("DOMContentLoaded", () => {
                 
                 c.options.setShadow(theme.colors.shadow, 3, 1, 1);
                 c.draw.text({text: p.name, x: x + 11, y: parallellogram.y + 85, color: theme.colors.text.light, font: {size: nameSize}, alignment: "left", maxWidth: parallellogramWidth - 35});
-                c.draw.text({text: Math.floor(p.hit.percentage), x: x + offsets.percentage, y: parallellogram.y + 64, color, font: {size: 54, style: "bold"}, alignment: "left", baseline: "bottom"});
-                c.draw.text({text: decimalText, x: x + decimalOffset + offsets.percentage + 4, y: parallellogram.y + 57, color, font: {size: 20, style: "bold"}, alignment: "left", baseline: "bottom"});
+                c.draw.text({text: Math.floor(p.hit.percentage), x: x + offsets.percentage + shake.x, y: parallellogram.y + shake.y + 64, color, font: {size: 54, style: "bold"}, alignment: "left", baseline: "bottom"});
+                c.draw.text({text: decimalText, x: x + decimalOffset + offsets.percentage + shake.x + 4, y: parallellogram.y + shake.y + 57, color, font: {size: 20, style: "bold"}, alignment: "left", baseline: "bottom"});
 
                 c.options.setShadow(theme.colors.shadow, 2);
                 for (let l=0; l<p.lives; l++) c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.lives + l * 20, y - 19, 16, 16);
