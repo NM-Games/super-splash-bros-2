@@ -13,7 +13,7 @@ const { readdirSync } = require("fs");
  *  disconnected: HTMLImageElement,
  *  eliminated: HTMLImageElement,
  *  explosion: HTMLImageElement,
- *  itembox: HTMLImageElement,
+ *  fish: HTMLImageElement,
  *  logo: HTMLImageElement,
  *  logo_nmgames: HTMLImageElement,
  *  platforms: HTMLImageElement,

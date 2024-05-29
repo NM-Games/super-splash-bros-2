@@ -1454,6 +1454,12 @@ addEventListener("DOMContentLoaded", () => {
                 c.draw.image(image.splash, s.x - image.splash.width / 2 + offset.x, offset.y + 560 + s.h);
             }
             c.options.setOpacity();
+            
+            if (game.fish.item) {
+                c.options.setShadow(theme.colors.text.light, 15);
+                c.draw.image(image.fish, game.fish.item.x + offset.x, game.fish.item.y + offset.y);
+            }
+            c.options.setShadow();
 
             const parallellogramWidth = Math.min(350, Math.max(150, (c.width() - 150) / game.startPlayerCount));
             const spacing = (c.width() - game.startPlayerCount * parallellogramWidth) / game.startPlayerCount;

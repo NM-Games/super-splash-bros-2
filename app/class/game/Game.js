@@ -7,6 +7,7 @@ const Player = require("./Player");
 const Attack = require("./Attack");
 const Rocket = require("./Rocket");
 const Splash = require("./Splash");
+const Fish = require("./Fish");
 const { version } = require("../../../package.json");
 
 class Game {
@@ -25,6 +26,7 @@ class Game {
     rockets;
     /** @type {Splash[]} */
     splashes;
+    fish;
     startState;
     startedOn;
     local;
@@ -44,11 +46,17 @@ class Game {
     constructor(local = false) {
         this.theme = "";
         this.local = local;
-        this.players = [null, null, null, null, null, null, null, null];
-        this.ips = [null, null, null, null, null, null, null, null];
+        this.players = new Array(8).fill(null);
+        this.ips = new Array(8).fill(null);
         this.attacks = [];
         this.rockets = [];
         this.splashes = [];
+        this.fish = {
+            /** @type {Fish | null} */
+            item: null,
+            spawned: false,
+            lastSpawned: false
+        },
         this.startState = 0;
         this.startedOn = -6e9;
         this.blacklist = [];
@@ -259,6 +267,13 @@ class Game {
             else this.splashes.splice(i, 1);
         }
 
+        if ((this.elapsed + Fish.start) % Fish.frequency < 1000 && !this.fish.spawned) {
+            this.fish.spawned = true;
+            this.fish.item = new Fish(this.elapsed);
+        } else this.fish.spawned = false;
+        if (this.fish.item && !this.fish.item.update(this.elapsed)) this.fish.item = null;
+
+        console.log(this.fish.item);
         for (const p of this.getPlayers()) p.updateCoordinates();
     }
 
@@ -266,7 +281,7 @@ class Game {
     export() {
         let connected = 0;
         for (const p of this.players) {
-            if (p !== null) connected++;
+            if (p !== null && p.connected) connected++;
         }
 
         return {
@@ -279,6 +294,7 @@ class Game {
             attacks: this.attacks,
             rockets: this.rockets,
             splashes: this.splashes,
+            fish: this.fish,
             connected,
             startedOn: this.startedOn,
             startState: this.startState,
