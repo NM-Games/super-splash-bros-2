@@ -1469,30 +1469,35 @@ addEventListener("DOMContentLoaded", () => {
                 const decimalText = (parallellogramWidth > 250) ? p.hit.percentage.toFixed(1).slice(-2) + "%" : "%";
 
                 c.options.setShadow(theme.colors.shadow, 4);
+                if (p.lives < 1) c.options.setOpacity(0.3);
                 c.draw.fill.parallellogram(theme.colors.players[p.index], x, parallellogram.y, parallellogramWidth, 95);
                 c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.sprite, parallellogram.y - 10, 72, 72);
                 
-                c.options.setShadow(theme.colors.shadow, 3, 1, 1);
-                c.draw.text({text: p.name, x: x + 11, y: parallellogram.y + 85, color: theme.colors.text.light, font: {size: nameSize}, alignment: "left", maxWidth: parallellogramWidth - 35});
-                c.draw.text({text: Math.floor(p.hit.percentage), x: x + offsets.percentage + shake.x, y: parallellogram.y + shake.y + 64, color, font: {size: 54, style: "bold"}, alignment: "left", baseline: "bottom"});
-                c.draw.text({text: decimalText, x: x + decimalOffset + offsets.percentage + shake.x + 4, y: parallellogram.y + shake.y + 57, color, font: {size: 20, style: "bold"}, alignment: "left", baseline: "bottom"});
-
                 c.options.setShadow(theme.colors.shadow, 2);
                 for (let l=0; l<p.lives; l++) c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.lives + l * 20, y - 19, 16, 16);
-                c.options.setShadow();
+                c.options.setShadow(theme.colors.shadow, 3, 1, 1);
+                c.draw.text({text: p.name, x: x + 11, y: parallellogram.y + 85, color: theme.colors.text.light, font: {size: nameSize}, alignment: "left", maxWidth: parallellogramWidth - 35});
+                if (p.lives >= 1) {
+                    c.draw.text({text: Math.floor(p.hit.percentage), x: x + offsets.percentage + shake.x, y: parallellogram.y + shake.y + 64, color, font: {size: 54, style: "bold"}, alignment: "left", baseline: "bottom"});
+                    c.draw.text({text: decimalText, x: x + decimalOffset + offsets.percentage + shake.x + 4, y: parallellogram.y + shake.y + 57, color, font: {size: 20, style: "bold"}, alignment: "left", baseline: "bottom"});
+                    
+                    c.options.setShadow();
+                    c.draw.image(image.explosion, x + parallellogramWidth - offsets.rockets - 12, y + 5, 24, 24);
+                    c.options.setShadow(theme.colors.shadow, 2);
 
-                c.draw.image(image.explosion, x + parallellogramWidth - offsets.rockets - 12, y + 5, 24, 24);
-                c.options.setShadow(theme.colors.shadow, 2);
-                if (frames % 4 < 2 || p.attacks.rocket.count === 0 || game.ping - p.attacks.rocket.lastPerformed >= p.attacks.rocket.cooldown) c.draw.text({
-                    text: p.attacks.rocket.count,
-                    x: x + parallellogramWidth - offsets.rockets,
-                    y: y + 18,
-                    color: (p.attacks.rocket.count === 0) ? theme.colors.error.foreground : theme.colors.text.light,
-                    font: {size: 18},
-                    baseline: "middle"
-                });
-                c.draw.stroke.arc(theme.colors.text.light, x + parallellogramWidth - offsets.rockets, y + 17, 13, 2, (game.ping - p.attacks.rocket.lastRegenerated) / p.attacks.rocket.regenerationInterval);
+                    if (frames % 4 < 2 || p.attacks.rocket.count === 0 || game.ping - p.attacks.rocket.lastPerformed >= p.attacks.rocket.cooldown) c.draw.text({
+                        text: p.attacks.rocket.count,
+                        x: x + parallellogramWidth - offsets.rockets,
+                        y: y + 18,
+                        color: (p.attacks.rocket.count === 0) ? theme.colors.error.foreground : theme.colors.text.light,
+                        font: {size: 18},
+                        baseline: "middle"
+                    });
+                    c.draw.stroke.arc(theme.colors.text.light, x + parallellogramWidth - offsets.rockets, y + 17, 13, 2, (game.ping - p.attacks.rocket.lastRegenerated) / p.attacks.rocket.regenerationInterval);
+                }
                 c.options.setShadow();
+                c.options.setOpacity();
+                if (p.lives < 1) c.draw.image(image.eliminated, x + (parallellogramWidth - 115) / 2, parallellogram.y - 10, 115, 115);
 
                 i++;
             }
