@@ -211,6 +211,14 @@ class Game {
                 p1.attacks.rocket.lastRegenerated = this.ping;
                 p1.attacks.rocket.count++;
             }
+            
+            if (this.fish.item) {
+                if (p1.x < this.fish.item.x + Fish.width && p1.x + p1.size > this.fish.item.x && this.fish.item.takeable &&
+                 p1.y < this.fish.item.y + Fish.height && p1.y + p1.size > this.fish.item.y) {
+                    if (this.fish.item.takenBy === -1) this.fish.item.takenBy = p1.index;
+                    else if (this.fish.item.takenBy === p1.index) this.fish.item.collidesWithTaker = true;
+                } else if (this.fish.item.takenBy === p1.index) this.fish.item.collidesWithTaker = false;
+            }
         }
 
         for (let i=0; i<this.attacks.length;) {
@@ -271,9 +279,11 @@ class Game {
             this.fish.spawned = true;
             this.fish.item = new Fish(this.elapsed);
         } else this.fish.spawned = false;
-        if (this.fish.item && !this.fish.item.update(this.elapsed)) this.fish.item = null;
+        if (this.fish.item && !this.fish.item.update(this.elapsed)) {
+            if (this.fish.item.takeValue === 1) {} // fish collect action
+            this.fish.item = null;
+        }
 
-        console.log(this.fish.item);
         for (const p of this.getPlayers()) p.updateCoordinates();
     }
 

@@ -13,6 +13,7 @@ const Input = require("../class/ui/Input");
 const MenuSprite = require("../class/ui/MenuSprite");
 const Game = require("../class/game/Game");
 const Player = require("../class/game/Player");
+const Fish = require("../class/game/Fish");
 
 
 const state = {
@@ -1456,9 +1457,19 @@ addEventListener("DOMContentLoaded", () => {
             c.options.setOpacity();
             
             if (game.fish.item) {
+                c.options.setOpacity(game.fish.item.takeable ? 1 : 0.35);
                 c.options.setShadow(theme.colors.text.light, 15);
-                c.draw.image(image.fish, game.fish.item.x + offset.x, game.fish.item.y + offset.y);
+                c.draw.image(image.fish, game.fish.item.x + offset.x, game.fish.item.y + offset.y, Fish.width, Fish.height);
+                if (game.fish.item.takeable && game.fish.item.takeValue > 0) c.draw.stroke.arc(
+                    theme.colors.players[game.fish.item.takenBy],
+                    game.fish.item.x + Fish.width / 2 + offset.x,
+                    game.fish.item.y + Fish.height / 2 + offset.y,
+                    Fish.width / 2,
+                    12,
+                    game.fish.item.takeValue
+                );
             }
+            c.options.setOpacity();
             c.options.setShadow();
 
             const parallellogramWidth = Math.min(350, Math.max(150, (c.width() - 150) / game.startPlayerCount));

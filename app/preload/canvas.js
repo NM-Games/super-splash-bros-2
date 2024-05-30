@@ -249,6 +249,7 @@ const draw = {
 
             c.strokeStyle = color;
             c.lineWidth = lw;
+            c.lineCap = "round";
             c.beginPath();
             c.arc(x, y, r, angle1, angle2);
             c.stroke();
