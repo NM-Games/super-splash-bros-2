@@ -121,7 +121,7 @@ class Player {
      * @param {number} max
      */
     damage(ping, min, max) {
-        if (ping - this.hit.cooldownSince < this.hit.cooldown) return;
+        if (ping - this.hit.cooldownSince < this.hit.cooldown || ping - this.respawn < this.spawnProtection) return;
 
         this.hit.cooldownSince = ping;
         this.hit.percentage += Math.random() * (max - min) + min;
