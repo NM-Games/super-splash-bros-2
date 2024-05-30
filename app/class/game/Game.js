@@ -247,7 +247,7 @@ class Game {
             const updateResult = rocket.update();
 
             for (const p of this.getPlayers()) {
-                if (rocket.player !== p.index && rocket.x < p.x + p.size && rocket.x + rocket.width > p.x && rocket.y > p.y && rocket.y < p.y + p.size && !rocket.explosion.active) {
+                if (/*rocket.player !== p.index && */rocket.x < p.x + p.size && rocket.x + rocket.width > p.x && rocket.y > p.y && rocket.y < p.y + p.size && !rocket.explosion.active) {
                     p.vx += (rocket.direction === "r" ? Rocket.impact : -Rocket.impact) * p.getImpactAmplifier();
                     p.damage(this.ping, 30, 50);
                     rocket.explode();
@@ -265,6 +265,10 @@ class Game {
                     rocket.explode();
                     rocket2.explode();
                 }
+            }
+            if (this.fish.item && rocket.x < this.fish.item.x + Fish.width && rocket.x + rocket.width > this.fish.item.x && rocket.y > this.fish.item.y && rocket.y < this.fish.item.y + Fish.height && !rocket.explosion.active) {
+                rocket.trail.startX = rocket.x;
+                rocket.direction = (rocket.direction === "l") ? "r" : "l";
             }
 
             if (updateResult) i++;
