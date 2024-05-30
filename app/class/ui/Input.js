@@ -85,6 +85,7 @@ class Input {
      *  width: number,
      *  size?: number,
      *  keybind?: boolean,
+     *  disabled?: boolean,
      *  maxLength?: number,
      *  numbersOnly?: boolean
      *  onblur?: EmptyCallback,
@@ -113,7 +114,7 @@ class Input {
         this.onmaxlengthreached = options.onmaxlengthreached ?? function() {};
         this.hovering = false;
         this.focused = false;
-        this.disabled = false;
+        this.disabled = options.disabled ?? false;
         this.value = "";
 
         addEventListener("keydown", (e) => {

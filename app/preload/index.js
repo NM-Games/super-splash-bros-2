@@ -6,6 +6,7 @@ const c = require("./canvas");
 const image = require("./image");
 const theme = require("./theme");
 const socket = require("./socket");
+const gamepad = require("./gamepad");
 const settings = require("./settings");
 const network = require("../network");
 const Button = require("../class/ui/Button");
@@ -18,17 +19,16 @@ const Fish = require("../class/game/Fish");
 
 const state = {
     MAIN_MENU: 0,
-    LOCAL_GAME_MENU: 1,
+    WAITING_LOCAL: 1,
     LAN_GAME_MENU: 2,
-    WAITING_FREEPLAY: 3,
-    WAITING_LOCAL: 4,
-    WAITING_LAN_HOST: 5,
-    WAITING_LAN_GUEST: 6,
-    PLAYING_FREEPLAY: 7,
-    PLAYING_LOCAL: 8,
-    PLAYING_LAN: 9,
-    SETTINGS: 10,
-    ABOUT: 11,
+    WAITING_LAN_HOST: 3,
+    WAITING_LAN_GUEST: 4,
+    WAITING_FREEPLAY: 5,
+    PLAYING_LOCAL: 6,
+    PLAYING_LAN: 7,
+    PLAYING_FREEPLAY: 8,
+    SETTINGS: 9,
+    ABOUT: 10,
 
     current: 0,
     change: {
@@ -150,6 +150,7 @@ const keyChange = () => (JSON.stringify(keys) !== JSON.stringify(lastKeys));
 /** @type {import("./settings").Settings} */
 const config = {appearance: {}, graphics: {}, controls: {}};
 const versions = {game: "", electron: "", chromium: ""};
+const localModeIndexes = [3, 2, 1, 6];
 const keys = {
     moveLeft: false,
     moveRight: false,
@@ -396,8 +397,13 @@ Button.items = [
         x: () => c.width(1/4),
         y: () => c.height(1/2) - 50,
         onclick: function() {
+            instance = new Game(true);
+            instance.theme = config.graphics.theme;
+            instance.hostIndex = localModeIndexes[0];
+            Button.getButtonById("LocalGameTheme").text = `Theme: ${instance.theme}`;
+
             this.hovering = false;
-            state.change.to(state.LOCAL_GAME_MENU, false);
+            state.change.to(state.WAITING_LOCAL, false);
         }
     }),
     new Button({
@@ -448,18 +454,44 @@ Button.items = [
             ipcRenderer.send("quit");
         }
     }),
-    // Local mode menu
+    // Local mode waiting menu
     new Button({
-        id: `Back-${state.LOCAL_GAME_MENU}`,
+        id: `Back-${state.WAITING_LOCAL}`,
         text: "◂ Back",
-        state: state.LOCAL_GAME_MENU,
+        state: state.WAITING_LOCAL,
         x: () => Button.width / 3 + 20,
         y: () => Button.height / 3 + 20,
         width: Button.width / 1.5,
         height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
-            state.change.to(state.MAIN_MENU, true);
+            state.change.to(state.MAIN_MENU, true, () => instance = game = undefined);
+            theme.current = config.graphics.theme;
+        }
+    }),
+    new Button({
+        id: "LocalGameTheme",
+        text: "Theme",
+        state: state.WAITING_LOCAL,
+        x: () => c.width(1/2) - 250,
+        y: () => c.height(17/20),
+        onclick: () => {
+            instance.theme = theme.cycle(instance.theme)
+            theme.current = instance.theme;
+            Button.getButtonById("LocalGameTheme").text = `Theme: ${instance.theme}`;
+        }
+    }),
+    new Button({
+        id: "StartLocalGame",
+        text: "Start!",
+        state: state.WAITING_LOCAL,
+        x: () => c.width(1/2) + 250,
+        y: () => c.height(17/20),
+        disabled: true,
+        onclick: function() {
+            this.hovering = false;
+            banButton.hoverIndex = -1;
+            instance.start();
         }
     }),
     // LAN mode menu
@@ -718,6 +750,37 @@ Button.items = [
             ipcRenderer.send("start");
         }
     }),
+    // LAN game waiting menu (guest)
+    new Button({
+        id: `Back-${state.WAITING_LAN_GUEST}`,
+        text: "◂ Leave",
+        state: state.WAITING_LAN_GUEST,
+        x: () => Button.width / 3 + 20,
+        y: () => Button.height / 3 + 20,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        onclick: function() {
+            socket.close();
+            errorAlert.suppress();
+            this.hovering = false;
+            state.change.to(state.LAN_GAME_MENU, true);
+        }
+    }),
+    // Freeplay game waiting menu
+    new Button({
+        id: `Back-${state.WAITING_FREEPLAY}`,
+        text: "◂ Back",
+        state: state.WAITING_FREEPLAY,
+        x: () => Button.width / 3 + 20,
+        y: () => Button.height / 3 + 20,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        onclick: function() {
+            this.hovering = false;
+            state.change.to(state.MAIN_MENU, true, () => instance = game = undefined);
+            theme.current = config.graphics.theme;
+        }
+    }),
     new Button({
         id: "FreeplayGameTheme",
         text: "Theme",
@@ -741,38 +804,7 @@ Button.items = [
             banButton.hoverIndex = -1;
             instance.start();
         }
-    }),
-    // LAN game waiting menu (guest)
-    new Button({
-        id: `Back-${state.WAITING_LAN_GUEST}`,
-        text: "◂ Leave",
-        state: state.WAITING_LAN_GUEST,
-        x: () => Button.width / 3 + 20,
-        y: () => Button.height / 3 + 20,
-        width: Button.width / 1.5,
-        height: Button.height / 1.5,
-        onclick: function() {
-            socket.close();
-            errorAlert.suppress();
-            this.hovering = false;
-            state.change.to(state.LAN_GAME_MENU, true);
-        }
-    }),
-    // LAN game waiting menu (freeplay)
-    new Button({
-        id: `Back-${state.WAITING_FREEPLAY}`,
-        text: "◂ Back",
-        state: state.WAITING_FREEPLAY,
-        x: () => Button.width / 3 + 20,
-        y: () => Button.height / 3 + 20,
-        width: Button.width / 1.5,
-        height: Button.height / 1.5,
-        onclick: function() {
-            this.hovering = false;
-            state.change.to(state.MAIN_MENU, true, () => instance = game = undefined);
-            theme.current = config.graphics.theme;
-        }
-    }),
+    })
 ];
 Button.gameMenuItems = [
     new Button({
@@ -830,6 +862,38 @@ Button.gameMenuItems = [
 ];
 
 Input.items = [
+    new Input({
+        id: "Local-Player1",
+        state: state.WAITING_LOCAL,
+        x: () => c.width(0.5) + 36,
+        y: () => c.height(0.2) + 40,
+        width: 400,
+        disabled: true
+    }),
+    new Input({
+        id: "Local-Player2",
+        state: state.WAITING_LOCAL,
+        x: () => c.width(0.5) + 36,
+        y: () => c.height(0.2) + 140,
+        width: 400,
+        disabled: true
+    }),
+    new Input({
+        id: "Local-Player3",
+        state: state.WAITING_LOCAL,
+        x: () => c.width(0.5) + 36,
+        y: () => c.height(0.2) + 240,
+        width: 400,
+        disabled: true
+    }),
+    new Input({
+        id: "Local-Player4",
+        state: state.WAITING_LOCAL,
+        x: () => c.width(0.5) + 36,
+        y: () => c.height(0.2) + 340,
+        width: 400,
+        disabled: true
+    }),
     new Input({
         id: "IP-1",
         state: state.LAN_GAME_MENU,
@@ -1243,10 +1307,19 @@ addEventListener("DOMContentLoaded", () => {
         banButton.active = false;
     });
 
+    addEventListener("gamepadconnected", (e) => {
+        // todo: show indicator
+        gamepad.set(e.gamepad, true);
+    });
+    addEventListener("gamepaddisconnected", (e) => {
+        // todo: show indicator
+        gamepad.set(e.gamepad, false);
+    });
+
     const update = () => {
         frames++;
         if (socket.isOpen()) game = socket.getGame();
-        else if ([state.WAITING_FREEPLAY, state.PLAYING_FREEPLAY].includes(state.current)) {
+        else if ([state.WAITING_LOCAL, state.PLAYING_LOCAL, state.WAITING_FREEPLAY, state.PLAYING_FREEPLAY].includes(state.current)) {
             instance.update();
             game = instance.export();
         }
@@ -1388,7 +1461,7 @@ addEventListener("DOMContentLoaded", () => {
             if (water.flood.showMessage) c.draw.text({text: "Good luck, have fun!", x: c.width(0.5), y: water.flood.level + c.height(0.5), color: theme.colors.ui.secondary, font: {size: 100, style: "bold"}, baseline: "middle"});        
         };
 
-        if ([state.MAIN_MENU, state.SETTINGS, state.ABOUT, state.LOCAL_GAME_MENU, state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY].includes(state.current)) {
+        if ([state.MAIN_MENU, state.SETTINGS, state.ABOUT, state.WAITING_LOCAL, state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY].includes(state.current)) {
             for (const sprite of MenuSprite.items) {
                 if (sprite.visible) c.draw.croppedImage(image.sprites, sprite.color * 128, sprite.facing * 128, 128, 128, sprite.x, sprite.y, 96, 96);
             }
@@ -1543,13 +1616,28 @@ addEventListener("DOMContentLoaded", () => {
             if (state.current === state.PLAYING_LAN) c.draw.text({text: `Ping: ${ping} ms`, x: c.width() - 15, y: 25, font: {size: 12}, alignment: "right"});
         } else drawWater();
 
-
         if (state.current === state.MAIN_MENU) {
             if (theme.isDark()) c.options.filter.add("brightness(100)");
             c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.change.x, 25, image.logo.width, image.logo.height);
             c.options.filter.remove("brightness");
-        } else if (state.current === state.LOCAL_GAME_MENU) {
+        } else if (state.current === state.WAITING_LOCAL && game) {
             c.draw.text({text: "LOCAL MODE", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold"}});
+            c.draw.text({text: "Connect up to 4 gamepads to play!", x: c.width(0.5) + state.change.x, y: c.height(0.125) + 30, font: {size: 18}});
+            for (let i=0; i<localModeIndexes.length; i++) {
+                const x = c.width(0.5) - 250;
+                const y = c.height(0.2) + i * 100;
+                const j = localModeIndexes[i];
+                
+                if (game.players[j] === null) c.options.setOpacity(0.5);
+                c.draw.fill.rect(theme.colors.players[j], x + state.change.x, y, 500, 80, 8);
+                c.draw.croppedImage(image.sprites, j * 128, 0, 128, 128, x + 8 + state.change.x, y + 8, 64, 64);
+                if (game.players[j] !== null) {
+                    c.options.setShadow(theme.colors.shadow, 4, 1, 1);
+                    c.draw.text({text: game.players[j].name, x: x + state.change.x + 85, y: y + (additionalText ? 39 : 52), font: {size: 32}, color: theme.colors.text.light, alignment: "left"});
+                }
+                c.options.setShadow();
+                c.options.setOpacity();
+            }
         } else if (state.current === state.LAN_GAME_MENU) {
             c.draw.text({text: "LAN MODE", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold"}});
 
@@ -1595,9 +1683,14 @@ addEventListener("DOMContentLoaded", () => {
         } else if ([state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY].includes(state.current) && game) {
             const ips = network.getIPs();
             const mainIP = ips.shift();
-            const text = (state.current === state.WAITING_LAN_GUEST) ? "Waiting until start..." : (state.current === state.WAITING_FREEPLAY) ? "FREEPLAY MODE" : mainIP;
+            if (state.current === state.WAITING_FREEPLAY) {
+                c.draw.text({text: "FREEPLAY MODE", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold"}});
+                c.draw.text({text: "Practice your skills! If you want, you can remove dummies.", x: c.width(0.5) + state.change.x, y: c.height(0.125) + 30, font: {size: 18}});
+            } else {
+                const text = (state.current === state.WAITING_LAN_GUEST) ? "Waiting until start..." : mainIP;
+                c.draw.text({text, x: c.width(0.5) + state.change.x, y: c.height(0.125), font: {size: 58, style: "bold"}});
+            }
 
-            c.draw.text({text, x: c.width(0.5) + state.change.x, y: c.height(0.125), font: {size: 58, style: "bold"}});
             if (state.current === state.WAITING_LAN_HOST) {
                 c.draw.text({text: "Players can now connect to this IP address:", x: c.width(0.5) + state.change.x, y: c.height(0.125) - 60, font: {size: 24}});
                 if (ips.length > 0) c.draw.text({text: `If that does not work, try:   ${ips.join("   ")}`, x: c.width(0.5) + state.change.x, y: c.height(0.125) + 30, font: {size: 18}});
@@ -1605,27 +1698,27 @@ addEventListener("DOMContentLoaded", () => {
 
             for (let i=0; i<8; i++) {
                 const x = (i % 2 === 0) ? c.width(0.5) - 510 : c.width(0.5) + 10;
-                const y = Math.floor(i / 2);
+                const y = c.height(0.2) + Math.floor(i / 2) * 100;
                 
                 if (game.players[i] === null) c.options.setOpacity(0.5);
-                c.draw.fill.rect(theme.colors.players[i], x + state.change.x, c.height(0.2) + y * 100, 500, 80, 8);
-                c.draw.croppedImage(image.sprites, i * 128, 0, 128, 128, x + 8 + state.change.x, c.height(0.2) + y * 100 + 8, 64, 64);
-                if (i === banButton.hoverIndex) c.draw.stroke.rect(theme.colors.error[banButton.active ? "foreground":"background"], x + state.change.x, c.height(0.2) + y * 100, 500, 80, 4, 8);
+                c.draw.fill.rect(theme.colors.players[i], x + state.change.x, y, 500, 80, 8);
+                c.draw.croppedImage(image.sprites, i * 128, 0, 128, 128, x + 8 + state.change.x, y + 8, 64, 64);
+                if (i === banButton.hoverIndex) c.draw.stroke.rect(theme.colors.error[banButton.active ? "foreground":"background"], x + state.change.x, y, 500, 80, 4, 8);
                 if (game.players[i] !== null) {
                     c.options.setShadow(theme.colors.shadow, 4, 1, 1);
                     let additionalText = false;
                     if (playerIndex === game.host || state.current === state.WAITING_FREEPLAY) {
                         additionalText = true;
                         const removalVerb = (state.current === state.WAITING_FREEPLAY) ? "remove" : "ban";
-                        c.draw.text({text: (i === playerIndex) ? "you":`click to ${removalVerb}`, x: x + state.change.x + 85, y: c.height(0.2) + y * 100 + 65, font: {size: 20}, color: theme.colors.text.light, alignment: "left"})
+                        c.draw.text({text: (i === playerIndex) ? "you":`click to ${removalVerb}`, x: x + state.change.x + 85, y: y + 65, font: {size: 20}, color: theme.colors.text.light, alignment: "left"})
                     } else if (i === playerIndex) {
                         additionalText = true;
-                        c.draw.text({text: "you", x: x + state.change.x + 85, y: c.height(0.2) + y * 100 + 65, font: {size: 20}, color: theme.colors.text.light, alignment: "left"})
+                        c.draw.text({text: "you", x: x + state.change.x + 85, y: y + 65, font: {size: 20}, color: theme.colors.text.light, alignment: "left"})
                     } else if (i === game.host) {
                         additionalText = true;
-                        c.draw.text({text: "host", x: x + state.change.x + 85, y: c.height(0.2) + y * 100 + 65, font: {size: 20}, color: theme.colors.text.light, alignment: "left"})
+                        c.draw.text({text: "host", x: x + state.change.x + 85, y: y + 65, font: {size: 20}, color: theme.colors.text.light, alignment: "left"})
                     }
-                    c.draw.text({text: game.players[i].name, x: x + state.change.x + 85, y: c.height(0.2) + y * 100 + (additionalText ? 39 : 52), font: {size: 32}, color: theme.colors.text.light, alignment: "left"});
+                    c.draw.text({text: game.players[i].name, x: x + state.change.x + 85, y: y + (additionalText ? 39 : 52), font: {size: 32}, color: theme.colors.text.light, alignment: "left"});
                 }
                 c.options.setShadow();
                 c.options.setOpacity();
