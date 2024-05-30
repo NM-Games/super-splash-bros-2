@@ -37,6 +37,7 @@ class Player {
     hit;
     lives;
     attacks;
+    superpower;
     keys;
     respawn;
     spawnProtection;
@@ -76,12 +77,12 @@ class Player {
                 regenerationInterval: 20000,
                 lastRegenerated: -6e9,
                 lastPerformed: -6e9
-            },
-            superpower: {
-                selected: appearance.superpower,
-                active: false,
-                lastActivated: -6e9,
             }
+        };
+        this.superpower = {
+            selected: appearance.superpower,
+            available: false,
+            active: false
         };
         this.keys = {
             left: false,

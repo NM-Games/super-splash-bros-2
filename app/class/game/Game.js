@@ -247,7 +247,7 @@ class Game {
             const updateResult = rocket.update();
 
             for (const p of this.getPlayers()) {
-                if (/*rocket.player !== p.index && */rocket.x < p.x + p.size && rocket.x + rocket.width > p.x && rocket.y > p.y && rocket.y < p.y + p.size && !rocket.explosion.active) {
+                if (rocket.x < p.x + p.size && rocket.x + rocket.width > p.x && rocket.y > p.y && rocket.y < p.y + p.size && !rocket.explosion.active) {
                     p.vx += (rocket.direction === "r" ? Rocket.impact : -Rocket.impact) * p.getImpactAmplifier();
                     p.damage(this.ping, 30, 50);
                     rocket.explode();
@@ -284,7 +284,7 @@ class Game {
             this.fish.item = new Fish(this.elapsed);
         } else this.fish.spawned = false;
         if (this.fish.item && !this.fish.item.update(this.elapsed)) {
-            if (this.fish.item.takeValue === 1) {} // fish collect action
+            if (this.fish.item.takeValue === 1) this.players[this.fish.item.takenBy].superpower.available = true;
             this.fish.item = null;
         }
 

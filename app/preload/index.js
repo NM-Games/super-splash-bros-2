@@ -220,23 +220,28 @@ const introLogo = {
         else this.a = Math.min(this.a + this.va, 1);
     }
 };
-const countdown = {
+const bigNotification = {
     size: 330,
     defaultSize: 330,
     v: 80,
     a: 1,
+    va: 0.03,
     text: "",
     color: "",
     /**
-     * Show a countdown announcement.
+     * Show a big notification, e.g. for a countdown or win message.
      * @param {string} text
      * @param {string} color
+     * @param {number} size
+     * @param {number} speed
      */
-    show: (text, color) => {
-        countdown.text = text;
-        countdown.color = color;
-        countdown.size = countdown.defaultSize * 3;
-        countdown.a = 0;
+    show: (text, color, size = 330, speed = 0.03) => {
+        bigNotification.text = text;
+        bigNotification.color = color;
+        bigNotification.defaultSize = size;
+        bigNotification.size = bigNotification.defaultSize * 3;
+        bigNotification.a = 0;
+        bigNotification.va = speed;
     }
 };
 const gameMenu = {
@@ -360,11 +365,12 @@ const konamiEasterEgg = {
 
 let frames = 0;
 let game = socket.getGame();
+/** @type {game} */
+let lgame;
 /** @type {Game} */
 let instance;
 let ping = 0;
 let isInGame = false;
-let lastStartState = 0;
 let playerIndex = -1;
 let banButton = {
     hoverIndex: -1,
@@ -1325,22 +1331,27 @@ addEventListener("DOMContentLoaded", () => {
         }
 
         if (game) {
+            if (!lgame) lgame = game;
+
             Button.getButtonById("StartLANGame").disabled = (game.connected < 1);
             Button.getButtonById(`Back-${state.WAITING_LAN_HOST}`).danger = (game.connected > 1);
 
-            if (lastStartState === 0 && game.startState === 1) water.flood.enable(false, true);
-            else if (lastStartState === 1 && game.startState === 2) {
+            if (lgame.startState === 0 && game.startState === 1) water.flood.enable(false, true);
+            else if (lgame.startState === 1 && game.startState === 2) {
                 state.current = (state.current === state.WAITING_FREEPLAY) ? state.PLAYING_FREEPLAY : state.PLAYING_LAN;
                 isInGame = true;
                 water.flood.disable();
-            } else if (lastStartState === 2 && game.startState === 3) {
-                countdown.show("3", theme.colors.countdown._3);
+            } else if (lgame.startState === 2 && game.startState === 3) {
+                bigNotification.show("3", theme.colors.bigNotification.r);
                 parallellogram.show();
-            } else if (lastStartState === 3 && game.startState === 4) countdown.show("2", theme.colors.countdown._2);
-            else if (lastStartState === 4 && game.startState === 5) countdown.show("1", theme.colors.countdown._1);
-            else if (lastStartState === 5 && game.startState === 6) countdown.show("GO!", theme.colors.countdown.go);
+            } else if (lgame.startState === 3 && game.startState === 4) bigNotification.show("2", theme.colors.bigNotification.o);
+            else if (lgame.startState === 4 && game.startState === 5) bigNotification.show("1", theme.colors.bigNotification.y);
+            else if (lgame.startState === 5 && game.startState === 6) bigNotification.show("GO!", theme.colors.bigNotification.g);
 
-            lastStartState = game.startState;
+            if (!lgame.players[playerIndex].superpower.available && game.players[playerIndex].superpower.available)
+                bigNotification.show("SUPERPOWER READY", theme.colors.bigNotification.g, 120, 0.003);
+            if (lgame.players[playerIndex].lives > 0 && game.players[playerIndex].lives === 0)
+                bigNotification.show("GAME OVER", theme.colors.bigNotification.r, 200, 0.008);
         }
 
         if (state.change.active) {
@@ -1364,9 +1375,9 @@ addEventListener("DOMContentLoaded", () => {
         introLogo.update();
         MenuSprite.update(frames, config.graphics.menuSprites, konamiEasterEgg.activated);
         
-        countdown.size = Math.max(countdown.defaultSize, countdown.size - countdown.v);
-        if (countdown.size > countdown.defaultSize) countdown.a = Math.min(2, countdown.a + 0.2);
-        else countdown.a = Math.max(0, countdown.a - 0.03);
+        bigNotification.size = Math.max(bigNotification.defaultSize, bigNotification.size - bigNotification.v);
+        if (bigNotification.size > bigNotification.defaultSize) bigNotification.a = Math.min(2, bigNotification.a + 0.2);
+        else bigNotification.a = Math.max(0, bigNotification.a - bigNotification.va);
 
         let hoverings = {button: 0, input: 0};
         for (const button of getHoverableButtons()) {
@@ -1426,6 +1437,7 @@ addEventListener("DOMContentLoaded", () => {
         }
 
         document.body.style.cursor = (hoverings.button > 0 || banButton.hoverIndex > -1) ? "pointer" : (hoverings.input > 0) ? "text" : "default";
+        if (game) lgame = JSON.parse(JSON.stringify(game));
     };
 
     const draw = () => {
@@ -1575,8 +1587,10 @@ addEventListener("DOMContentLoaded", () => {
 
                 c.options.setShadow(theme.colors.shadow, 4);
                 if (p.lives < 1 || !p.connected) c.options.setOpacity(0.3);
+                if (p.superpower.available && frames % 60 < 30) c.options.filter.add("brightness(2)");
                 c.draw.fill.parallellogram(theme.colors.players[p.index], x, parallellogram.y, parallellogramWidth, 95);
                 c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.sprite, parallellogram.y - 10, 72, 72);
+                c.options.filter.remove("brightness");
                 
                 c.options.setShadow(theme.colors.shadow, 2);
                 for (let l=0; l<p.lives; l++) c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.lives + l * 20, y - 19, 16, 16);
@@ -1749,10 +1763,10 @@ addEventListener("DOMContentLoaded", () => {
             c.options.setOpacity();
         }
 
-        if (countdown.a > 0) {
-            c.options.setOpacity(countdown.a);
-            c.options.setShadow(countdown.color, 16, 1, 1);
-            c.draw.text({text: countdown.text, x: c.width(0.5), y: c.height(0.4), font: {size: countdown.size, style: "bold"}, baseline: "middle"});
+        if (bigNotification.a > 0) {
+            c.options.setOpacity(bigNotification.a);
+            c.options.setShadow(bigNotification.color, 16, 1, 1);
+            c.draw.text({text: bigNotification.text, x: c.width(0.5), y: c.height(0.4), font: {size: bigNotification.size, style: "bold"}, baseline: "middle"});
             c.options.setShadow();
             c.options.setOpacity();
         }
