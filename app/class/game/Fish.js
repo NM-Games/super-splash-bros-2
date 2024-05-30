@@ -8,9 +8,9 @@ class Fish {
     takeValue;
     collidesWithTaker;
 
-    static start = 3000;
-    static frequency = 10000;
-    static hideDelay = 5000;
+    static start = 10000;
+    static frequency = 20000;
+    static hideDelay = 8000;
     static increment = 0.01;
 
     static width = 69;
@@ -21,9 +21,9 @@ class Fish {
      * @constructor
      */
     constructor(t) {
-        this.x = 20;
+        this.x = (Math.random() >= 0.5) ? -10 : 1260 - Fish.width;
         this.y = 800;
-        this.vy = -(Math.random() * 2 + 70);
+        this.vy = -(Math.random() * 10 + 70);
         this.t = t;
         this.takeable = false;
         this.takenBy = -1;
