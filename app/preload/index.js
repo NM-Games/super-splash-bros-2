@@ -137,6 +137,29 @@ const connect = (asHost) => {
     });
 };
 
+const leave = () => {
+    dialog.close();
+    isInGame = false;
+    gameMenu.set(false);
+    water.flood.enable(false, false, () => {
+        if (state.current === state.PLAYING_LAN) {
+            if (playerIndex === game.host) ipcRenderer.send("stop-gameserver"); else {
+                socket.close();
+                errorAlert.suppress();
+                state.current = state.LAN_GAME_MENU;
+            }
+        } else if (state.current === state.PLAYING_LOCAL) {
+            state.current = state.MAIN_MENU;
+        }
+        water.flood.disable();
+    });
+};
+
+const stop = () => {
+    instance = game = undefined;
+    playerIndex = -1;
+};
+
 /** Check the LAN availability and kick the player out of a menu if needed. */
 const checkLANAvailability = () => {
     const LANavailable = (network.getIPs().length > 0);
@@ -382,8 +405,7 @@ const konamiEasterEgg = {
 
 let frames = 0;
 let game = socket.getGame();
-/** @type {game} */
-let lgame;
+let lastUpdate = {startState: 0, superpowerAvailable: false, lives: 1};
 /** @type {Game} */
 let instance;
 let ping = 0;
@@ -422,11 +444,8 @@ Button.items = [
         onclick: function() {
             instance = new Game("local");
             instance.theme = config.graphics.theme;
+            for (const i of localModeIndexes) instance.join({playerName: "", preferredColor: i, superpower: 0}, `10.0.0.${i}`);
             instance.hostIndex = playerIndex = localModeIndexes[0];
-            for (const i of localModeIndexes) {
-                instance.players[i] = new Player({playerName: "", preferredColor: i, superpower: 0});
-                instance.players[i].connected = false;
-            }
             Button.getButtonById("LocalGameTheme").text = `Theme: ${instance.theme}`;
 
             this.hovering = false;
@@ -492,7 +511,7 @@ Button.items = [
         height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
-            state.change.to(state.MAIN_MENU, true, () => instance = game = undefined);
+            state.change.to(state.MAIN_MENU, true, stop);
             theme.current = config.graphics.theme;
         }
     }),
@@ -790,7 +809,7 @@ Button.items = [
             socket.close();
             errorAlert.suppress();
             this.hovering = false;
-            state.change.to(state.LAN_GAME_MENU, true);
+            state.change.to(state.LAN_GAME_MENU, true, stop);
         }
     }),
     // Freeplay game waiting menu
@@ -804,7 +823,7 @@ Button.items = [
         height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
-            state.change.to(state.MAIN_MENU, true, () => instance = game = undefined);
+            state.change.to(state.MAIN_MENU, true, stop);
             theme.current = config.graphics.theme;
         }
     }),
@@ -860,23 +879,7 @@ Button.gameMenuItems = [
                     x: () => c.width(0.35),
                     y: () => c.height(0.75),
                     danger: true,
-                    onclick: () => {
-                        dialog.close();
-                        isInGame = false;
-                        gameMenu.set(false);
-                        water.flood.enable(false, false, () => {
-                            if (state.current === state.PLAYING_LAN) {
-                                if (playerIndex === game.host) ipcRenderer.send("stop-gameserver"); else {
-                                    socket.close();
-                                    errorAlert.suppress();
-                                    state.current = state.LAN_GAME_MENU;
-                                }
-                            } else if (state.current === state.PLAYING_FREEPLAY) {
-                                state.current = state.MAIN_MENU;
-                            }
-                            water.flood.disable();
-                        });
-                    }
+                    onclick: leave
                 }), new Button({
                     text: "No",
                     x: () => c.width(0.65),
@@ -1175,9 +1178,8 @@ addEventListener("DOMContentLoaded", () => {
     });
     ipcRenderer.on("gameserver-stopped", () => {
         theme.current = config.graphics.theme;
-        state.change.to(state.LAN_GAME_MENU, true);
+        state.change.to(state.LAN_GAME_MENU, true, stop);
         errorAlert.suppress();
-        game = undefined;
     });
     setInterval(() => {
         const discordState = (state.current === state.PLAYING_LOCAL) ? "Local mode"
@@ -1352,46 +1354,35 @@ addEventListener("DOMContentLoaded", () => {
         }
 
         if (game) {
-            if (!lgame) lgame = game;
             if ([state.WAITING_LOCAL, state.PLAYING_LOCAL].includes(state.current)) gamepad.update(instance);
             
             Button.getButtonById("StartLANGame").disabled = (game.connected < 1);
             Button.getButtonById(`Back-${state.WAITING_LAN_HOST}`).danger = (game.connected > 1);
 
-            if (lgame.startState === 0 && game.startState === 1) water.flood.enable(false, true);
-            else if (lgame.startState === 1 && game.startState === 2) {
+            if (lastUpdate.startState === 0 && game.startState === 1) water.flood.enable(false, true);
+            else if (lastUpdate.startState === 1 && game.startState === 2) {
                 state.current = (state.current === state.WAITING_FREEPLAY) ? state.PLAYING_FREEPLAY : state.PLAYING_LAN;
                 isInGame = true;
                 water.flood.disable();
-            } else if (lgame.startState === 2 && game.startState === 3) {
+            } else if (lastUpdate.startState === 2 && game.startState === 3) {
                 bigNotification.show("3", theme.colors.bigNotification.r);
                 parallellogram.show();
-            } else if (lgame.startState === 3 && game.startState === 4) bigNotification.show("2", theme.colors.bigNotification.o);
-            else if (lgame.startState === 4 && game.startState === 5) bigNotification.show("1", theme.colors.bigNotification.y);
-            else if (lgame.startState === 5 && game.startState === 6) bigNotification.show("GO!", theme.colors.bigNotification.g);
-            else if (lgame.startState === 6 && game.startState === 7) {
+            } else if (lastUpdate.startState === 3 && game.startState === 4) bigNotification.show("2", theme.colors.bigNotification.o);
+            else if (lastUpdate.startState === 4 && game.startState === 5) bigNotification.show("1", theme.colors.bigNotification.y);
+            else if (lastUpdate.startState === 5 && game.startState === 6) bigNotification.show("GO!", theme.colors.bigNotification.g);
+            else if (lastUpdate.startState === 6 && game.startState === 7) {
                 const message = (game.winner === playerIndex) ? {text: "YOU WIN!", color: "g"} : {text: "YOU LOSE", color: "r"};
                 bigNotification.show(message.text, theme.colors.bigNotification[message.color], 250, 0.01);
-            } else if (lgame.startState === 7 && game.startState === 8) water.flood.enable(false, false, () => {
-                dialog.close();
-                isInGame = false;
-                gameMenu.set(false);
-                if (state.current === state.PLAYING_LAN) {
-                    if (playerIndex === game.host) ipcRenderer.send("stop-gameserver"); else {
-                        socket.close();
-                        errorAlert.suppress();
-                        state.current = state.LAN_GAME_MENU;
-                    }
-                } else if (state.current === state.PLAYING_LOCAL) {
-                    state.current = state.MAIN_MENU;
-                }
-                water.flood.disable();
-            });
+            } else if (lastUpdate.startState === 7 && game.startState === 8) leave();
 
-            if (!lgame.players[playerIndex].superpower.available && game.players[playerIndex].superpower.available)
+            if (!lastUpdate.superpowerAvailable && game.players[playerIndex].superpower.available)
                 bigNotification.show("SUPERPOWER READY", theme.colors.bigNotification.g, 120, 0.003);
-            if (lgame.players[playerIndex].lives > 0 && game.players[playerIndex].lives === 0)
+            if (lastUpdate.lives > 0 && game.players[playerIndex].lives === 0)
                 bigNotification.show("GAME OVER", theme.colors.bigNotification.r, 200, 0.008);
+
+            lastUpdate.lives = game.players[playerIndex].lives;
+            lastUpdate.startState = game.startState;
+            lastUpdate.superpowerAvailable = game.players[playerIndex].superpower.available;
         }
 
         if (state.change.active) {
@@ -1480,7 +1471,6 @@ addEventListener("DOMContentLoaded", () => {
         }
 
         document.body.style.cursor = (hoverings.button > 0 || banButton.hoverIndex > -1) ? "pointer" : (hoverings.input > 0) ? "text" : "default";
-        if (game) lgame = JSON.parse(JSON.stringify(game));
     };
 
     const draw = () => {

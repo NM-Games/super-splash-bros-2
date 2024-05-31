@@ -105,10 +105,7 @@ class Game {
         if (this.mode !== "freeplay") return;
 
         for (let i=0; i<this.players.length; i++) {
-            if (this.players[i] === null) {
-                this.players[i] = new Player({playerName: `Dummy ${i + 1}`, preferredColor: i, superpower: 0}, i);
-                this.ips[i] = `10.0.0.${i}`;
-            }
+            if (this.players[i] === null) this.join({playerName: `Dummy ${i + 1}`, preferredColor: i, superpower: 0}, `10.0.0.${i}`);
         }
     }
 
