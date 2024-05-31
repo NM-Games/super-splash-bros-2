@@ -1,6 +1,12 @@
 let items = new Array(4).fill(null);
 
 /**
+ * Get the current available gamepads.
+ * @returns {(Gamepad | null)[]}
+ */
+const get = () => items;
+
+/**
  * @param {Gamepad} gamepad
  * @param {boolean} connected
  * Set a gamepad connection state
@@ -10,10 +16,14 @@ const set = (gamepad, connected) => {
     else items[gamepad.index] = null;
 };
 
-/** Update the controllers. */
-const update = () => {
+/**
+ * Update the controllers.
+ * @param {import("../class/game/Game")} instance
+ */
+const update = (instance) => {
     items = navigator.getGamepads();
-    
+
+
 };
 
-module.exports = {items, set, update};
+module.exports = {get, set, update};

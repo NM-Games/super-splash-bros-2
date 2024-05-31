@@ -220,6 +220,23 @@ const introLogo = {
         else this.a = Math.min(this.a + this.va, 1);
     }
 };
+const gamepadAlert = {
+    x: -400,
+    vx: 40,
+    y: 100,
+    width: 300,
+    height: 120,
+    offset: 50,
+    visible: false,
+    shownAt: -6e9,
+    duration: 300,
+    show: () => {
+        if (![state.MAIN_MENU, state.SETTINGS, state.ABOUT, state.WAITING_LOCAL].includes(state.current)) return;
+
+        gamepadAlert.visible = true;
+        gamepadAlert.shownAt = frames;
+    }
+};
 const bigNotification = {
     size: 330,
     defaultSize: 330,
@@ -405,7 +422,11 @@ Button.items = [
         onclick: function() {
             instance = new Game("local");
             instance.theme = config.graphics.theme;
-            instance.hostIndex = localModeIndexes[0];
+            instance.hostIndex = playerIndex = localModeIndexes[0];
+            for (const i of localModeIndexes) {
+                instance.players[i] = new Player({playerName: "", preferredColor: i, superpower: 0});
+                instance.players[i].connected = false;
+            }
             Button.getButtonById("LocalGameTheme").text = `Theme: ${instance.theme}`;
 
             this.hovering = false;
@@ -1314,12 +1335,12 @@ addEventListener("DOMContentLoaded", () => {
     });
 
     addEventListener("gamepadconnected", (e) => {
-        // todo: show indicator
         gamepad.set(e.gamepad, true);
+        gamepadAlert.show();
     });
     addEventListener("gamepaddisconnected", (e) => {
-        // todo: show indicator
         gamepad.set(e.gamepad, false);
+        gamepadAlert.show();
     });
 
     const update = () => {
@@ -1332,7 +1353,8 @@ addEventListener("DOMContentLoaded", () => {
 
         if (game) {
             if (!lgame) lgame = game;
-
+            if ([state.WAITING_LOCAL, state.PLAYING_LOCAL].includes(state.current)) gamepad.update(instance);
+            
             Button.getButtonById("StartLANGame").disabled = (game.connected < 1);
             Button.getButtonById(`Back-${state.WAITING_LAN_HOST}`).danger = (game.connected > 1);
 
@@ -1432,9 +1454,12 @@ addEventListener("DOMContentLoaded", () => {
         if (frames === introLogo.duration) water.flood.disable();
 
         if (frames - errorAlert.shownAt >= errorAlert.duration && errorAlert.visible) errorAlert.visible = false;
-
         if (errorAlert.visible) errorAlert.y = Math.min(50, errorAlert.y + errorAlert.vy);
         else errorAlert.y = Math.max(-100, errorAlert.y - errorAlert.vy);
+
+        if (frames - gamepadAlert.shownAt >= gamepadAlert.duration && gamepadAlert.visible) gamepadAlert.visible = false;
+        if (gamepadAlert.visible) gamepadAlert.x = Math.min(-20, gamepadAlert.x + gamepadAlert.vx);
+        else gamepadAlert.x = Math.max(-gamepadAlert.width, gamepadAlert.x - gamepadAlert.vx);
 
         if (!isInGame) parallellogram.hide();
         if (parallellogram.visible && parallellogram.moving) {
@@ -1660,12 +1685,12 @@ addEventListener("DOMContentLoaded", () => {
                 const y = c.height(0.2) + i * 100;
                 const j = localModeIndexes[i];
                 
-                if (game.players[j] === null) c.options.setOpacity(0.5);
+                if (!game.players[j].connected) c.options.setOpacity(0.5);
                 c.draw.fill.rect(theme.colors.players[j], x + state.change.x, y, 500, 80, 8);
                 c.draw.croppedImage(image.sprites, j * 128, 0, 128, 128, x + 8 + state.change.x, y + 8, 64, 64);
-                if (game.players[j] !== null) {
+                if (game.players[j].connected) {
                     c.options.setShadow(theme.colors.shadow, 4, 1, 1);
-                    c.draw.text({text: game.players[j].name, x: x + state.change.x + 85, y: y + (additionalText ? 39 : 52), font: {size: 32}, color: theme.colors.text.light, alignment: "left"});
+                    c.draw.text({text: game.players[j].name, x: x + state.change.x + 85, y: y + 52, font: {size: 32}, color: theme.colors.text.light, alignment: "left"});
                 }
                 c.options.setShadow();
                 c.options.setOpacity();
@@ -1808,6 +1833,16 @@ addEventListener("DOMContentLoaded", () => {
         c.draw.fill.rect(theme.colors.error.background, (c.width() - alertWidth) / 2, errorAlert.y, alertWidth, 50, 12);
         c.options.setShadow();
         c.draw.text({text: errorAlert.text, x: c.width(0.5), y: errorAlert.y + 35, color: theme.colors.text.light, font: {size: 32}});
+
+        c.options.filter.add("brightness(0.8)");
+        c.draw.croppedImage(image.buttons, 0, 0, image.buttons.width, image.buttons.height / 2, gamepadAlert.x, gamepadAlert.y, gamepadAlert.width, gamepadAlert.height);
+        c.options.filter.remove("brightness");
+        c.draw.text({text: "Connected gamepads:", x: gamepadAlert.x + gamepadAlert.offset, y: gamepadAlert.y + 45, color: theme.colors.text.light, font: {size: 20}, alignment: "left"})
+        for (let i=0; i<localModeIndexes.length; i++) {
+            if (gamepad.get()[i] === null) c.options.setOpacity(0.25);
+            c.draw.croppedImage(image.sprites, localModeIndexes[i] * 128, 0, 128, 128, gamepadAlert.x + i * 50 + gamepadAlert.offset, gamepadAlert.y + gamepadAlert.height - 65, 36, 36);
+        }
+        c.options.setOpacity();
         
         if (dialog.visible) {
             c.draw.fill.rect(theme.colors.overlay, 0, 0, c.width(), c.height());
