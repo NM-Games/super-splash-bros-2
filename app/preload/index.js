@@ -403,7 +403,7 @@ Button.items = [
         x: () => c.width(1/4),
         y: () => c.height(1/2) - 50,
         onclick: function() {
-            instance = new Game(true);
+            instance = new Game("local");
             instance.theme = config.graphics.theme;
             instance.hostIndex = localModeIndexes[0];
             Button.getButtonById("LocalGameTheme").text = `Theme: ${instance.theme}`;
@@ -429,7 +429,7 @@ Button.items = [
         x: () => c.width(3/4),
         y: () => c.height(1/2) - 50,
         onclick: function() {
-            instance = new Game(true);
+            instance = new Game("freeplay");
             instance.theme = config.graphics.theme;
             instance.players[config.appearance.preferredColor] = new Player(config.appearance, config.appearance.preferredColor);
             instance.addDummies();
@@ -1347,6 +1347,24 @@ addEventListener("DOMContentLoaded", () => {
             } else if (lgame.startState === 3 && game.startState === 4) bigNotification.show("2", theme.colors.bigNotification.o);
             else if (lgame.startState === 4 && game.startState === 5) bigNotification.show("1", theme.colors.bigNotification.y);
             else if (lgame.startState === 5 && game.startState === 6) bigNotification.show("GO!", theme.colors.bigNotification.g);
+            else if (lgame.startState === 6 && game.startState === 7) {
+                const message = (game.winner === playerIndex) ? {text: "YOU WIN!", color: "g"} : {text: "YOU LOSE", color: "r"};
+                bigNotification.show(message.text, theme.colors.bigNotification[message.color], 250, 0.01);
+            } else if (lgame.startState === 7 && game.startState === 8) water.flood.enable(false, false, () => {
+                dialog.close();
+                isInGame = false;
+                gameMenu.set(false);
+                if (state.current === state.PLAYING_LAN) {
+                    if (playerIndex === game.host) ipcRenderer.send("stop-gameserver"); else {
+                        socket.close();
+                        errorAlert.suppress();
+                        state.current = state.LAN_GAME_MENU;
+                    }
+                } else if (state.current === state.PLAYING_LOCAL) {
+                    state.current = state.MAIN_MENU;
+                }
+                water.flood.disable();
+            });
 
             if (!lgame.players[playerIndex].superpower.available && game.players[playerIndex].superpower.available)
                 bigNotification.show("SUPERPOWER READY", theme.colors.bigNotification.g, 120, 0.003);

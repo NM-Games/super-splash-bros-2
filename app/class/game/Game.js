@@ -29,7 +29,8 @@ class Game {
     fish;
     startState;
     startedOn;
-    local;
+    endedOn;
+    mode;
     /** @type {string[]} */
     blacklist;
     /** @type {number} */
@@ -37,15 +38,17 @@ class Game {
     startPlayerCount;
     floodLevel;
     elapsed;
+    /** @type {null | number} */
+    winner;
     ping;
 
     /**
      * @constructor
-     * @param {boolean} local
+     * @param {"local" | "lan" | "freeplay"} mode
      */
-    constructor(local = false) {
+    constructor(mode) {
         this.theme = "";
-        this.local = local;
+        this.mode = mode;
         this.players = new Array(8).fill(null);
         this.ips = new Array(8).fill(null);
         this.attacks = [];
@@ -56,13 +59,15 @@ class Game {
             item: null,
             spawned: false,
             lastSpawned: false
-        },
+        };
         this.startState = 0;
         this.startedOn = -6e9;
+        this.endedOn = -6e9;
         this.blacklist = [];
         this.startPlayerCount = 1;
         this.floodLevel = 0;
         this.elapsed = 0;
+        this.winner = null;
         this.ping = new Date().getTime();
     }
 
@@ -94,10 +99,10 @@ class Game {
     }
 
     /**
-     * Fill the game with dummy players. Only for local games.
+     * Fill the game with dummy players. Only for freeplay games.
      */
     addDummies() {
-        if (!this.local) return;
+        if (this.mode !== "freeplay") return;
 
         for (let i=0; i<this.players.length; i++) {
             if (this.players[i] === null) {
@@ -148,11 +153,21 @@ class Game {
         else if (this.startState === 3 && this.ping - this.startedOn >= 6000) this.startState = 4; // countdown '2'
         else if (this.startState === 4 && this.ping - this.startedOn >= 7000) this.startState = 5; // countdown '1'
         else if (this.startState === 5 && this.ping - this.startedOn >= 8000) this.startState = 6; // countdown 'GO!'
+        else if (this.startState === 6 && this.winner !== null) this.startState = 7; // 'you win' or 'you lose'
+        else if (this.startState === 7 && this.ping - this.endedOn >= 10000 && this.mode !== "freeplay") this.startState = 8; // enable flooding effect
 
         if (this.startState < 6) return;
 
         this.elapsed = this.ping - this.startedOn - 8900;
         if (this.elapsed >= Game.floodDelay * 1000) this.floodLevel = Math.max(Game.floodMaxLevel, this.floodLevel - 0.1);
+
+        const alive = [];
+        for (let i=0; i<this.players.length; i++) 
+            alive.push(this.players[i] !== null && this.players[i].lives > 0 && this.players[i].connected);
+        if (alive.filter(x => x).length === 1 && this.endedOn < 0) {
+            this.endedOn = this.ping;
+            this.winner = alive.indexOf(true);
+        }
 
         for (const p1 of this.getPlayers()) {
             p1.update();
@@ -183,8 +198,9 @@ class Game {
 
             if (p1.y > 625 + this.floodLevel) {
                 this.splashes.push(new Splash(p1.x + p1.size / 2, this.floodLevel));
-                if (this.ping - p1.respawn >= p1.spawnProtection) {
+                if (this.ping - p1.respawn >= p1.spawnProtection && this.winner === null) {
                     p1.lives--;
+                    p1.hit.percentage = 0;
                     p1.respawn = this.ping;
                 }
                 if (p1.lives >= 1) {
@@ -192,7 +208,6 @@ class Game {
                     const spawnCoordinateIndex = (this.floodLevel < 0) ? highestCoordinates[Math.floor(Math.random() * highestCoordinates.length)] : p1.index;
                     p1.x = Player.initialCoordinates[spawnCoordinateIndex].x;
                     p1.y = Player.initialCoordinates[spawnCoordinateIndex].y;
-                    p1.hit.percentage = 0;
                     p1.vx = p1.vy = 0;
                 }
             }
@@ -314,6 +329,7 @@ class Game {
             startState: this.startState,
             startPlayerCount: this.startPlayerCount,
             elapsed: this.elapsed,
+            winner: this.winner,
             floodLevel: this.floodLevel,
             flooded: (this.floodLevel === Game.floodMaxLevel),
             remaining: Math.floor((Game.floodDelay * 1000 - this.elapsed) / 1000)

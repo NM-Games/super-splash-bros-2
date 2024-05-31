@@ -32,7 +32,7 @@ process.parentPort.on("message", (msg) => {
     else if (msg.data.startsWith("ban:")) game.ban(+msg.data.slice(4));
 });
 
-const game = new Game();
+const game = new Game("lan");
 const wss = new WebSocketServer({port});
 
 let frames = 0;
