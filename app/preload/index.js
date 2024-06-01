@@ -1367,7 +1367,7 @@ addEventListener("DOMContentLoaded", () => {
             if ([state.WAITING_LOCAL, state.PLAYING_LOCAL].includes(state.current)) gamepad.update(instance);
             if (!lgame) lgame = JSON.parse(JSON.stringify(game));
             
-            Button.getButtonById("StartLANGame").disabled = (game.connected < 1);
+            Button.getButtonById("StartLANGame").disabled = (game.connected <= 1);
             Button.getButtonById(`Back-${state.WAITING_LAN_HOST}`).danger = (game.connected > 1);
 
             if (lgame.startState === 0 && game.startState === 1) water.flood.enable(false, true);
