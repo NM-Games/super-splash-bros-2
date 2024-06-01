@@ -108,24 +108,18 @@ class Player {
     }
 
     /**
-     * Get the speed amplifier for attacks like rockets, based on hit percentage.
-     * @returns {number}
-     */
-    getImpactAmplifier() {
-        return this.hit.percentage / 80 + 1;
-    }
-
-    /**
      * Damage the player.
      * @param {number} ping
      * @param {number} min
      * @param {number} max
+     * @param {number} knockback
      */
-    damage(ping, min, max) {
+    damage(ping, min, max, knockback = 0) {
         if (ping - this.hit.cooldownSince < this.hit.cooldown || ping - this.respawn < this.spawnProtection) return;
 
         this.hit.cooldownSince = ping;
         this.hit.percentage += Math.random() * (max - min) + min;
+        this.vx += knockback * (this.hit.percentage / 80 + 1)
     }
 
     /** Update a player. Collision detection between players is done in the Game class. */

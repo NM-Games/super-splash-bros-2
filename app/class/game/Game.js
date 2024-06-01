@@ -234,10 +234,8 @@ class Game {
                     const py = p.y + p.size / 2;
                     const distance = Math.sqrt(Math.abs(px - attack.x) ** 2 + Math.abs(py - attack.y) ** 2);
                     
-                    if (distance <= p.size / 2 + attack.size) {
-                        p.damage(this.ping, 2, 5);
-                        p.vx += (attack.x - (p.x + p.size / 2) < 0 ? Attack.impact : -Attack.impact) * p.getImpactAmplifier();
-                    }
+                    if (distance <= p.size / 2 + attack.size) 
+                        p.damage(this.ping, 2, 5, (attack.x - (p.x + p.size / 2) < 0 ? Attack.impact : -Attack.impact));
                 }
             }
 
@@ -250,8 +248,7 @@ class Game {
 
             for (const p of this.getPlayers()) {
                 if (rocket.x < p.x + p.size && rocket.x + rocket.width > p.x && rocket.y > p.y && rocket.y < p.y + p.size && !rocket.explosion.active) {
-                    p.vx += (rocket.direction === "r" ? Rocket.impact : -Rocket.impact) * p.getImpactAmplifier();
-                    p.damage(this.ping, 30, 50);
+                    p.damage(this.ping, 30, 50, (rocket.direction === "r" ? Rocket.impact : -Rocket.impact));
                     rocket.explode();
                 }
             }
