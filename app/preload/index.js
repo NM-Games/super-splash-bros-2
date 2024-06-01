@@ -118,7 +118,7 @@ const connect = (asHost) => {
                 connectionMessage.show(e.reason, theme.colors.error.foreground, 3);
                 setConnectElementsState(false);
             } else {
-                if (state.current === state.PLAYING_LAN) water.flood.enable(true);
+                if (state.current === state.PLAYING_LAN && !errorAlert.suppressed) water.flood.enable(true);
                 isInGame = false;
                 const reason = (e.reason) ? e.reason : "You have been disconnected because the game you were in was closed.";
                 state.change.to(state.LAN_GAME_MENU, true, () => {
@@ -151,7 +151,7 @@ const leave = () => {
                 errorAlert.suppress();
                 state.current = state.LAN_GAME_MENU;
             }
-        } else if (state.current === state.PLAYING_LOCAL) {
+        } else if ([state.PLAYING_LOCAL, state.PLAYING_FREEPLAY].includes(state.current)) {
             state.current = state.MAIN_MENU;
         }
         water.flood.disable();
@@ -408,7 +408,8 @@ const konamiEasterEgg = {
 
 let frames = 0;
 let game = socket.getGame();
-let lastUpdate = {startState: 0, superpowerAvailable: false, lives: 1};
+/** @type {game} */
+let lgame;
 /** @type {Game} */
 let instance;
 let ping = 0;
@@ -1181,8 +1182,11 @@ addEventListener("DOMContentLoaded", () => {
     });
     ipcRenderer.on("gameserver-stopped", () => {
         theme.current = config.graphics.theme;
-        state.change.to(state.LAN_GAME_MENU, true, stop);
         errorAlert.suppress();
+        if (state.current === state.WAITING_LAN_HOST) state.change.to(state.LAN_GAME_MENU, true, stop); else {
+            state.current = state.LAN_GAME_MENU;
+            setTimeout(stop, 50);
+        }
     });
     setInterval(() => {
         const discordState = (state.current === state.PLAYING_LOCAL) ? "Local mode"
@@ -1357,36 +1361,32 @@ addEventListener("DOMContentLoaded", () => {
         }
 
         if (game) {
-            console.log(game.players);
             if ([state.WAITING_LOCAL, state.PLAYING_LOCAL].includes(state.current)) gamepad.update(instance);
+            if (!lgame) lgame = JSON.parse(JSON.stringify(game));
             
             Button.getButtonById("StartLANGame").disabled = (game.connected < 1);
             Button.getButtonById(`Back-${state.WAITING_LAN_HOST}`).danger = (game.connected > 1);
 
-            if (lastUpdate.startState === 0 && game.startState === 1) water.flood.enable(false, true);
-            else if (lastUpdate.startState === 1 && game.startState === 2) {
+            if (lgame.startState === 0 && game.startState === 1) water.flood.enable(false, true);
+            else if (lgame.startState === 1 && game.startState === 2) {
                 state.current = (state.current === state.WAITING_FREEPLAY) ? state.PLAYING_FREEPLAY : state.PLAYING_LAN;
                 isInGame = true;
                 water.flood.disable();
-            } else if (lastUpdate.startState === 2 && game.startState === 3) {
+            } else if (lgame.startState === 2 && game.startState === 3) {
                 bigNotification.show("3", theme.colors.bigNotification.r);
                 parallellogram.show();
-            } else if (lastUpdate.startState === 3 && game.startState === 4) bigNotification.show("2", theme.colors.bigNotification.o);
-            else if (lastUpdate.startState === 4 && game.startState === 5) bigNotification.show("1", theme.colors.bigNotification.y);
-            else if (lastUpdate.startState === 5 && game.startState === 6) bigNotification.show("GO!", theme.colors.bigNotification.g);
-            else if (lastUpdate.startState === 6 && game.startState === 7) {
+            } else if (lgame.startState === 3 && game.startState === 4) bigNotification.show("2", theme.colors.bigNotification.o);
+            else if (lgame.startState === 4 && game.startState === 5) bigNotification.show("1", theme.colors.bigNotification.y);
+            else if (lgame.startState === 5 && game.startState === 6) bigNotification.show("GO!", theme.colors.bigNotification.g);
+            else if (lgame.startState === 6 && game.startState === 7) {
                 const message = (game.winner === playerIndex) ? {text: "YOU WIN!", color: "g"} : {text: "YOU LOSE", color: "r"};
                 bigNotification.show(message.text, theme.colors.bigNotification[message.color], 250, 0.01);
-            } else if (lastUpdate.startState === 7 && game.startState === 8) leave();
+            } else if (lgame.startState === 7 && game.startState === 8) leave();
 
-            if (!lastUpdate.superpowerAvailable && game.players[playerIndex].superpower.available)
+            if (!lgame.players[playerIndex].superpower.available && game.players[playerIndex].superpower.available)
                 bigNotification.show("SUPERPOWER READY", theme.colors.bigNotification.g, 120, 0.003);
-            if (lastUpdate.lives > 0 && game.players[playerIndex].lives === 0)
+            if (lgame.players[playerIndex].lives > 0 && game.players[playerIndex].lives === 0)
                 bigNotification.show("GAME OVER", theme.colors.bigNotification.r, 200, 0.008);
-
-            lastUpdate.lives = game.players[playerIndex].lives;
-            lastUpdate.startState = game.startState;
-            lastUpdate.superpowerAvailable = game.players[playerIndex].superpower.available;
         }
 
         if (state.change.active) {
@@ -1474,6 +1474,7 @@ addEventListener("DOMContentLoaded", () => {
             gameMenu.darkness = Math.max(0, gameMenu.darkness - 0.01);
         }
 
+        lgame = (game) ? JSON.parse(JSON.stringify(game)) : undefined;
         document.body.style.cursor = (hoverings.button > 0 || banButton.hoverIndex > -1) ? "pointer" : (hoverings.input > 0) ? "text" : "default";
     };
 
