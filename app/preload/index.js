@@ -4,6 +4,7 @@ const { ipcRenderer, clipboard, shell } = require("electron");
 
 const c = require("./canvas");
 const image = require("./image");
+const audio = require("./audio");
 const theme = require("./theme");
 const socket = require("./socket");
 const gamepad = require("./gamepad");
@@ -1121,6 +1122,8 @@ addEventListener("DOMContentLoaded", () => {
     config.graphics = configFile.graphics ?? settings.template.graphics;
     config.controls = configFile.controls ?? settings.template.controls;
 
+    audio.music.loop = true;
+
     checkLANAvailability();
     setInterval(checkLANAvailability, 5000);
     setInterval(() => ping = (game) ? new Date().getTime() - game.ping : 0, 1000);
@@ -1446,7 +1449,10 @@ addEventListener("DOMContentLoaded", () => {
             }
         } else if (game && isInGame) water.flood.level = (water.flood.enabled) ? 0 : c.height() + game.floodLevel;
         else water.flood.level = (water.flood.enabled) ? 0 : c.height();
-        if (frames === introLogo.duration) water.flood.disable();
+        if (frames === introLogo.duration) {
+            water.flood.disable();
+            audio._play(audio.music);
+        }
 
         if (frames - errorAlert.shownAt >= errorAlert.duration && errorAlert.visible) errorAlert.visible = false;
         if (errorAlert.visible) errorAlert.y = Math.min(50, errorAlert.y + errorAlert.vy);
