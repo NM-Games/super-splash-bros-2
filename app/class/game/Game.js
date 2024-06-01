@@ -161,7 +161,7 @@ class Game {
         const alive = [];
         for (let i=0; i<this.players.length; i++) 
             alive.push(this.players[i] !== null && this.players[i].lives > 0 && this.players[i].connected);
-        if (alive.filter(x => x).length === 1 && this.endedOn < 0) {
+        if (alive.filter(x => x).length === 1 && this.endedOn < 0 && this.mode !== "freeplay") {
             this.endedOn = this.ping;
             this.winner = alive.indexOf(true);
         }

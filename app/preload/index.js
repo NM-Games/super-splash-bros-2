@@ -1381,7 +1381,7 @@ addEventListener("DOMContentLoaded", () => {
             } else if (lgame.startState === 3 && game.startState === 4) bigNotification.show("2", theme.colors.bigNotification.o);
             else if (lgame.startState === 4 && game.startState === 5) bigNotification.show("1", theme.colors.bigNotification.y);
             else if (lgame.startState === 5 && game.startState === 6) bigNotification.show("GO!", theme.colors.bigNotification.g);
-            else if (lgame.startState === 6 && game.startState === 7) {
+            else if (lgame.startState === 6 && game.startState === 7 && state.current !== state.PLAYING_FREEPLAY) {
                 const message = (game.winner === playerIndex) ? {text: "YOU WIN!", color: "g"} : {text: "YOU LOSE", color: "r"};
                 bigNotification.show(message.text, theme.colors.bigNotification[message.color], 250, 0.01);
             } else if (lgame.startState === 7 && game.startState === 8) leave();
