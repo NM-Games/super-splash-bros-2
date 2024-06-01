@@ -95,7 +95,7 @@ const open = (options) => {
     ws.addEventListener("message", (e) => {
         const data = parse(e.data);
         if (data.act === "join" && !isHost) options.onopen(data.index);
-        else if (data.act === "update") game = data;
+        else if (data.act === "update" && data.connected > 0) game = data;
 
         if (data.theme) {
             theme.current = data.theme;

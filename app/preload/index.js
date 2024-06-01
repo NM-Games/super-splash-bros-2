@@ -39,6 +39,8 @@ const state = {
          * @param {EmptyCallback} onchanged
          */
         to: (toState, inverted, onchanged = () => {}) => {
+            if (state.change.active) return;
+
             state.change.newState = toState;
             state.change.vx = (inverted) ? 150 : -150;
             state.change.active = true;
@@ -120,6 +122,7 @@ const connect = (asHost) => {
                 isInGame = false;
                 const reason = (e.reason) ? e.reason : "You have been disconnected because the game you were in was closed.";
                 state.change.to(state.LAN_GAME_MENU, true, () => {
+                    stop();
                     water.flood.disable();
                     errorAlert.show(reason);
                     theme.current = config.graphics.theme;
@@ -442,14 +445,14 @@ Button.items = [
         x: () => c.width(1/4),
         y: () => c.height(1/2) - 50,
         onclick: function() {
-            instance = new Game("local");
-            instance.theme = config.graphics.theme;
-            for (const i of localModeIndexes) instance.join({playerName: "", preferredColor: i, superpower: 0}, `10.0.0.${i}`);
-            instance.hostIndex = playerIndex = localModeIndexes[0];
-            Button.getButtonById("LocalGameTheme").text = `Theme: ${instance.theme}`;
-
             this.hovering = false;
-            state.change.to(state.WAITING_LOCAL, false);
+            state.change.to(state.WAITING_LOCAL, false, () => {
+                instance = new Game("local");
+                instance.theme = config.graphics.theme;
+                for (const i of localModeIndexes) instance.join({playerName: "", preferredColor: i, superpower: 0}, `10.0.0.${i}`);
+                instance.hostIndex = playerIndex = localModeIndexes[0];
+                Button.getButtonById("LocalGameTheme").text = `Theme: ${instance.theme}`;    
+            });
         }
     }),
     new Button({
@@ -469,15 +472,15 @@ Button.items = [
         x: () => c.width(3/4),
         y: () => c.height(1/2) - 50,
         onclick: function() {
-            instance = new Game("freeplay");
-            instance.theme = config.graphics.theme;
-            instance.players[config.appearance.preferredColor] = new Player(config.appearance, config.appearance.preferredColor);
-            instance.addDummies();
-            instance.hostIndex = playerIndex = config.appearance.preferredColor;
-            Button.getButtonById("FreeplayGameTheme").text = `Theme: ${instance.theme}`;
-
             this.hovering = false;
-            state.change.to(state.WAITING_FREEPLAY, false);
+            state.change.to(state.WAITING_FREEPLAY, false, () => {
+                instance = new Game("freeplay");
+                instance.theme = config.graphics.theme;
+                instance.players[config.appearance.preferredColor] = new Player(config.appearance, config.appearance.preferredColor);
+                instance.addDummies();
+                instance.hostIndex = playerIndex = config.appearance.preferredColor;
+                Button.getButtonById("FreeplayGameTheme").text = `Theme: ${instance.theme}`;
+            });
         }
     }),
     new Button({
@@ -1354,6 +1357,7 @@ addEventListener("DOMContentLoaded", () => {
         }
 
         if (game) {
+            console.log(game.players);
             if ([state.WAITING_LOCAL, state.PLAYING_LOCAL].includes(state.current)) gamepad.update(instance);
             
             Button.getButtonById("StartLANGame").disabled = (game.connected < 1);
