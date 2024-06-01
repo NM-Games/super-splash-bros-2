@@ -82,7 +82,8 @@ class Player {
         this.superpower = {
             selected: appearance.superpower,
             available: false,
-            active: false
+            active: false,
+            lastActivated: -6e9
         };
         this.keys = {
             left: false,

@@ -14,6 +14,57 @@ class Game {
     static floodDelay = 180;
     static floodMaxLevel = -400;
 
+    static superpower = {
+        SQUASH: 0,
+        POOP_BOMB: 1,
+        SHIELD: 2,
+        INVISIBILITY: 3,
+        KNOCKBACK: 4,
+        POWER_JUMP: 5,
+        LIFE_MENDER: 6,
+        PERSONAL_PLATFORM: 7
+    };
+    static superpowers = [{
+        name: "Squash",
+        /** @param {Player} p */
+        condition: (p) => p.jump.active
+    }, {
+        name: "Poop Bomb",
+        condition: () => true,
+    }, {
+        name: "Shield",
+        condition: () => true,
+        duration: 10000
+    }, {
+        name: "Invisibility",
+        condition: () => true,
+        duration: 10000
+    }, {
+        name: "Knockback",
+        condition: () => true,
+        duration: 10000
+    }, {
+        name: "Power Jump",
+        condition: () => true,
+        duration: 10000
+    }, {
+        name: "Life Mender",
+        /** @param {Player} p */
+        condition: (p) => p.lives > 0,
+        /** @param {Player} p */
+        action: (p) => p.lives++,
+        duration: 0
+    }, {
+        name: "Personal Platform",
+        /** @param {Player} p */
+        condition: (p) => p.jump.active,
+        duration: 10000,
+        /** @param {Player} p */
+        action: (p) => {
+            
+        }
+    }];
+
     /** @type {Themes} */
     theme;
     /** @type {Player[]} */
@@ -220,6 +271,16 @@ class Game {
                     if (this.fish.item.takenBy === -1) this.fish.item.takenBy = p1.index;
                     else if (this.fish.item.takenBy === p1.index) this.fish.item.collidesWithTaker = true;
                 } else if (this.fish.item.takenBy === p1.index) this.fish.item.collidesWithTaker = false;
+            }
+
+            if (p1.keys.superpower && p1.superpower.available && !p1.superpower.active) {
+                const superpower = Game.superpowers[p1.superpower.selected];
+                if (superpower.condition(p1)) {
+                    p1.superpower.available = false;
+                    p1.superpower.active = true;
+                    p1.superpower.lastActivated = this.ping;
+                    if (superpower.action) superpower.action(p1);
+                }
             }
         }
 

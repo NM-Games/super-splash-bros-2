@@ -1718,7 +1718,7 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text({text: "Superpower:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 525, font: {size: 24}, alignment: "left"});
             
             const colors = ["Yellow", "Green", "Red", "Blue", "Orange", "Cyan", "Purple", "Gray"];
-            const superpowers = ["Squash", "Shield", "Poop Bomb", "Invisibility", "Power Rockets", "Regeneration", "Knockback", "Strength"];
+            const superpowers = Game.superpowers.map(s => s.name);
             c.draw.croppedImage(image.sprites, config.appearance.preferredColor * 128, 0, 128, 128, c.width(0.2) - 80 + state.change.x, 360, 64, 64);
             c.draw.text({text: colors[config.appearance.preferredColor], x: c.width(0.2) + state.change.x, y: 396, font: {size: 28, style: "bold"}, alignment: "left", baseline: "middle"}); 
             c.draw.text({text: superpowers[config.appearance.superpower], x: c.width(0.2) + state.change.x, y: 576, font: {size: 28, style: "bold"}, alignment: "left", baseline: "middle"}); 
