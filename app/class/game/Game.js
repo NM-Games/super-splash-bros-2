@@ -309,6 +309,7 @@ class Game {
         for (const p of this.players) {
             if (p !== null && p.connected) connected++;
         }
+        const remaining = Math.floor((this.endedOn > 0 ? 10000 - (this.ping - this.endedOn) : Game.floodDelay * 1000 - this.elapsed) / 1000);
 
         return {
             act: "update",
@@ -329,7 +330,7 @@ class Game {
             winner: this.winner,
             floodLevel: this.floodLevel,
             flooded: (this.floodLevel === Game.floodMaxLevel),
-            remaining: Math.floor((Game.floodDelay * 1000 - this.elapsed) / 1000)
+            remaining
         };
     }
 }
