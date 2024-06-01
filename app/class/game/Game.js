@@ -149,8 +149,10 @@ class Game {
         else if (this.startState === 2 && this.ping - this.startedOn >= 5000) this.startState = 3; // countdown '3'
         else if (this.startState === 3 && this.ping - this.startedOn >= 6000) this.startState = 4; // countdown '2'
         else if (this.startState === 4 && this.ping - this.startedOn >= 7000) this.startState = 5; // countdown '1'
-        else if (this.startState === 5 && this.ping - this.startedOn >= 8000) this.startState = 6; // countdown 'GO!'
-        else if (this.startState === 6 && this.winner !== null) this.startState = 7; // 'you win' or 'you lose'
+        else if (this.startState === 5 && this.ping - this.startedOn >= 8000) { // countdown 'GO!'
+            this.startState = 6;
+            for (const p of this.getPlayers()) p.attacks.rocket.lastRegenerated = this.ping + p.attacks.rocket.regenerationInterval;
+        } else if (this.startState === 6 && this.winner !== null) this.startState = 7; // 'you win' or 'you lose'
         else if (this.startState === 7 && this.ping - this.endedOn >= 10000 && this.mode !== "freeplay") this.startState = 8; // enable flooding effect
 
         if (this.startState < 6) return;

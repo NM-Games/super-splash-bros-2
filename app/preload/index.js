@@ -1656,7 +1656,7 @@ addEventListener("DOMContentLoaded", () => {
                         font: {size: 18},
                         baseline: "middle"
                     });
-                    c.draw.stroke.arc(theme.colors.text.light, x + parallellogramWidth - offsets.rockets, y + 17, 13, 2, (game.ping - p.attacks.rocket.lastRegenerated) / p.attacks.rocket.regenerationInterval);
+                    if (game.startState >= 6) c.draw.stroke.arc(theme.colors.text.light, x + parallellogramWidth - offsets.rockets, y + 17, 13, 2, (game.ping - p.attacks.rocket.lastRegenerated) / p.attacks.rocket.regenerationInterval);
                 }
                 c.options.setShadow();
                 c.options.setOpacity();
