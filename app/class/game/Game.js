@@ -174,22 +174,10 @@ class Game {
 
                 if (p1.x < p2.x + p2.size && p1.x + p1.size > p2.x &&
                  p1.y < p2.y + p2.size && p1.y + p1.size > p2.y) {
-                    console.warn("kaboomski");
-                    if (p1.lx + p1.size <= p2.x) {
-                        if (Math.abs(p1.vx) >= Math.abs(p2.vx)) p2.x = p1.x + p1.size;
-                        else p1.x = p2.x + p2.size;
-                        p1.vx /= 1.1;
-                    } else if (p1.lx >= p2.x + p2.size) {
-                        if (Math.abs(p1.vx) >= Math.abs(p2.vx)) p2.x = p1.x - p1.size;
-                        else p1.x = p2.x - p2.size;
-                        p1.vx /= 1.1;
-                    } else if (p1.ly + p1.size <= p2.y) {
-                        p1.y = p2.y - p2.size;
-                        p1.vy = p1.jump.used = 0;
-                        p1.jump.active = false;
-                    } else if (p2.jump.active) {
-                        p1.y = p2.y - p2.size;
-                    }
+                    p1.vx /= 1.06;
+                    p2.vx /= 1.06;
+                    p1.vy /= 1.05;
+                    p2.vy /= 1.05;
                 }
             }
 
@@ -246,7 +234,7 @@ class Game {
                     
                     if (distance <= p.size / 2 + attack.size) {
                         p.damage(this.ping, 2, 5);
-                        p.vx += (attack.x - p.x < 0 ? Attack.impact : -Attack.impact) * p.getImpactAmplifier();
+                        p.vx += (attack.x - (p.x + p.size / 2) < 0 ? Attack.impact : -Attack.impact) * p.getImpactAmplifier();
                     }
                 }
             }
