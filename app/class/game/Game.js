@@ -196,8 +196,15 @@ class Game {
     update() {
         this.ping = new Date().getTime();
 
-        if (this.startState === 1 && this.ping - this.startedOn >= 3000) this.startState = 2; // disable flooding effect
-        else if (this.startState === 2 && this.ping - this.startedOn >= 5000) this.startState = 3; // countdown '3'
+        if (this.startState === 1 && this.ping - this.startedOn >= 3000) { // disable flooding effect
+            this.startState = 2;
+            if (this.mode === "local") {
+                for (let i=0; i<this.players.length; i++) {
+                    if (this.players[i] !== null && !this.players[i].connected) this.players[i] = this.ips[i] = null;
+                }
+                this.startPlayerCount = this.getPlayers().length;
+            }
+        } else if (this.startState === 2 && this.ping - this.startedOn >= 5000) this.startState = 3; // countdown '3'
         else if (this.startState === 3 && this.ping - this.startedOn >= 6000) this.startState = 4; // countdown '2'
         else if (this.startState === 4 && this.ping - this.startedOn >= 7000) this.startState = 5; // countdown '1'
         else if (this.startState === 5 && this.ping - this.startedOn >= 8000) { // countdown 'GO!'

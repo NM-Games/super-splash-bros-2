@@ -164,6 +164,11 @@ class Input {
     getHeight(factor = 1) {
         return (this.size + 16) * factor;
     }
+
+    /** Focus the input, if not disabled. */
+    focus() {
+        if (!this.disabled) this.focused = true;
+    }
 }
 
 module.exports = Input;

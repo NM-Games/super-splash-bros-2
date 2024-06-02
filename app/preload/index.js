@@ -154,6 +154,7 @@ const leave = () => {
             }
         } else if ([state.PLAYING_LOCAL, state.PLAYING_FREEPLAY].includes(state.current)) {
             state.current = state.MAIN_MENU;
+            stop();
         }
         water.flood.disable();
     });
@@ -177,7 +178,6 @@ const keyChange = () => (JSON.stringify(keys) !== JSON.stringify(lastKeys));
 /** @type {import("./settings").Settings} */
 const config = {appearance: {}, graphics: {}, controls: {}};
 const versions = {game: "", electron: "", chromium: ""};
-const localModeIndexes = [3, 2, 1, 6];
 const keys = {
     moveLeft: false,
     moveRight: false,
@@ -451,8 +451,10 @@ Button.items = [
             state.change.to(state.WAITING_LOCAL, false, () => {
                 instance = new Game("local");
                 instance.theme = config.graphics.theme;
-                for (const i of localModeIndexes) instance.join({playerName: "", preferredColor: i, superpower: 0}, `10.0.0.${i}`);
-                instance.hostIndex = playerIndex = localModeIndexes[0];
+                for (const i of gamepad.playerIndexes) {
+                    instance.join({playerName: "", preferredColor: i, superpower: 0}, `10.0.0.${i}`);
+                    instance.players[i].connected = false;
+                }
                 Button.getButtonById("LocalGameTheme").text = `Theme: ${instance.theme}`;    
             });
         }
@@ -898,36 +900,63 @@ Button.gameMenuItems = [
 
 Input.items = [
     new Input({
-        id: "Local-Player1",
+        id: "Local-Player0",
         state: state.WAITING_LOCAL,
         x: () => c.width(0.5) + 36,
         y: () => c.height(0.2) + 40,
         width: 400,
-        disabled: true
+        disabled: true,
+        ontab: function(shift) {
+            if (shift) return;
+            this.focused = false;
+            setTimeout(() => Input.getInputById("Local-Player1").focus(), 10);
+        },
+        onblur: function() {
+            instance.players[gamepad.playerIndexes[0]].name = this.value.slice(0, this.maxLength);
+        }
+    }),
+    new Input({
+        id: "Local-Player1",
+        state: state.WAITING_LOCAL,
+        x: () => c.width(0.5) + 36,
+        y: () => c.height(0.2) + 140,
+        width: 400,
+        disabled: true,
+        ontab: function(shift) {
+            this.focused = false;
+            setTimeout(() => Input.getInputById(`Local-Player${shift ? 0 : 2}`).focus(), 10);
+        },
+        onblur: function() {
+            instance.players[gamepad.playerIndexes[1]].name = this.value.slice(0, this.maxLength);
+        }
     }),
     new Input({
         id: "Local-Player2",
         state: state.WAITING_LOCAL,
         x: () => c.width(0.5) + 36,
-        y: () => c.height(0.2) + 140,
+        y: () => c.height(0.2) + 240,
         width: 400,
-        disabled: true
+        disabled: true,
+        ontab: function(shift) {
+            this.focused = false;
+            setTimeout(() => Input.getInputById(`Local-Player${shift ? 1 : 3}`).focus(), 10);
+        },
+        onblur: function() {
+            instance.players[gamepad.playerIndexes[2]].name = this.value.slice(0, this.maxLength);
+        }
     }),
     new Input({
         id: "Local-Player3",
         state: state.WAITING_LOCAL,
         x: () => c.width(0.5) + 36,
-        y: () => c.height(0.2) + 240,
-        width: 400,
-        disabled: true
-    }),
-    new Input({
-        id: "Local-Player4",
-        state: state.WAITING_LOCAL,
-        x: () => c.width(0.5) + 36,
         y: () => c.height(0.2) + 340,
         width: 400,
-        disabled: true
+        disabled: true,
+        ontab: function(shift) {
+            if (!shift) return;
+            this.focused = false;
+            setTimeout(() => Input.getInputById("Local-Player2").focus(), 10);
+        }
     }),
     new Input({
         id: "IP-1",
@@ -939,7 +968,7 @@ Input.items = [
         numbersOnly: true,
         onmaxlengthreached: function() {
             this.focused = false;
-            setTimeout(() => Input.getInputById("IP-2").focused = true, 10);
+            setTimeout(() => Input.getInputById("IP-2").focus(), 10);
         },
         ontab: function(shift) {
             if (!shift) this.onmaxlengthreached();
@@ -958,11 +987,11 @@ Input.items = [
         numbersOnly: true,
         onmaxlengthreached: function() {
             this.focused = false;
-            setTimeout(() => Input.getInputById("IP-3").focused = true, 10);
+            setTimeout(() => Input.getInputById("IP-3").focus(), 10);
         },
         onemptybackspace: function() {
             this.focused = false;
-            Input.getInputById("IP-1").focused = true;   
+            Input.getInputById("IP-1").focus();   
         },
         ontab: function(shift) {
             (shift) ? this.onemptybackspace() : this.onmaxlengthreached();
@@ -981,11 +1010,11 @@ Input.items = [
         numbersOnly: true,
         onmaxlengthreached: function() {
             this.focused = false;
-            setTimeout(() => Input.getInputById("IP-4").focused = true, 10);
+            setTimeout(() => Input.getInputById("IP-4").focus(), 10);
         },
         onemptybackspace: function() {
             this.focused = false;
-            Input.getInputById("IP-2").focused = true;   
+            Input.getInputById("IP-2").focus();   
         },
         ontab: function(shift) {
             (shift) ? this.onemptybackspace() : this.onmaxlengthreached();
@@ -1004,7 +1033,7 @@ Input.items = [
         numbersOnly: true,
         onemptybackspace: function() {
             this.focused = false;
-            Input.getInputById("IP-3").focused = true;   
+            Input.getInputById("IP-3").focus();   
         },
         ontab: function(shift) {
             if (shift) this.onemptybackspace();
@@ -1372,7 +1401,9 @@ addEventListener("DOMContentLoaded", () => {
 
             if (lgame.startState === 0 && game.startState === 1) water.flood.enable(false, true);
             else if (lgame.startState === 1 && game.startState === 2) {
-                state.current = (state.current === state.WAITING_FREEPLAY) ? state.PLAYING_FREEPLAY : state.PLAYING_LAN;
+                state.current = (state.current === state.WAITING_LOCAL) ? state.PLAYING_LOCAL
+                : (state.current === state.WAITING_FREEPLAY) ? state.PLAYING_FREEPLAY
+                : state.PLAYING_LAN;
                 isInGame = true;
                 water.flood.disable();
             } else if (lgame.startState === 2 && game.startState === 3) {
@@ -1386,10 +1417,12 @@ addEventListener("DOMContentLoaded", () => {
                 bigNotification.show(message.text, theme.colors.bigNotification[message.color], 250, 0.01);
             } else if (lgame.startState === 7 && game.startState === 8) leave();
 
-            if (!lgame.players[playerIndex].superpower.available && game.players[playerIndex].superpower.available)
-                bigNotification.show("SUPERPOWER READY", theme.colors.bigNotification.g, 120, 0.003);
-            if (lgame.players[playerIndex].lives > 0 && game.players[playerIndex].lives === 0)
-                bigNotification.show("GAME OVER", theme.colors.bigNotification.r, 200, 0.008);
+            if (![state.WAITING_LOCAL, state.PLAYING_LOCAL].includes(state.current)) {
+                if (!lgame.players[playerIndex].superpower.available && game.players[playerIndex].superpower.available)
+                    bigNotification.show("SUPERPOWER READY", theme.colors.bigNotification.g, 120, 0.003);
+                if (lgame.players[playerIndex].lives > 0 && game.players[playerIndex].lives === 0)
+                    bigNotification.show("GAME OVER", theme.colors.bigNotification.r, 200, 0.008);
+            }
         }
 
         if (state.change.active) {
@@ -1522,7 +1555,7 @@ addEventListener("DOMContentLoaded", () => {
                 if (sprite.visible) c.draw.croppedImage(image.sprites, sprite.color * 128, sprite.facing * 128, 128, 128, sprite.x, sprite.y, 96, 96);
             }
             drawWater();
-        } else if ([state.PLAYING_LAN, state.PLAYING_FREEPLAY].includes(state.current) && game) {
+        } else if ([state.PLAYING_LOCAL, state.PLAYING_LAN, state.PLAYING_FREEPLAY].includes(state.current) && game) {
             const offset = {x: (c.width() - image.platforms.width) / 2 + screenShake.x, y: c.height() - image.platforms.height + screenShake.y};
 
             c.draw.image(image.platforms, offset.x, offset.y);
@@ -1681,10 +1714,10 @@ addEventListener("DOMContentLoaded", () => {
         } else if (state.current === state.WAITING_LOCAL && game) {
             c.draw.text({text: "LOCAL MODE", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold"}});
             c.draw.text({text: "Connect up to 4 gamepads to play!", x: c.width(0.5) + state.change.x, y: c.height(0.125) + 30, font: {size: 18}});
-            for (let i=0; i<localModeIndexes.length; i++) {
+            for (let i=0; i<gamepad.playerIndexes.length; i++) {
                 const x = c.width(0.5) - 250;
                 const y = c.height(0.2) + i * 100;
-                const j = localModeIndexes[i];
+                const j = gamepad.playerIndexes[i];
                 
                 if (!game.players[j].connected) c.options.setOpacity(0.5);
                 c.draw.fill.rect(theme.colors.players[j], x + state.change.x, y, 500, 80, 8);
@@ -1839,9 +1872,9 @@ addEventListener("DOMContentLoaded", () => {
         c.draw.croppedImage(image.buttons, 0, 0, image.buttons.width, image.buttons.height / 2, gamepadAlert.x, gamepadAlert.y, gamepadAlert.width, gamepadAlert.height);
         c.options.filter.remove("brightness");
         c.draw.text({text: "Connected gamepads:", x: gamepadAlert.x + gamepadAlert.offset, y: gamepadAlert.y + 45, color: theme.colors.text.light, font: {size: 20}, alignment: "left"})
-        for (let i=0; i<localModeIndexes.length; i++) {
+        for (let i=0; i<gamepad.playerIndexes.length; i++) {
             if (gamepad.get()[i] === null) c.options.setOpacity(0.25);
-            c.draw.croppedImage(image.sprites, localModeIndexes[i] * 128, 0, 128, 128, gamepadAlert.x + i * 50 + gamepadAlert.offset, gamepadAlert.y + gamepadAlert.height - 65, 36, 36);
+            c.draw.croppedImage(image.sprites, gamepad.playerIndexes[i] * 128, 0, 128, 128, gamepadAlert.x + i * 50 + gamepadAlert.offset, gamepadAlert.y + gamepadAlert.height - 65, 36, 36);
         }
         c.options.setOpacity();
         
