@@ -1410,7 +1410,7 @@ addEventListener("DOMContentLoaded", () => {
                 bigNotification.show(message.text, theme.colors.bigNotification[message.color], 250, 0.01);
             } else if (lgame.startState === 7 && game.startState === 8) leave();
 
-            if (![state.WAITING_LOCAL, state.PLAYING_LOCAL].includes(state.current)) {
+            if (![state.WAITING_LOCAL, state.PLAYING_LOCAL, state.LAN_GAME_MENU].includes(state.current)) {
                 if (!lgame.players[playerIndex].superpower.available && game.players[playerIndex].superpower.available)
                     bigNotification.show("SUPERPOWER READY", theme.colors.bigNotification.g, 120, 0.003);
                 if (lgame.players[playerIndex].lives > 0 && game.players[playerIndex].lives === 0)
