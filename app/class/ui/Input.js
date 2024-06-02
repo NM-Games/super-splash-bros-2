@@ -169,6 +169,16 @@ class Input {
     focus() {
         if (!this.disabled) this.focused = true;
     }
+
+    /**
+     * Switch to another input field.
+     * @param {string} id
+     */
+    switchToID(id) {
+        this.focused = false;
+        this.onblur();
+        setTimeout(() => Input.getInputById(id).focus(), 10);
+    }
 }
 
 module.exports = Input;

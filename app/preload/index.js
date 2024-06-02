@@ -908,8 +908,7 @@ Input.items = [
         disabled: true,
         ontab: function(shift) {
             if (shift) return;
-            this.focused = false;
-            setTimeout(() => Input.getInputById("Local-Player1").focus(), 10);
+            this.switchToID("Local-Player1");
         },
         onblur: function() {
             instance.players[gamepad.playerIndexes[0]].name = this.value.slice(0, this.maxLength);
@@ -923,8 +922,7 @@ Input.items = [
         width: 400,
         disabled: true,
         ontab: function(shift) {
-            this.focused = false;
-            setTimeout(() => Input.getInputById(`Local-Player${shift ? 0 : 2}`).focus(), 10);
+            this.switchToID(`Local-Player${shift ? 0 : 2}`);
         },
         onblur: function() {
             instance.players[gamepad.playerIndexes[1]].name = this.value.slice(0, this.maxLength);
@@ -938,8 +936,7 @@ Input.items = [
         width: 400,
         disabled: true,
         ontab: function(shift) {
-            this.focused = false;
-            setTimeout(() => Input.getInputById(`Local-Player${shift ? 1 : 3}`).focus(), 10);
+            this.switchToID(`Local-Player${shift ? 1 : 3}`);
         },
         onblur: function() {
             instance.players[gamepad.playerIndexes[2]].name = this.value.slice(0, this.maxLength);
@@ -954,8 +951,10 @@ Input.items = [
         disabled: true,
         ontab: function(shift) {
             if (!shift) return;
-            this.focused = false;
-            setTimeout(() => Input.getInputById("Local-Player2").focus(), 10);
+            this.switchToID("Local-Player2");
+        },
+        onblur: function() {
+            instance.players[gamepad.playerIndexes[2]].name = this.value.slice(0, this.maxLength);
         }
     }),
     new Input({
@@ -967,8 +966,7 @@ Input.items = [
         maxLength: 3,
         numbersOnly: true,
         onmaxlengthreached: function() {
-            this.focused = false;
-            setTimeout(() => Input.getInputById("IP-2").focus(), 10);
+            this.switchToID("IP-2")
         },
         ontab: function(shift) {
             if (!shift) this.onmaxlengthreached();
@@ -986,12 +984,10 @@ Input.items = [
         maxLength: 3,
         numbersOnly: true,
         onmaxlengthreached: function() {
-            this.focused = false;
-            setTimeout(() => Input.getInputById("IP-3").focus(), 10);
+            this.switchToID("IP-3");
         },
         onemptybackspace: function() {
-            this.focused = false;
-            Input.getInputById("IP-1").focus();   
+            this.switchToID("IP-1");
         },
         ontab: function(shift) {
             (shift) ? this.onemptybackspace() : this.onmaxlengthreached();
@@ -1009,12 +1005,10 @@ Input.items = [
         maxLength: 3,
         numbersOnly: true,
         onmaxlengthreached: function() {
-            this.focused = false;
-            setTimeout(() => Input.getInputById("IP-4").focus(), 10);
+            this.switchToID("IP-4");
         },
         onemptybackspace: function() {
-            this.focused = false;
-            Input.getInputById("IP-2").focus();   
+            this.switchToID("IP-2");
         },
         ontab: function(shift) {
             (shift) ? this.onemptybackspace() : this.onmaxlengthreached();
@@ -1032,8 +1026,7 @@ Input.items = [
         maxLength: 3,
         numbersOnly: true,
         onemptybackspace: function() {
-            this.focused = false;
-            Input.getInputById("IP-3").focus();   
+            this.switchToID("IP-3");
         },
         ontab: function(shift) {
             if (shift) this.onemptybackspace();
