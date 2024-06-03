@@ -15,6 +15,7 @@ const Input = require("../class/ui/Input");
 const MenuSprite = require("../class/ui/MenuSprite");
 const Game = require("../class/game/Game");
 const Player = require("../class/game/Player");
+const Exclusive = require("../class/game/Exclusive");
 const Fish = require("../class/game/Fish");
 
 
@@ -1563,6 +1564,13 @@ addEventListener("DOMContentLoaded", () => {
             for (const p of game.players) {
                 if (p === null) continue;
                 
+                if (p.exclusivePlatform) {
+                    c.options.setOpacity(0.5);
+                    c.options.setShadow(theme.colors.text.light, 18);
+                    c.draw.fill.rect(theme.colors.players[p.index], p.exclusivePlatform.x + offset.x, p.exclusivePlatform.y + offset.y, Exclusive.width, Exclusive.height, 4);
+                    c.options.setOpacity();
+                    c.options.setShadow();
+                }
                 if (frames % 4 < 2 || game.ping - p.respawn >= p.spawnProtection) c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, p.x + offset.x, p.y + offset.y, p.size, p.size);
                 if (playerIndex === p.index) c.draw.fill.triangleUD(theme.colors.ui.indicator, p.x + p.size / 2 + offset.x, p.y + offset.y - 32, 40, 20);
 

@@ -9,6 +9,7 @@ const Rocket = require("./Rocket");
 const Splash = require("./Splash");
 const Fish = require("./Fish");
 const { version } = require("../../../package.json");
+const Exclusive = require("./Exclusive");
 
 class Game {
     static floodDelay = 180;
@@ -22,7 +23,7 @@ class Game {
         KNOCKBACK: 4,
         POWER_JUMP: 5,
         LIFE_MENDER: 6,
-        PERSONAL_PLATFORM: 7
+        EXCLUSIVE_PLATFORM: 7
     };
     static superpowers = [{
         name: "Squash",
@@ -31,6 +32,7 @@ class Game {
     }, {
         name: "Poop Bomb",
         condition: () => true,
+        duration: 0
     }, {
         name: "Shield",
         condition: () => true,
@@ -50,18 +52,19 @@ class Game {
     }, {
         name: "Life Mender",
         /** @param {Player} p */
-        condition: (p) => p.lives > 0,
+        condition: (p) => (p.lives > 0 && p.connected),
         /** @param {Player} p */
         action: (p) => p.lives++,
         duration: 0
     }, {
-        name: "Personal Platform",
+        name: "Exclusive Platform",
         /** @param {Player} p */
         condition: (p) => p.jump.active,
         duration: 10000,
         /** @param {Player} p */
         action: (p) => {
-            
+            p.exclusivePlatform = new Exclusive(p.x, p.y, p.size);
+            p.vy = 0;
         }
     }];
 
@@ -288,6 +291,10 @@ class Game {
                     p1.superpower.lastActivated = this.ping;
                     if (superpower.action) superpower.action(p1);
                 }
+            }
+            if (p1.superpower.active) {
+                if (Game.superpowers[p1.superpower.selected].duration && this.ping - p1.superpower.lastActivated >= Game.superpowers[p1.superpower.selected].duration)
+                    p1.superpower.active = false;
             }
         }
 

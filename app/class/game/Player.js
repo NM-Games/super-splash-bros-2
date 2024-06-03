@@ -1,3 +1,5 @@
+const Exclusive = require("./Exclusive");
+
 class Player {
     static g = 0.6;
     static jumpForce = 12;
@@ -38,6 +40,8 @@ class Player {
     lives;
     attacks;
     superpower;
+    /** @type {Exclusive | null} */
+    exclusivePlatform;
     keys;
     respawn;
     spawnProtection;
@@ -85,6 +89,7 @@ class Player {
             active: false,
             lastActivated: -6e9
         };
+        this.exclusivePlatform = null;
         this.keys = {
             left: false,
             right: false,
@@ -166,6 +171,8 @@ class Player {
                 }
             }
         }
+        if (!this.superpower.active) this.exclusivePlatform = null;
+        if (this.exclusivePlatform) this.exclusivePlatform.update(this);
     }
 
     /** Update last coordinates, used at the end of a frame update. */
