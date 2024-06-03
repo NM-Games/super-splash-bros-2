@@ -52,6 +52,14 @@ const state = {
         onfinished: () => {},
         x: 0,
         vx: 0
+    },
+    /**
+     * Check whether the current state is one of the specified.
+     * @param {...number} states
+     * @returns {boolean}
+     */
+    is: (...states) => {
+        return states.includes(state.current);
     }
 };
 
@@ -152,7 +160,7 @@ const leave = () => {
                 errorAlert.suppress();
                 state.current = state.LAN_GAME_MENU;
             }
-        } else if ([state.PLAYING_LOCAL, state.PLAYING_FREEPLAY].includes(state.current)) {
+        } else if (state.is(state.PLAYING_LOCAL, state.PLAYING_FREEPLAY)) {
             state.current = state.MAIN_MENU;
             stop();
         }
@@ -169,7 +177,7 @@ const stop = () => {
 const checkLANAvailability = () => {
     const LANavailable = (network.getIPs().length > 0);
     Button.getButtonById("LANMode").disabled = !LANavailable;
-    if ([state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.PLAYING_LAN].includes(state.current) && !LANavailable)
+    if (state.is(state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.PLAYING_LAN) && !LANavailable)
         state.change.to(state.MAIN_MENU, true);
 };
 
@@ -258,7 +266,7 @@ const gamepadAlert = {
     shownAt: -6e9,
     duration: 300,
     show: () => {
-        if (![state.MAIN_MENU, state.SETTINGS, state.ABOUT, state.WAITING_LOCAL].includes(state.current)) return;
+        if (!state.is(state.MAIN_MENU, state.SETTINGS, state.ABOUT, state.WAITING_LOCAL)) return;
 
         gamepadAlert.visible = true;
         gamepadAlert.shownAt = frames;
@@ -298,7 +306,7 @@ const gameMenu = {
     /** Toggle the game menu visibility state. */
     toggle: () => {
         if (
-            ![state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL].includes(state.current)
+            !state.is(state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL)
             || water.flood.enabling
             || (game && game.startState < 6)
         ) return;
@@ -310,7 +318,7 @@ const gameMenu = {
      */
     set: (to) => {
         if (
-            ![state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL].includes(state.current)
+            !state.is(state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL)
             || water.flood.enabling
             || (game && game.startState < 6)
         ) return;
@@ -1172,7 +1180,7 @@ addEventListener("DOMContentLoaded", () => {
     for (let i=0; i<3; i++) Input.getInputById(`IP-${i + 1}`).value = ipFragments[i];
 
     ipcRenderer.on("quit-check", () => {
-        if ([state.PLAYING_LOCAL, state.PLAYING_LAN, state.PLAYING_FREEPLAY].includes(state.current)
+        if (state.is(state.PLAYING_LOCAL, state.PLAYING_LAN, state.PLAYING_FREEPLAY)
          || (state.current === state.WAITING_LAN_HOST && game.connected > 1)) {
             dialog.show(
                 "Are you sure you want to quit?",
@@ -1217,7 +1225,7 @@ addEventListener("DOMContentLoaded", () => {
         const discordState = (state.current === state.PLAYING_LOCAL) ? "Local mode"
         : (state.current === state.PLAYING_LAN) ? "LAN mode"
         : (state.current === state.PLAYING_FREEPLAY) ? "Freeplay mode"
-        : ([state.WAITING_FREEPLAY, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_LOCAL].includes(state.current)) ? "Waiting for start"
+        : (state.is(state.WAITING_FREEPLAY, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_LOCAL)) ? "Waiting for start"
         : undefined;
 
         let partySize;
@@ -1310,7 +1318,7 @@ addEventListener("DOMContentLoaded", () => {
                  && e.clientY > button.y() - button.height / 2 && e.clientY < button.y() + button.height / 2 && !button.disabled && !state.change.active);
             }
 
-            if ([state.WAITING_LAN_HOST, state.WAITING_FREEPLAY].includes(state.current) && !water.flood.enabled && game) {
+            if (state.is(state.WAITING_LAN_HOST, state.WAITING_FREEPLAY) && !water.flood.enabled && game) {
                 banButton.hoverIndex = -1;
                 for (let i=0; i<8; i++) {
                     const x = (i % 2 === 0) ? c.width(0.5) - 510 : c.width(0.5) + 10;
@@ -1380,13 +1388,13 @@ addEventListener("DOMContentLoaded", () => {
     const update = () => {
         frames++;
         if (socket.isOpen()) game = socket.getGame();
-        else if ([state.WAITING_LOCAL, state.PLAYING_LOCAL, state.WAITING_FREEPLAY, state.PLAYING_FREEPLAY].includes(state.current)) {
+        else if (state.is(state.WAITING_LOCAL, state.PLAYING_LOCAL, state.WAITING_FREEPLAY, state.PLAYING_FREEPLAY)) {
             instance.update();
             game = instance.export();
         }
 
         if (game) {
-            if ([state.WAITING_LOCAL, state.PLAYING_LOCAL].includes(state.current)) gamepad.update(instance);
+            if (state.is(state.WAITING_LOCAL, state.PLAYING_LOCAL)) gamepad.update(instance);
             if (!lgame) lgame = JSON.parse(JSON.stringify(game));
             
             Button.getButtonById("StartLANGame").disabled = (game.connected <= 1);
@@ -1410,7 +1418,7 @@ addEventListener("DOMContentLoaded", () => {
                 bigNotification.show(message.text, theme.colors.bigNotification[message.color], 250, 0.01);
             } else if (lgame.startState === 7 && game.startState === 8) leave();
 
-            if (![state.WAITING_LOCAL, state.PLAYING_LOCAL, state.LAN_GAME_MENU].includes(state.current)) {
+            if (!state.is(state.WAITING_LOCAL, state.PLAYING_LOCAL, state.LAN_GAME_MENU)) {
                 if (!lgame.players[playerIndex].superpower.available && game.players[playerIndex].superpower.available)
                     bigNotification.show("SUPERPOWER READY", theme.colors.bigNotification.g, 120, 0.003);
                 if (lgame.players[playerIndex].lives > 0 && game.players[playerIndex].lives === 0)
@@ -1543,12 +1551,12 @@ addEventListener("DOMContentLoaded", () => {
             if (water.flood.showMessage) c.draw.text({text: "Good luck, have fun!", x: c.width(0.5), y: water.flood.level + c.height(0.5), color: theme.colors.ui.secondary, font: {size: 100, style: "bold"}, baseline: "middle"});        
         };
 
-        if ([state.MAIN_MENU, state.SETTINGS, state.ABOUT, state.WAITING_LOCAL, state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY].includes(state.current)) {
+        if (state.is(state.MAIN_MENU, state.SETTINGS, state.ABOUT, state.WAITING_LOCAL, state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY)) {
             for (const sprite of MenuSprite.items) {
                 if (sprite.visible) c.draw.croppedImage(image.sprites, sprite.color * 128, sprite.facing * 128, 128, 128, sprite.x, sprite.y, 96, 96);
             }
             drawWater();
-        } else if ([state.PLAYING_LOCAL, state.PLAYING_LAN, state.PLAYING_FREEPLAY].includes(state.current) && game) {
+        } else if (state.is(state.PLAYING_LOCAL, state.PLAYING_LAN, state.PLAYING_FREEPLAY) && game) {
             const offset = {x: (c.width() - image.platforms.width) / 2 + screenShake.x, y: c.height() - image.platforms.height + screenShake.y};
 
             c.draw.image(image.platforms, offset.x, offset.y);
@@ -1764,7 +1772,7 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text({text: `This program is free and open-source software: you are free to modify and/or redistribute it.`, x: c.width(0.5) + state.change.x, y: c.height(0.7), font: {size: 20}, baseline: "bottom"});
             c.draw.text({text: `There is NO WARRANTY, to the extent permitted by law.`, x: c.width(0.5) + state.change.x, y: c.height(0.7) + 25, font: {size: 20}, baseline: "bottom"});
             c.draw.text({text: `Read the GNU General Public License version 3 for further details.`, x: c.width(0.5) + state.change.x, y: c.height(0.7) + 50, font: {size: 20}, baseline: "bottom"});
-        } else if ([state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY].includes(state.current) && game) {
+        } else if (state.is(state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY) && game) {
             const ips = network.getIPs();
             const mainIP = ips.shift();
             if (state.current === state.WAITING_FREEPLAY) {
