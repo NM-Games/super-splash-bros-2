@@ -316,8 +316,16 @@ class Game {
 
             for (const p of this.getPlayers()) {
                 if (rocket.x < p.x + p.size && rocket.x + rocket.width > p.x && rocket.y > p.y && rocket.y < p.y + p.size && !rocket.explosion.active) {
-                    p.damage(this.ping, 30, 50, (rocket.direction === "r" ? Rocket.impact : -Rocket.impact));
-                    rocket.explode();
+                    if (p.ly + p.size <= rocket.y) {
+                        p.x += (rocket.direction === "r" ? Rocket.speed : -Rocket.speed) * 2;
+                        p.vx = 0;
+                        p.y = rocket.y - p.size;
+                        p.jump.used = p.vy = 0;
+                        p.jump.active = false;
+                    } else {
+                        p.damage(this.ping, 30, 50, (rocket.direction === "r" ? Rocket.impact : -Rocket.impact));
+                        rocket.explode();
+                    }
                 }
             }
             for (const platform of Player.platforms) {
