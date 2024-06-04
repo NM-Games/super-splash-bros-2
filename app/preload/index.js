@@ -1597,6 +1597,12 @@ addEventListener("DOMContentLoaded", () => {
             if (theme.isDark()) c.options.setShadow(theme.colors.shadow, 2);
             for (const p of game.players) {
                 if (p === null) continue;
+
+                if (p.superpower.active && p.superpower.selected === Player.superpower.SHIELD) {
+                    c.options.setShadow(theme.colors.shadow, 7);
+                    c.draw.stroke.arc(theme.colors.text.light, p.x + offset.x + p.size / 2, p.y + offset.y + p.size / 2, Math.sqrt(p.size ** 2 * 2) / 2);
+                    c.options.setShadow();   
+                }
                 c.draw.text({text: p.name, x: p.x + p.size / 2 + offset.x, y: p.y + offset.y - (playerIndex === p.index ? 42 : 10), font: {size: 20}});
             }
 

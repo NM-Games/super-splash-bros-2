@@ -22,6 +22,16 @@ class Player {
         {x: 250, y: 550, w: 750, h: 27}, // bottom
         {x: 1035, y: 328, w: 200, h: 27} // right
     ];
+    static superpower = {
+        SQUASH: 0,
+        POOP_BOMB: 1,
+        SHIELD: 2,
+        INVISIBILITY: 3,
+        KNOCKBACK: 4,
+        POWER_JUMP: 5,
+        LIFE_MENDER: 6,
+        EXCLUSIVE_PLATFORM: 7
+    };
 
     index;
     connected;
@@ -121,11 +131,22 @@ class Player {
      * @param {number} knockback
      */
     damage(ping, min, max, knockback = 0) {
-        if (ping - this.hit.cooldownSince < this.hit.cooldown || ping - this.respawn < this.spawnProtection) return;
+        if (ping - this.hit.cooldownSince < this.hit.cooldown ||
+         ping - this.respawn < this.spawnProtection ||
+         this.hasSuperpower(Player.superpower.SHIELD)) return;
 
         this.hit.cooldownSince = ping;
         this.hit.percentage += Math.random() * (max - min) + min;
         this.vx += knockback * (this.hit.percentage / 80 + 1)
+    }
+
+    /**
+     * Check whether a player has a specific superpower active.
+     * @param {number} index
+     * @returns {boolean}
+     */
+    hasSuperpower(index) {
+        return (this.superpower.active && this.superpower.selected === index);
     }
 
     /** Update a player. Collision detection between players is done in the Game class. */
@@ -147,7 +168,7 @@ class Player {
                 this.jump.active = true;
                 this.jump.used++;
                 this.y -= 2;
-                this.vy = -Player.jumpForce;
+                this.vy = -Player.jumpForce * (this.hasSuperpower(Player.superpower.POWER_JUMP) ? 1.5 : 1);
             }
             this.jump.heldKey = this.keys.jump;
         } else this.x = this.y = -1e8;

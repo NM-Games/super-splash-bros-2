@@ -15,20 +15,10 @@ class Game {
     static floodDelay = 180;
     static floodMaxLevel = -400;
 
-    static superpower = {
-        SQUASH: 0,
-        POOP_BOMB: 1,
-        SHIELD: 2,
-        INVISIBILITY: 3,
-        KNOCKBACK: 4,
-        POWER_JUMP: 5,
-        LIFE_MENDER: 6,
-        EXCLUSIVE_PLATFORM: 7
-    };
     static superpowers = [{
         name: "Squash",
         /** @param {Player} p */
-        condition: (p) => p.jump.active
+        condition: (p) => Math.abs(p.vy) >= 0.2
     }, {
         name: "Poop Bomb",
         condition: () => true,
@@ -59,7 +49,7 @@ class Game {
     }, {
         name: "Exclusive Platform",
         /** @param {Player} p */
-        condition: (p) => p.jump.active,
+        condition: (p) => Math.abs(p.vy) >= 0.2,
         duration: 10000,
         /** @param {Player} p */
         action: (p) => {
