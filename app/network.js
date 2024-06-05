@@ -3,7 +3,7 @@ const { networkInterfaces } = require("os");
 
 const port = 19189;
 
-/** @returns {Array<string>} */
+/** @returns {string[]} */
 const getIPs = () => {
 	const networks = networkInterfaces();
 	let ips = [];
@@ -16,15 +16,21 @@ const getIPs = () => {
 	return ips;
 };
 
-/** @param {number} port */
-const isPortAvailable = async (port) => {
+/**
+ * Check whether a port is available.
+ * @async
+ * @param {number} port
+ * @returns {Promise.<undefined>}
+ * @throws {Error}
+ */
+const isPortAvailable = (port) => {
     const server = createServer(() => {});
 
     server.listen(port);
     return new Promise((resolve, reject) => {
         server.on("error", (err) => {
             server.close();
-            reject(err.code);
+            reject(err);
         });
         server.on("listening", () => {
             server.close();
@@ -34,6 +40,7 @@ const isPortAvailable = async (port) => {
 };
 
 /**
+ * Check whether a string with IP address fragments is valid.
  * @param {string[]} ip
  * @returns {boolean}
  */

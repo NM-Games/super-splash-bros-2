@@ -1214,6 +1214,10 @@ addEventListener("DOMContentLoaded", () => {
         versions.chromium = chromiumV;
         MenuSprite.generate(maxWidth);
     });
+    ipcRenderer.on("gameserver-error", (_e, err) => {
+        errorAlert.show(`${err.name}: ${err.message}`);
+        setConnectElementsState(false);
+    });
     ipcRenderer.on("gameserver-stopped", () => {
         theme.current = config.graphics.theme;
         errorAlert.suppress();
