@@ -163,6 +163,11 @@ class Player {
                 this.facing = "r";
                 this.vx += Player.acceleration;
             } else this.vx /= Player.deceleration;
+
+            if (this.hasSuperpower(Player.superpower.SHIELD)) {
+                this.vx /= Player.deceleration;
+                this.vy += Player.g / 2;
+            }
     
             if (this.keys.jump && !this.jump.heldKey && this.jump.used < Player.maxJumps) {
                 this.jump.active = true;
