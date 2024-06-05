@@ -267,7 +267,7 @@ class Game {
             
             if (this.fish.item) {
                 if (p1.x < this.fish.item.x + Fish.width && p1.x + p1.size > this.fish.item.x && this.fish.item.takeable &&
-                 p1.y < this.fish.item.y + Fish.height && p1.y + p1.size > this.fish.item.y) {
+                 p1.y < this.fish.item.y + Fish.height && p1.y + p1.size > this.fish.item.y && !p1.superpower.available && !p1.superpower.active) {
                     if (this.fish.item.takenBy === -1) this.fish.item.takenBy = p1.index;
                     else if (this.fish.item.takenBy === p1.index) this.fish.item.collidesWithTaker = true;
                 } else if (this.fish.item.takenBy === p1.index) this.fish.item.collidesWithTaker = false;
