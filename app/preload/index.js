@@ -1571,7 +1571,11 @@ addEventListener("DOMContentLoaded", () => {
                     c.options.setOpacity();
                     c.options.setShadow();
                 }
+
+                if (p.superpower.active && p.superpower.selected === Player.superpower.INVISIBILITY) c.options.setOpacity((playerIndex === p.index) ? 0.2 : 0);
                 if (frames % 4 < 2 || game.ping - p.respawn >= p.spawnProtection) c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, p.x + offset.x, p.y + offset.y, p.size, p.size);
+                c.options.setOpacity();
+
                 if (playerIndex === p.index) c.draw.fill.triangleUD(theme.colors.ui.indicator, p.x + p.size / 2 + offset.x, p.y + offset.y - 32, 40, 20);
 
                 const offScreen = {
@@ -1603,7 +1607,9 @@ addEventListener("DOMContentLoaded", () => {
                     c.draw.stroke.arc(theme.colors.text.light, p.x + offset.x + p.size / 2, p.y + offset.y + p.size / 2, Math.sqrt(p.size ** 2 * 2) / 2);
                     c.options.setShadow();   
                 }
+                if (p.superpower.active && p.superpower.selected === Player.superpower.INVISIBILITY) c.options.setOpacity((playerIndex === p.index) ? 0.2 : 0);
                 c.draw.text({text: p.name, x: p.x + p.size / 2 + offset.x, y: p.y + offset.y - (playerIndex === p.index ? 42 : 10), font: {size: 20}});
+                c.options.setOpacity();
             }
 
             c.options.setShadow();
