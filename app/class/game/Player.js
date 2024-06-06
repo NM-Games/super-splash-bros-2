@@ -169,7 +169,7 @@ class Player {
                 this.vy += Player.g / 2;
             }
     
-            if (this.keys.jump && !this.jump.heldKey && this.jump.used < Player.maxJumps) {
+            if (this.keys.jump && !this.jump.heldKey && this.jump.used < Player.maxJumps && !this.hasSuperpower(Player.superpower.SQUASH)) {
                 this.jump.active = true;
                 this.jump.used++;
                 this.y -= 2;

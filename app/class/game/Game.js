@@ -18,7 +18,9 @@ class Game {
     static superpowers = [{
         name: "Squash",
         /** @param {Player} p */
-        condition: (p) => Math.abs(p.vy) >= 0.2
+        condition: (p) => Math.abs(p.vy) >= 1,
+        /** @param {Player} p */
+        action: (p) => p.vy = 100
     }, {
         name: "Poop Bomb",
         condition: () => true,
@@ -285,6 +287,12 @@ class Game {
             if (p1.superpower.active) {
                 if (Game.superpowers[p1.superpower.selected].duration && this.ping - p1.superpower.lastActivated >= Game.superpowers[p1.superpower.selected].duration)
                     p1.superpower.active = false;
+
+                if (p1.superpower.active && p1.superpower.selected === Player.superpower.SQUASH && p1.ly === p1.y) {
+                    p1.superpower.active = false;
+                    for (const p2 of this.getPlayers())
+                        p2.damage(this.ping, 40, 80, (p1.index === p2.index) ? 0 : (p1.x < p2.x) ? 15 : -15);
+                }
             }
         }
 
