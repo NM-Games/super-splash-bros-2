@@ -398,14 +398,14 @@ const screenShake = {
     y: 0,
     intensity: 10,
     update: () => {
-        if (!game || !game.rockets) return;
+        if (!game || !game.rockets || !game.circles) return;
 
         let explosions = 0;
         for (const r of game.rockets) {
             if (r.explosion.active && r.x > -r.explosion.size / 2 && r.x < c.width() + r.explosion.size / 2) explosions++;
         }
 
-        const condition = (explosions > 0);
+        const condition = (explosions > 0 && game.circles.filter(x => x.shake).length > 0);
         screenShake.x = (condition) ? (Math.random() - 0.5) * screenShake.intensity * 2 : 0;
         screenShake.y = (condition) ? (Math.random() - 0.5) * screenShake.intensity * 2 : 0;
     }
@@ -1622,6 +1622,13 @@ addEventListener("DOMContentLoaded", () => {
                 c.draw.fill.circle(theme.colors.players[a.player], a.x + offset.x, a.y + offset.y, a.size);
                 c.options.setOpacity(a.a / 2);
                 c.draw.stroke.arc(theme.colors.players[a.player], a.x + offset.x, a.y + offset.y, a.border, 15);
+            }
+            c.options.setOpacity();
+
+            for (const ci of game.circles) {
+                c.options.setOpacity(ci.a);
+                if (ci.lineWidth > -1) c.draw.stroke.arc(ci.color, ci.x + offset.x, ci.y + offset.y, ci.r, ci.lineWidth);
+                else c.draw.fill.circle(ci.color, ci.x + offset.x, ci.y + offset.y, ci.r);
             }
             c.options.setOpacity();
 

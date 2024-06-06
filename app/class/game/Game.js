@@ -5,11 +5,12 @@
 
 const Player = require("./Player");
 const Attack = require("./Attack");
+const Circle = require("./Circle");
 const Rocket = require("./Rocket");
 const Splash = require("./Splash");
+const Exclusive = require("./Exclusive");
 const Fish = require("./Fish");
 const { version } = require("../../../package.json");
-const Exclusive = require("./Exclusive");
 
 class Game {
     static floodDelay = 180;
@@ -68,6 +69,8 @@ class Game {
     ips;
     /** @type {Attack[]} */
     attacks;
+    /** @type {Circle[]} */
+    circles;
     /** @type {Rocket[]} */
     rockets;
     /** @type {Splash[]} */
@@ -98,6 +101,7 @@ class Game {
         this.players = new Array(8).fill(null);
         this.ips = new Array(8).fill(null);
         this.attacks = [];
+        this.circles = [];
         this.rockets = [];
         this.splashes = [];
         this.fish = {
@@ -290,6 +294,7 @@ class Game {
 
                 if (p1.superpower.active && p1.superpower.selected === Player.superpower.SQUASH && p1.ly === p1.y) {
                     p1.superpower.active = false;
+                    this.circles.push(new Circle({x: p1.x + p1.size / 2, y: p1.y + p1.size / 2, r: 500, color: "rgba(200, 200, 200, 0.7)", vr: 10, va: 0.02, shake: true}));
                     for (const p2 of this.getPlayers())
                         p2.damage(this.ping, 40, 80, (p1.index === p2.index) ? 0 : (p1.x < p2.x) ? 15 : -15);
                 }
@@ -314,6 +319,10 @@ class Game {
 
             if (updateResult) i++;
             else this.attacks.splice(i, 1);
+        }
+        for (let i=0; i<this.circles.length;) {
+            if (this.circles[i].update()) i++;
+            else this.circles.splice(i, 1);
         }
         for (let i=0; i<this.rockets.length;) {
             const rocket = this.rockets[i];
@@ -387,6 +396,7 @@ class Game {
             ping: this.ping,
             players: this.players,
             attacks: this.attacks,
+            circles: this.circles,
             rockets: this.rockets,
             splashes: this.splashes,
             fish: this.fish,
