@@ -1,14 +1,19 @@
 /**
  * @callback EmptyCallback
  * 
+ * @callback IconCallback
+ * @returns {number[]}
+ * 
  * @callback CoordinateCallback
  * @returns {number}
  */
 
 class Button {
+    static initial = {width: 711, height: 207, iconButton: 207};
     static width = 300;
     static height = 100;
-    static hoveringOn = false;
+    static iconSize = 75;
+
     /** @type {Button[]} */
     static items = [];
     /** @type {Button[]} */
@@ -34,6 +39,7 @@ class Button {
 
     id;
     text;
+    icon;
     state;
     x;
     y;
@@ -51,7 +57,8 @@ class Button {
      * Create a new button for menu screens.
      * @param {{
      *  id: string,
-     *  text: string,
+     *  text?: string,
+     *  icon?: IconCallback,
      *  state: number,
      *  x: CoordinateCallback,
      *  y: CoordinateCallback,
@@ -64,12 +71,13 @@ class Button {
      */
     constructor(options) {
         this.id = options.id ?? "";
-        this.text = options.text;
+        this.text = options.text ?? "";
+        this.icon = options.icon ?? null;
         this.state = options.state;
         this.x = options.x;
         this.y = options.y;
-        this.width = options.width ?? Button.width;
-        this.height = options.height ?? Button.height;
+        this.width = options.width ?? (options.icon ? Button.iconSize : Button.width);
+        this.height = options.height ?? (options.icon ? Button.iconSize : Button.height);
         this.scale = Math.min(1, this.width * 1.3 / Button.width);
         this.onclick = options.onclick ?? function() {};
         this.hovering = false;

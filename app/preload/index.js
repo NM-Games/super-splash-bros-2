@@ -614,9 +614,25 @@ Button.items = [
         }
     }),
     new Button({
+        icon: () => [0, 0],
+        state: state.SETTINGS,
+        x: () => c.width(0.75) - 40,
+        y: () => Button.height / 3 + 20,
+        onclick: function() {
+        }
+    }),
+    new Button({
+        icon: () => [0, 1],
+        state: state.SETTINGS,
+        x: () => c.width(0.75) + 40,
+        y: () => Button.height / 3 + 20,
+        onclick: function() {
+        }
+    }),
+    new Button({
         text: "About...",
         state: state.SETTINGS,
-        x: () => c.width(1) - Button.width / 3 - 20,
+        x: () => c.width() - Button.width / 3 - 20,
         y: () => Button.height / 3 + 20,
         width: Button.width / 1.5,
         height: Button.height / 1.5,
@@ -1901,7 +1917,7 @@ addEventListener("DOMContentLoaded", () => {
         c.draw.text({text: errorAlert.text, x: c.width(0.5), y: errorAlert.y + 35, color: theme.colors.text.light, font: {size: 32}});
 
         c.options.filter.add("brightness(0.8)");
-        c.draw.croppedImage(image.buttons, 0, 0, image.buttons.width, image.buttons.height / 2, gamepadAlert.x, gamepadAlert.y, gamepadAlert.width, gamepadAlert.height);
+        c.draw.croppedImage(image.buttons, 0, 0, Button.initial.width, Button.initial.height, gamepadAlert.x, gamepadAlert.y, gamepadAlert.width, gamepadAlert.height);
         c.options.filter.remove("brightness");
         c.draw.text({text: "Connected gamepads:", x: gamepadAlert.x + gamepadAlert.offset, y: gamepadAlert.y + 45, color: theme.colors.text.light, font: {size: 20}, alignment: "left"})
         for (let i=0; i<gamepad.playerIndexes.length; i++) {

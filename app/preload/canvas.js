@@ -1,5 +1,6 @@
 const image = require("./image");
 const theme = require("./theme");
+const { initial } = require("../class/ui/Button");
 
 /** @type {string[]} */
 const filters = [];
@@ -342,17 +343,32 @@ const draw = {
 
         draw.croppedImage(
             image.buttons,
-            0,
-            Number(button.hovering) * (image.buttons.height / 2),
-            image.buttons.width,
-            image.buttons.height / 2,
+            (button.icon) ? initial.width : 0,
+            Number(button.hovering) * (button.icon ? initial.iconButton : initial.height),
+            (button.icon) ? initial.iconButton : initial.width,
+            (button.icon) ? initial.iconButton : initial.height,
             button.x() + offsetX - button.width / 2,
             button.y() - button.height / 2,
             button.width,
             button.height
         );
         options.filter.remove("grayscale", "brightness", "hue-rotate", "saturate");
-        draw.text({text: button.text, x: button.x() + offsetX, y: button.y(), color, font: {size: 32 * button.scale}, baseline: "middle"});
+        if (button.icon) {
+            const iconSize = button.width / 1.5;
+            if (!button.active) options.filter.add("brightness(100)");
+            draw.croppedImage(
+                image.buttons,
+                initial.width + initial.iconButton + button.icon()[0] * 120,
+                button.icon()[1] * 120,
+                120,
+                120,
+                button.x() - (button.width - iconSize) + offsetX,
+                button.y() - (button.height - iconSize),
+                iconSize,
+                iconSize
+            );
+            options.filter.remove("brightness");
+        } else draw.text({text: button.text, x: button.x() + offsetX, y: button.y(), color, font: {size: 32 * button.scale}, baseline: "middle"});
     },
     /**
      * Draw an input field on the screen.

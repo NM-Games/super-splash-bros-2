@@ -16,7 +16,6 @@
 
 class Input {
     static size = 32;
-    static hoveringOn = false;
     static keybindsInvalid = false;
     static isRemapping = false;
     /** @type {Input[]} */
