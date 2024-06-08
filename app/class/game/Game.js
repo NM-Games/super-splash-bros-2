@@ -329,7 +329,7 @@ class Game {
         for (let i=0; i<this.rockets.length;) {
             const rocket = this.rockets[i];
             const updateResult = rocket.update();
-            this.circles.push(new Circle({
+            if (!rocket.explosion.active) this.circles.push(new Circle({
                 color: colors.players[rocket.player],
                 x: rocket.x + rocket.width / 2,
                 y: rocket.y,
