@@ -247,6 +247,7 @@ class Game {
                     p1.lives--;
                     p1.hit.percentage = 0;
                     p1.respawn = this.ping;
+                    p1.superpower.available = p1.superpower.active = false;
                 }
                 if (p1.lives >= 1) {
                     const highestCoordinates = [1, 3, 5];
