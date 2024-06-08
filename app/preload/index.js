@@ -926,6 +926,26 @@ Button.gameMenuItems = [
                 })
             );
         }
+    }),
+    new Button({
+        icon: () => [Number(!config.audio.music), 0],
+        x: () => gameMenu.x - gameMenu.width / 1.5,
+        y: () => c.height() - 70,
+        onclick: function() {
+            config.audio.music = !config.audio.music;
+            audio._update(config.audio);
+            settings.set(config);
+        }
+    }),
+    new Button({
+        icon: () => [Number(!config.audio.sfx), 1],
+        x: () => gameMenu.x - gameMenu.width / 3,
+        y: () => c.height() - 70,
+        onclick: function() {
+            config.audio.sfx = !config.audio.sfx;
+            audio._update(config.audio);
+            settings.set(config);
+        }
     })
 ];
 
