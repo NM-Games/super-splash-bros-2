@@ -6,7 +6,7 @@ class Rocket {
     x;
     y;
     direction;
-    trail;
+    #lifespan;
     explosion;
 
     /**
@@ -22,7 +22,7 @@ class Rocket {
         this.direction = direction;
         this.x = x - (this.direction === "l" ? this.width : 0);
         this.y = y + 48;
-        this.trail = {startX: this.x, a: 1};
+        this.#lifespan = 1;
         this.explosion = {active: false, size: 0, a: 1};
     }
 
@@ -32,15 +32,13 @@ class Rocket {
      */
     update() {
         if (this.explosion.active) {
-            this.trail.a = Math.max(0, this.trail.a - 0.02);
-
             if (this.explosion.size < 400) this.explosion.size += 15;
             else if (this.explosion.a > 0) this.explosion.a = Math.max(0, this.explosion.a - 0.014);
             else return false;
         } else {
             this.x += (this.direction === "r") ? Rocket.speed : -Rocket.speed;
 
-            if (this.trail.a > 0) this.trail.a = Math.max(0, this.trail.a - 0.006);
+            if (this.#lifespan > 0) this.#lifespan = Math.max(0, this.#lifespan - 0.006);
             else this.explode();
         }
 

@@ -329,7 +329,14 @@ class Game {
         for (let i=0; i<this.rockets.length;) {
             const rocket = this.rockets[i];
             const updateResult = rocket.update();
-
+            this.circles.push(new Circle({
+                color: colors.players[rocket.player],
+                x: rocket.x + rocket.width / 2,
+                y: rocket.y,
+                r0: 4,
+                vr: 0.4,
+                va: 0.015
+            }));
             for (const p of this.getPlayers()) {
                 if (rocket.x < p.x + p.size && rocket.x + rocket.width > p.x && rocket.y > p.y && rocket.y < p.y + p.size && !rocket.explosion.active) {
                     if (p.ly + p.size <= rocket.y) {
@@ -357,10 +364,8 @@ class Game {
                     rocket2.explode();
                 }
             }
-            if (this.fish.item && rocket.x < this.fish.item.x + Fish.width && rocket.x + rocket.width > this.fish.item.x && rocket.y > this.fish.item.y && rocket.y < this.fish.item.y + Fish.height && !rocket.explosion.active) {
-                rocket.trail.startX = rocket.x;
+            if (this.fish.item && rocket.x < this.fish.item.x + Fish.width && rocket.x + rocket.width > this.fish.item.x && rocket.y > this.fish.item.y && rocket.y < this.fish.item.y + Fish.height && !rocket.explosion.active)
                 rocket.direction = (rocket.direction === "l") ? "r" : "l";
-            }
 
             if (updateResult) i++;
             else this.rockets.splice(i, 1);

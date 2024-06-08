@@ -1649,9 +1649,6 @@ addEventListener("DOMContentLoaded", () => {
             c.options.setOpacity();
 
             for (const r of game.rockets) {
-                c.options.setOpacity(r.trail.a);
-                c.draw.line(theme.colors.players[r.player], r.trail.startX + r.width / 2 + offset.x, r.y + offset.y, r.x + r.width / 2 + offset.x, r.y + offset.y, 5);
-                c.options.setOpacity();
                 if (r.explosion.active) {
                     c.options.setOpacity(r.explosion.a);
                     c.draw.image(image.explosion, r.x - r.explosion.size / 2 + offset.x, r.y - r.explosion.size / 2 + offset.y, r.explosion.size, r.explosion.size);
