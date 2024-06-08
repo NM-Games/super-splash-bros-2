@@ -405,7 +405,7 @@ const screenShake = {
             if (r.explosion.active && r.x > -r.explosion.size / 2 && r.x < c.width() + r.explosion.size / 2) explosions++;
         }
 
-        const condition = (explosions > 0 && game.circles.filter(x => x.shake).length > 0);
+        const condition = (explosions > 0 || game.circles.filter(x => x.shake).length > 0);
         screenShake.x = (condition) ? (Math.random() - 0.5) * screenShake.intensity * 2 : 0;
         screenShake.y = (condition) ? (Math.random() - 0.5) * screenShake.intensity * 2 : 0;
     }
