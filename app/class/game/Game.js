@@ -10,6 +10,7 @@ const Rocket = require("./Rocket");
 const Splash = require("./Splash");
 const Exclusive = require("./Exclusive");
 const Fish = require("./Fish");
+const { colors } = require("../../preload/theme");
 const { version } = require("../../../package.json");
 
 class Game {
@@ -294,7 +295,8 @@ class Game {
 
                 if (p1.superpower.active && p1.superpower.selected === Player.superpower.SQUASH && p1.ly === p1.y) {
                     p1.superpower.active = false;
-                    this.circles.push(new Circle({x: p1.x + p1.size / 2, y: p1.y + p1.size / 2, r: 500, color: "rgba(200, 200, 200, 0.7)", vr: 10, va: 0.02, shake: true}));
+                    p1.damage(this.ping, 60, 95);
+                    this.circles.push(new Circle({x: p1.x + p1.size / 2, y: p1.y + p1.size / 2, color: "rgba(200, 200, 200, 0.7)", vr: 15, va: 0.009, shake: true}));
                     for (const p2 of this.getPlayers())
                         p2.damage(this.ping, 40, 80, (p1.index === p2.index) ? 0 : (p1.x < p2.x) ? 15 : -15);
                 }
@@ -373,7 +375,16 @@ class Game {
             this.fish.item = new Fish(this.elapsed);
         } else this.fish.spawned = false;
         if (this.fish.item && !this.fish.item.update(this.elapsed)) {
-            if (this.fish.item.takeValue === 1) this.players[this.fish.item.takenBy].superpower.available = true;
+            if (this.fish.item.takeValue === 1) {
+                this.players[this.fish.item.takenBy].superpower.available = true;
+                this.circles.push(new Circle({
+                    color: colors.ui.primary,
+                    x: this.fish.item.x + Fish.width / 2,
+                    y: this.fish.item.y + Fish.height / 2,
+                    vr: 19,
+                    va: 0.03
+                }));
+            }
             this.fish.item = null;
         }
 

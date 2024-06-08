@@ -17,7 +17,7 @@ class Circle {
      *  x: number,
      *  y: number,
      *  r0?: number,
-     *  r: number,
+     *  r?: number,
      *  vr: number,
      *  va: number,
      *  color: string | CanvasGradient | CanvasPattern,
@@ -30,13 +30,13 @@ class Circle {
         this.x = options.x;
         this.y = options.y;
         this.r = options.r0 ?? 0;
-        this.#r1 = options.r;
+        this.#r1 = options.r ?? Infinity;
         this.#vr = options.vr;
         this.a = 1;
         this.#va = options.va;
         this.color = options.color;
         this.lineWidth = options.lineWidth ?? -1;
-        this.#instantFade = options.instantFade ?? false;
+        this.#instantFade = options.instantFade ?? true;
         this.shake = options.shake ?? false;
     }
 
@@ -48,10 +48,9 @@ class Circle {
         if (this.r < this.#r1) {
             this.r += this.#vr;
             if (this.#instantFade) this.a = Math.max(0, this.a - this.#va);
-        } else if (this.a > 0) this.a = Math.max(0, this.a - this.#va);
-        else return false;
+        } else this.a = Math.max(0, this.a - this.#va);
 
-        return true;
+        return (this.a > 0);
     }
 }
 
