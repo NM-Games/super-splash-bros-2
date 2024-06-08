@@ -2,7 +2,8 @@
  * @typedef {{
  *  appearance: {playerName: string, preferredColor: number, superpower: number},
  *  graphics: {theme: import("./theme").Themes, fullScreen: boolean, waterFlow: boolean, menuSprites: boolean},
- *  controls: {moveLeft: string, moveRight: string, jump: string, attack: string, launchRocket: string, activateSuperpower: string, gameMenu: string}
+ *  controls: {moveLeft: string, moveRight: string, jump: string, attack: string, launchRocket: string, activateSuperpower: string, gameMenu: string},
+ *  audio: {music: boolean, sfx: boolean}
  * }} Settings
  */
 
@@ -38,6 +39,10 @@ const template = {
         launchRocket: "e",
         activateSuperpower: "q",
         gameMenu: "Escape"
+    },
+    audio: {
+        music: true,
+        sfx: true
     }
 };
 

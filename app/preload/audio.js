@@ -1,6 +1,9 @@
 /**
  * @callback PlayAudioCallback
  * @param {HTMLAudioElement} audio
+ * 
+ * @callback UpdateCallback
+ * @param {import("./settings").Settings["audio"]} config
  */
 
 const { join } = require("path");
@@ -9,13 +12,18 @@ const { readdirSync } = require("fs");
 /**
  * @type {{
  *  music: HTMLAudioElement,
- *  _play: PlayAudioCallback
+ *  _play: PlayAudioCallback,
+ *  _update: UpdateCallback
  * }}
  */
 const audio = {
     _play: (audio) => {
         audio.currentTime = 0;
         audio.play();
+    },
+    _update: (config) => {
+        const keys = Object.keys(audio).filter(x => !x.startsWith("_"));
+        for (const i of keys) audio[i].muted = (i === "music") ? !config.music : !config.sfx;
     }
 };
 

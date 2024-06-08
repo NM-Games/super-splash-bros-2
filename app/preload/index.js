@@ -185,7 +185,7 @@ const checkLANAvailability = () => {
 const keyChange = () => (JSON.stringify(keys) !== JSON.stringify(lastKeys));
 
 /** @type {import("./settings").Settings} */
-const config = {appearance: {}, graphics: {}, controls: {}};
+const config = {appearance: {}, graphics: {}, controls: {}, audio: {}};
 const versions = {game: "", electron: "", chromium: ""};
 const keys = {
     moveLeft: false,
@@ -614,19 +614,25 @@ Button.items = [
         }
     }),
     new Button({
-        icon: () => [0, 0],
+        icon: () => [Number(!config.audio.music), 0],
         state: state.SETTINGS,
         x: () => c.width(0.75) - 40,
         y: () => Button.height / 3 + 20,
         onclick: function() {
+            config.audio.music = !config.audio.music;
+            audio._update(config.audio);
+            settings.set(config);
         }
     }),
     new Button({
-        icon: () => [0, 1],
+        icon: () => [Number(!config.audio.sfx), 1],
         state: state.SETTINGS,
         x: () => c.width(0.75) + 40,
         y: () => Button.height / 3 + 20,
         onclick: function() {
+            config.audio.sfx = !config.audio.sfx;
+            audio._update(config.audio);
+            settings.set(config);
         }
     }),
     new Button({
@@ -1168,7 +1174,9 @@ addEventListener("DOMContentLoaded", () => {
     config.appearance = configFile.appearance ?? settings.template.appearance;
     config.graphics = configFile.graphics ?? settings.template.graphics;
     config.controls = configFile.controls ?? settings.template.controls;
+    config.audio = configFile.audio ?? settings.template.audio;
 
+    audio._update(config.audio);
     audio.music.loop = true;
 
     checkLANAvailability();
