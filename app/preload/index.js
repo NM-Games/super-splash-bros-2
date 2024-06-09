@@ -557,6 +557,119 @@ Button.items = [
             instance.start();
         }
     }),
+    // Local game superpower switchers
+    new Button({
+        id: "Local-SuperpowerPrev-0",
+        icon: () => [0, 2],
+        state: state.WAITING_LOCAL,
+        x: () => c.width(0.5) + 150,
+        y: () => c.height(0.2) + 40,
+        width: 60,
+        height: 60,
+        disabled: true,
+        onclick: () => {
+            if (instance.players[gamepad.playerIndexes[0]].superpower.selected-- <= 0)
+                instance.players[gamepad.playerIndexes[0]].superpower.selected = Game.superpowers.length - 1;
+        }
+    }),
+    new Button({
+        id: "Local-SuperpowerNext-0",
+        icon: () => [1, 2],
+        state: state.WAITING_LOCAL,
+        x: () => c.width(0.5) + 375,
+        y: () => c.height(0.2) + 40,
+        width: 60,
+        height: 60,
+        disabled: true,
+        onclick: () => {
+            if (instance.players[gamepad.playerIndexes[0]].superpower.selected++ >= Game.superpowers.length - 1)
+                instance.players[gamepad.playerIndexes[0]].superpower.selected = 0;
+        }
+    }),
+    new Button({
+        id: "Local-SuperpowerPrev-1",
+        icon: () => [0, 2],
+        state: state.WAITING_LOCAL,
+        x: () => c.width(0.5) + 150,
+        y: () => c.height(0.2) + 140,
+        width: 60,
+        height: 60,
+        disabled: true,
+        onclick: () => {
+            if (instance.players[gamepad.playerIndexes[1]].superpower.selected-- <= 0)
+                instance.players[gamepad.playerIndexes[1]].superpower.selected = Game.superpowers.length - 1;
+        }
+    }),
+    new Button({
+        id: "Local-SuperpowerNext-1",
+        icon: () => [1, 2],
+        state: state.WAITING_LOCAL,
+        x: () => c.width(0.5) + 375,
+        y: () => c.height(0.2) + 140,
+        width: 60,
+        height: 60,
+        disabled: true,
+        onclick: () => {
+            if (instance.players[gamepad.playerIndexes[1]].superpower.selected++ >= Game.superpowers.length - 1)
+                instance.players[gamepad.playerIndexes[1]].superpower.selected = 0;
+        }
+    }),
+    new Button({
+        id: "Local-SuperpowerPrev-2",
+        icon: () => [0, 2],
+        state: state.WAITING_LOCAL,
+        x: () => c.width(0.5) + 150,
+        y: () => c.height(0.2) + 240,
+        width: 60,
+        height: 60,
+        disabled: true,
+        onclick: () => {
+            if (instance.players[gamepad.playerIndexes[2]].superpower.selected-- <= 0)
+                instance.players[gamepad.playerIndexes[2]].superpower.selected = Game.superpowers.length - 1;
+        }
+    }),
+    new Button({
+        id: "Local-SuperpowerNext-2",
+        icon: () => [1, 2],
+        state: state.WAITING_LOCAL,
+        x: () => c.width(0.5) + 375,
+        y: () => c.height(0.2) + 240,
+        width: 60,
+        height: 60,
+        disabled: true,
+        onclick: () => {
+            if (instance.players[gamepad.playerIndexes[2]].superpower.selected++ >= Game.superpowers.length - 1)
+                instance.players[gamepad.playerIndexes[2]].superpower.selected = 0;
+        }
+    }),
+    new Button({
+        id: "Local-SuperpowerPrev-3",
+        icon: () => [0, 2],
+        state: state.WAITING_LOCAL,
+        x: () => c.width(0.5) + 150,
+        y: () => c.height(0.2) + 340,
+        width: 60,
+        height: 60,
+        disabled: true,
+        onclick: () => {
+            if (instance.players[gamepad.playerIndexes[3]].superpower.selected-- <= 0)
+                instance.players[gamepad.playerIndexes[3]].superpower.selected = Game.superpowers.length - 1;
+        }
+    }),
+    new Button({
+        id: "Local-SuperpowerNext-3",
+        icon: () => [1, 2],
+        state: state.WAITING_LOCAL,
+        x: () => c.width(0.5) + 375,
+        y: () => c.height(0.2) + 340,
+        width: 60,
+        height: 60,
+        disabled: true,
+        onclick: () => {
+            if (instance.players[gamepad.playerIndexes[3]].superpower.selected++ >= Game.superpowers.length - 1)
+                instance.players[gamepad.playerIndexes[3]].superpower.selected = 0;
+        }
+    }),
     // LAN mode menu
     new Button({
         id: `Back-${state.LAN_GAME_MENU}`,
@@ -682,7 +795,8 @@ Button.items = [
         width: Button.height / 2,
         height: Button.height / 2,
         onclick: () => {
-            if (config.appearance.superpower-- <= 0) config.appearance.superpower = 7;
+            if (config.appearance.superpower-- <= 0)
+                config.appearance.superpower = Game.superpowers.length - 1;
             settings.set(config);
         }
     }),
@@ -694,7 +808,8 @@ Button.items = [
         width: Button.height / 2,
         height: Button.height / 2,
         onclick: () => {
-            if (config.appearance.superpower++ >= 7) config.appearance.superpower = 0;
+            if (config.appearance.superpower++ >= Game.superpowers.length - 1)
+                config.appearance.superpower = 0;
             settings.set(config);
         }
     }),
@@ -954,7 +1069,7 @@ Input.items = [
     new Input({
         id: "Local-Player0",
         state: state.WAITING_LOCAL,
-        x: () => c.width(0.5) + 36,
+        x: () => c.width(0.5) - 114,
         y: () => c.height(0.2) + 40,
         width: 400,
         disabled: true,
@@ -969,7 +1084,7 @@ Input.items = [
     new Input({
         id: "Local-Player1",
         state: state.WAITING_LOCAL,
-        x: () => c.width(0.5) + 36,
+        x: () => c.width(0.5) - 114,
         y: () => c.height(0.2) + 140,
         width: 400,
         disabled: true,
@@ -983,7 +1098,7 @@ Input.items = [
     new Input({
         id: "Local-Player2",
         state: state.WAITING_LOCAL,
-        x: () => c.width(0.5) + 36,
+        x: () => c.width(0.5) - 114,
         y: () => c.height(0.2) + 240,
         width: 400,
         disabled: true,
@@ -997,7 +1112,7 @@ Input.items = [
     new Input({
         id: "Local-Player3",
         state: state.WAITING_LOCAL,
-        x: () => c.width(0.5) + 36,
+        x: () => c.width(0.5) - 114,
         y: () => c.height(0.2) + 340,
         width: 400,
         disabled: true,
@@ -1811,7 +1926,7 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text({text: "LOCAL MODE", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold"}});
             c.draw.text({text: "Connect up to 4 gamepads to play!", x: c.width(0.5) + state.change.x, y: c.height(0.125) + 30, font: {size: 18}});
             for (let i=0; i<gamepad.playerIndexes.length; i++) {
-                const x = c.width(0.5) - 250;
+                const x = c.width(0.5) - 400;
                 const y = c.height(0.2) + i * 100;
                 const j = gamepad.playerIndexes[i];
                 
@@ -1821,7 +1936,9 @@ addEventListener("DOMContentLoaded", () => {
                 if (game.players[j].connected) {
                     c.options.setShadow(theme.colors.shadow, 4, 1, 1);
                     c.draw.text({text: game.players[j].name, x: x + state.change.x + 85, y: y + 52, font: {size: 32}, color: theme.colors.text.light, alignment: "left"});
-                }
+                } else c.options.filter.add("grayscale(1)");
+                c.draw.croppedImage(image.superpowers, 0, game.players[j].superpower.selected * 70, 140, 70, x + state.change.x + 595, y, 140, 70);
+                c.options.filter.remove("grayscale");
                 c.options.setShadow();
                 c.options.setOpacity();
             }
