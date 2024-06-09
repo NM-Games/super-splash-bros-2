@@ -216,6 +216,7 @@ class Game {
         this.startState = 1; // enable flooding effect
         this.startedOn = new Date().getTime();
         this.startPlayerCount = this.getPlayers().length;
+        Fish.frequency = (this.players.length - this.startPlayerCount) * 3000 + 15000;
     }
 
     /** Update the game. */
