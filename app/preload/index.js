@@ -1463,14 +1463,25 @@ addEventListener("DOMContentLoaded", () => {
             } else if (lgame.startState === 3 && game.startState === 4) bigNotification.show("2", theme.colors.bigNotification.o);
             else if (lgame.startState === 4 && game.startState === 5) bigNotification.show("1", theme.colors.bigNotification.y);
             else if (lgame.startState === 5 && game.startState === 6) bigNotification.show("GO!", theme.colors.bigNotification.g);
-            else if (lgame.startState === 6 && game.startState === 7 && state.current !== state.PLAYING_FREEPLAY) {
-                const message = (game.winner === playerIndex) ? {text: "YOU WIN!", color: "g"} : {text: "YOU LOSE", color: "r"};
-                bigNotification.show(message.text, theme.colors.bigNotification[message.color], 250, 0.01);
+            else if (lgame.startState === 6 && game.startState === 7) {
+                const message = {text: "", color: "", size: 0};
+                if (state.current === state.PLAYING_LAN) {
+                    message.text = (game.winner === playerIndex) ? "YOU WIN!" : "YOU LOSE";
+                    message.color = (game.winner === playerIndex) ? "g" : "r";
+                    message.size = 240;
+                } else if (state.is(state.PLAYING_LOCAL, state.PLAYING_FREEPLAY)) {
+                    message.text = "GAME ENDED";
+                    message.color = "o";
+                    message.size = 180;
+                }
+                bigNotification.show(message.text, theme.colors.bigNotification[message.color], message.size, 0.01);
             } else if (lgame.startState === 7 && game.startState === 8) leave();
 
             if (!state.is(state.WAITING_LOCAL, state.PLAYING_LOCAL, state.LAN_GAME_MENU)) {
-                if (!lgame.players[playerIndex].superpower.available && game.players[playerIndex].superpower.available)
-                    bigNotification.show("SUPERPOWER READY", theme.colors.bigNotification.g, 120, 0.003);
+                if (!lgame.players[playerIndex].superpower.available && game.players[playerIndex].superpower.available) {
+                    const superpowerName = Game.superpowers[game.players[playerIndex].superpower.selected].name.toUpperCase();
+                    bigNotification.show(`${superpowerName} READY`, theme.colors.bigNotification.g, 120, 0.003);
+                }
                 if (lgame.players[playerIndex].lives > 0 && game.players[playerIndex].lives === 0)
                     bigNotification.show("GAME OVER", theme.colors.bigNotification.r, 200, 0.008);
             }
@@ -1928,7 +1939,7 @@ addEventListener("DOMContentLoaded", () => {
         if (bigNotification.a > 0) {
             c.options.setOpacity(bigNotification.a);
             c.options.setShadow(bigNotification.color, 16, 1, 1);
-            c.draw.text({text: bigNotification.text, x: c.width(0.5), y: c.height(0.4), font: {size: bigNotification.size, style: "bold"}, baseline: "middle"});
+            c.draw.text({text: bigNotification.text, x: c.width(0.5), y: c.height(0.4), font: {size: bigNotification.size, style: "bold"}, baseline: "middle", maxWidth: c.width(0.9)});
             c.options.setShadow();
             c.options.setOpacity();
         }

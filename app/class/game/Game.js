@@ -182,7 +182,7 @@ class Game {
         if (this.mode !== "freeplay") return;
 
         for (let i=0; i<this.players.length; i++) {
-            if (this.players[i] === null) this.join({playerName: `Dummy ${i + 1}`, preferredColor: i, superpower: 0}, `10.0.0.${i}`);
+            if (this.players[i] === null) this.join({playerName: `Dummy ${i + 1}`, preferredColor: i, superpower: 0}, `dummy::${i}`);
         }
     }
 
@@ -237,7 +237,7 @@ class Game {
             this.startState = 6;
             for (const p of this.getPlayers()) p.attacks.rocket.lastRegenerated = this.ping;
         } else if (this.startState === 6 && this.winner !== null) this.startState = 7; // 'you win' or 'you lose'
-        else if (this.startState === 7 && this.ping - this.endedOn >= 10000 && this.mode !== "freeplay") this.startState = 8; // enable flooding effect
+        else if (this.startState === 7 && this.ping - this.endedOn >= 10000) this.startState = 8; // enable flooding effect
 
         if (this.startState < 6) return;
 
@@ -245,11 +245,16 @@ class Game {
         if (this.elapsed >= Game.floodDelay * 1000) this.floodLevel = Math.max(Game.floodMaxLevel, this.floodLevel - 0.1);
 
         const alive = [];
-        for (let i=0; i<this.players.length; i++) 
+        for (let i=0; i<this.players.length; i++) {
+            if (this.mode === "freeplay" && this.ips[i] && this.ips[i].startsWith("dummy")) continue;
             alive.push(this.players[i] !== null && this.players[i].lives > 0 && this.players[i].connected);
+        }
         if (alive.filter(x => x).length === 1 && this.endedOn < 0 && this.mode !== "freeplay") {
             this.endedOn = this.ping;
             this.winner = alive.indexOf(true);
+        } else if (alive.filter(x => x).length === 0 && this.endedOn < 0 && this.mode === "freeplay") {
+            this.endedOn = this.ping;
+            this.winner = -1;
         }
 
         for (const p1 of this.getPlayers()) {
