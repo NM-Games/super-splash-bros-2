@@ -329,8 +329,11 @@ class Game {
                     const py = p.y + p.size / 2;
                     const distance = Math.sqrt(Math.abs(px - attack.x) ** 2 + Math.abs(py - attack.y) ** 2);
                     
-                    if (distance <= p.size / 2 + attack.size) 
-                        p.damage(this.ping, 2, 5, (attack.x - (p.x + p.size / 2) < 0 ? Attack.impact : -Attack.impact));
+                    if (distance <= p.size / 2 + attack.size) {
+                        let impact = (attack.x - (p.x + p.size / 2) < 0 ? Attack.impact : -Attack.impact);
+                        if (this.players[attack.player].hasSuperpower(Player.superpower.KNOCKBACK)) impact *= 3;
+                        p.damage(this.ping, 2, 5, impact);
+                    }
                 }
             }
 
