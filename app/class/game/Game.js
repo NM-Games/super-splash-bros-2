@@ -280,10 +280,10 @@ class Game {
                 p1.attacks.rocket.count--;
                 this.rockets.push(new Rocket(p1.index, p1.x + Number(p1.facing === "r") * p1.size, p1.y, p1.facing));
             }
-            if (this.ping - p1.attacks.rocket.lastRegenerated >= p1.attacks.rocket.regenerationInterval) {
+            if (this.ping - p1.attacks.rocket.lastRegenerated >= p1.attacks.rocket.regenerationInterval && p1.attacks.rocket.count < Player.maxRockets) {
                 p1.attacks.rocket.lastRegenerated = this.ping;
                 p1.attacks.rocket.count++;
-            }
+            } else if (p1.attacks.rocket.count === Player.maxRockets) p1.attacks.rocket.lastRegenerated = this.ping;
             
             if (this.fish.item) {
                 if (p1.x < this.fish.item.x + Fish.width && p1.x + p1.size > this.fish.item.x && this.fish.item.takeable &&

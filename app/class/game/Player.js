@@ -6,6 +6,7 @@ class Player {
     static acceleration = 0.1;
     static deceleration = 1.05;
     static maxJumps = 5;
+    static maxRockets = 6;
     static initialCoordinates = [
         {x: 393, y: 350},
         {x: 393, y: 25},
