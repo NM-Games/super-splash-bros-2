@@ -26,14 +26,6 @@ class Game {
         /** @param {Player} p */
         action: (p) => p.vy = 100
     }, {
-        name: "Poop Bomb",
-        condition: () => true,
-        /**
-         * @param {Player} p
-         * @param {Game} g
-         */
-        action: (p, g) => g.poopBombs.push(new PoopBomb(p))
-    }, {
         name: "Shield",
         condition: () => true,
         duration: 10000
@@ -57,6 +49,14 @@ class Game {
         action: (p) => p.lives++,
         duration: 0
     }, {
+        name: "Poop Bomb",
+        condition: () => true,
+        /**
+         * @param {Player} p
+         * @param {Game} g
+         */
+        action: (p, g) => g.poopBombs.push(new PoopBomb(p))
+   }, { 
         name: "Exclusive Platform",
         /** @param {Player} p */
         condition: (p) => Math.abs(p.vy) >= 1,

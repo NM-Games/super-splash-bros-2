@@ -15,12 +15,12 @@ class Player {
     ];
     static superpower = {
         SQUASH: 0,
-        POOP_BOMB: 1,
-        SHIELD: 2,
-        INVISIBILITY: 3,
-        KNOCKBACK: 4,
-        POWER_JUMP: 5,
-        LIFE_MENDER: 6,
+        SHIELD: 1,
+        INVISIBILITY: 2,
+        KNOCKBACK: 3,
+        POWER_JUMP: 4,
+        LIFE_MENDER: 5,
+        POOP_BOMB: 6,
         EXCLUSIVE_PLATFORM: 7
     };
 

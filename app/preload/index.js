@@ -1849,6 +1849,7 @@ addEventListener("DOMContentLoaded", () => {
             const colors = ["Yellow", "Green", "Red", "Blue", "Orange", "Cyan", "Purple", "Gray"];
             const superpowers = Game.superpowers.map(s => s.name);
             c.draw.croppedImage(image.sprites, config.appearance.preferredColor * 128, 0, 128, 128, c.width(0.2) - 35 + state.change.x, 370, 70, 70);
+            c.draw.croppedImage(image.superpowers, 0, config.appearance.superpower * 70, 140, 70, c.width(0.2) - 70 + state.change.x, 550, 140, 70);
             c.draw.text({text: colors[config.appearance.preferredColor], x: c.width(0.2) + state.change.x, y: 470, font: {size: 30, style: "bold"}, baseline: "middle"}); 
             c.draw.text({text: superpowers[config.appearance.superpower], x: c.width(0.2) + state.change.x, y: 650, font: {size: 30, style: "bold"}, baseline: "middle", maxWidth: Button.width - 90}); 
 
