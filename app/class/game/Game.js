@@ -87,6 +87,7 @@ class Game {
     /** @type {Geyser[]} */
     geysers;
     fish;
+    spawnCoordinates;
     startState;
     startedOn;
     endedOn;
@@ -132,6 +133,19 @@ class Game {
         this.elapsed = 0;
         this.winner = null;
         this.ping = new Date().getTime();
+
+        this.spawnCoordinates = [
+            {x: 393, y: 25},
+            {x: 593, y: -25},
+            {x: 793, y: 75},
+            {x: 353, y: 450},
+            {x: 593, y: 350},
+            {x: 833, y: 400},
+            {x: 83, y: 250},
+            {x: 1103, y: 250}
+        ].map(x => ({x, sortKey: Math.random()}))
+        .sort((a, b) => a.sortKey - b.sortKey)
+        .map(({x}) => x);
     }
 
     /**
@@ -145,7 +159,7 @@ class Game {
             let success = -1;
             for (let i=0; i<this.players.length; i++) {
                 if (this.players[i] === null) {
-                    this.players[i] = new Player(appearance, i);
+                    this.players[i] = new Player(appearance, i, this.spawnCoordinates);
                     this.ips[i] = ip;
                     success = i;
                     break;
@@ -153,7 +167,7 @@ class Game {
             }
             return success;
         } else {
-            this.players[appearance.preferredColor] = new Player(appearance);
+            this.players[appearance.preferredColor] = new Player(appearance, undefined, this.spawnCoordinates);
             this.ips[appearance.preferredColor] = ip;
             if (ip.includes("127.0.0.1")) this.hostIndex = appearance.preferredColor;
         }
@@ -266,8 +280,8 @@ class Game {
                 if (p1.lives >= 1) {
                     const highestCoordinates = [1, 3, 5];
                     const spawnCoordinateIndex = (this.floodLevel < 0) ? highestCoordinates[Math.floor(Math.random() * highestCoordinates.length)] : p1.index;
-                    p1.x = Player.initialCoordinates[spawnCoordinateIndex].x;
-                    p1.y = Player.initialCoordinates[spawnCoordinateIndex].y;
+                    p1.x = this.spawnCoordinates[spawnCoordinateIndex].x;
+                    p1.y = this.spawnCoordinates[spawnCoordinateIndex].y;
                     p1.vx = p1.vy = 0;
                 }
             }

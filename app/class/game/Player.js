@@ -7,16 +7,6 @@ class Player {
     static deceleration = 1.05;
     static maxJumps = 5;
     static maxRockets = 6;
-    static initialCoordinates = [
-        {x: 393, y: 350},
-        {x: 393, y: 25},
-        {x: 593, y: 350},
-        {x: 793, y: 25},
-        {x: 793, y: 350},
-        {x: 593, y: 25},
-        {x: 83, y: 150},
-        {x: 1103, y: 150},
-    ];
     static platforms = [
         {x: 15, y: 328, w: 200, h: 27}, // left
         {x: 375, y: 183, w: 500, h: 27}, // top
@@ -61,17 +51,18 @@ class Player {
      * @constructor
      * @param {import("../../preload/settings").Settings["appearance"]} appearance
      * @param {number | undefined} index
+     * @param {{x: number, y: number}[]} coordinates
      */
-    constructor(appearance, index) {
+    constructor(appearance, index, coordinates) {
         this.index = index ?? appearance.preferredColor;
         this.connected = true;
         this.name = appearance.playerName;
-        this.x = this.lx = Player.initialCoordinates[this.index].x;
-        this.y = this.ly = Player.initialCoordinates[this.index].y;
+        this.x = this.lx = coordinates[this.index].x;
+        this.y = this.ly = coordinates[this.index].y;
         this.vx = 0;
         this.vy = 0;
         this.size = 64;
-        this.facing = "r";
+        this.facing = (Math.random() > 0.5) ? "l" : "r";
         this.lives = 3;
         this.jump = {used: 0, active: false, heldKey: false};
         this.spawnProtection = 5000;

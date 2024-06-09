@@ -490,7 +490,7 @@ Button.items = [
             state.change.to(state.WAITING_FREEPLAY, false, () => {
                 instance = new Game("freeplay");
                 instance.theme = config.graphics.theme;
-                instance.players[config.appearance.preferredColor] = new Player(config.appearance, config.appearance.preferredColor);
+                instance.players[config.appearance.preferredColor] = new Player(config.appearance, config.appearance.preferredColor, instance.spawnCoordinates);
                 instance.addDummies();
                 instance.hostIndex = playerIndex = config.appearance.preferredColor;
                 Button.getButtonById("FreeplayGameTheme").text = `Theme: ${instance.theme}`;
