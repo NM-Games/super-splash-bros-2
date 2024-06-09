@@ -23,7 +23,7 @@ class Fish {
     constructor(t) {
         this.x = (Math.random() >= 0.5) ? -10 : 1260 - Fish.width;
         this.y = 800;
-        this.vy = -(Math.random() * 10 + 70);
+        this.vy = -(Math.random() * 8 + 69);
         this.t = t;
         this.takeable = false;
         this.takenBy = -1;
