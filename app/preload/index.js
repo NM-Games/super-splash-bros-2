@@ -649,11 +649,11 @@ Button.items = [
     }),
     // for the sprite color switch:
     new Button({
-        text: "◂ Previous",
+        icon: () => [0, 2],
         state: state.SETTINGS,
-        x: () => c.width(1/5) - Button.width / 4 - 20,
+        x: () => c.width(0.2) - Button.width / 2 + state.change.x,
         y: () => 470,
-        width: Button.width / 2,
+        width: Button.height / 2,
         height: Button.height / 2,
         onclick: () => {
             if (config.appearance.preferredColor-- <= 0) config.appearance.preferredColor = 7;
@@ -661,11 +661,11 @@ Button.items = [
         }
     }),
     new Button({
-        text: "Next ▸",
+        icon: () => [1, 2],
         state: state.SETTINGS,
-        x: () => c.width(1/5) + Button.width / 4 + 20,
+        x: () => c.width(0.2) + Button.width / 2 + state.change.x,
         y: () => 470,
-        width: Button.width / 2,
+        width: Button.height / 2,
         height: Button.height / 2,
         onclick: () => {
             if (config.appearance.preferredColor++ >= 7) config.appearance.preferredColor = 0;
@@ -674,11 +674,11 @@ Button.items = [
     }),
     // for the superpower switch:
     new Button({
-        text: "◂ Previous",
+        icon: () => [0, 2],
         state: state.SETTINGS,
-        x: () => c.width(1/5) - Button.width / 4 - 20,
+        x: () => c.width(0.2) - Button.width / 2 + state.change.x,
         y: () => 650,
-        width: Button.width / 2,
+        width: Button.height / 2,
         height: Button.height / 2,
         onclick: () => {
             if (config.appearance.superpower-- <= 0) config.appearance.superpower = 7;
@@ -686,11 +686,11 @@ Button.items = [
         }
     }),
     new Button({
-        text: "Next ▸",
+        icon: () => [1, 2],
         state: state.SETTINGS,
-        x: () => c.width(1/5) + Button.width / 4 + 20,
+        x: () => c.width(0.2) + Button.width / 2 + state.change.x,
         y: () => 650,
-        width: Button.width / 2,
+        width: Button.height / 2,
         height: Button.height / 2,
         onclick: () => {
             if (config.appearance.superpower++ >= 7) config.appearance.superpower = 0;
@@ -1825,9 +1825,9 @@ addEventListener("DOMContentLoaded", () => {
             
             const colors = ["Yellow", "Green", "Red", "Blue", "Orange", "Cyan", "Purple", "Gray"];
             const superpowers = Game.superpowers.map(s => s.name);
-            c.draw.croppedImage(image.sprites, config.appearance.preferredColor * 128, 0, 128, 128, c.width(0.2) - 80 + state.change.x, 360, 64, 64);
-            c.draw.text({text: colors[config.appearance.preferredColor], x: c.width(0.2) + state.change.x, y: 396, font: {size: 28, style: "bold"}, alignment: "left", baseline: "middle"}); 
-            c.draw.text({text: superpowers[config.appearance.superpower], x: c.width(0.2) + state.change.x, y: 576, font: {size: 28, style: "bold"}, alignment: "left", baseline: "middle"}); 
+            c.draw.croppedImage(image.sprites, config.appearance.preferredColor * 128, 0, 128, 128, c.width(0.2) - 35 + state.change.x, 370, 70, 70);
+            c.draw.text({text: colors[config.appearance.preferredColor], x: c.width(0.2) + state.change.x, y: 470, font: {size: 30, style: "bold"}, baseline: "middle"}); 
+            c.draw.text({text: superpowers[config.appearance.superpower], x: c.width(0.2) + state.change.x, y: 650, font: {size: 30, style: "bold"}, baseline: "middle", maxWidth: Button.width - 90}); 
 
             const keybinds = ["Move left", "Move right", "Jump", "Attack", "Launch rocket", "Activate superpower", "Game menu"];
             for (let i=0; i<keybinds.length; i++)
