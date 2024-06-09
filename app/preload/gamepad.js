@@ -41,6 +41,7 @@ const update = (instance) => {
         getButtonById(`Local-SuperpowerPrev-${i}`).disabled =
         getButtonById(`Local-SuperpowerNext-${i}`).disabled = (items[i] === null);
 
+        instance.players[pi].name = getInputById(`Local-Player${i}`).value;
         instance.players[pi].connected = (items[i] !== null && !prohibitReconnecting[i]);
         if (lastConnectionState[i] && !instance.players[pi].connected && instance.startState > 0) prohibitReconnecting[i] = true;
         lastConnectionState[i] = instance.players[pi].connected;

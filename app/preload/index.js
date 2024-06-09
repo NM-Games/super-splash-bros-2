@@ -1076,9 +1076,6 @@ Input.items = [
         ontab: function(shift) {
             if (shift) return;
             this.switchToID("Local-Player1");
-        },
-        onblur: function() {
-            instance.players[gamepad.playerIndexes[0]].name = this.value.slice(0, this.maxLength);
         }
     }),
     new Input({
@@ -1090,9 +1087,6 @@ Input.items = [
         disabled: true,
         ontab: function(shift) {
             this.switchToID(`Local-Player${shift ? 0 : 2}`);
-        },
-        onblur: function() {
-            instance.players[gamepad.playerIndexes[1]].name = this.value.slice(0, this.maxLength);
         }
     }),
     new Input({
@@ -1104,9 +1098,6 @@ Input.items = [
         disabled: true,
         ontab: function(shift) {
             this.switchToID(`Local-Player${shift ? 1 : 3}`);
-        },
-        onblur: function() {
-            instance.players[gamepad.playerIndexes[2]].name = this.value.slice(0, this.maxLength);
         }
     }),
     new Input({
@@ -1119,9 +1110,6 @@ Input.items = [
         ontab: function(shift) {
             if (!shift) return;
             this.switchToID("Local-Player2");
-        },
-        onblur: function() {
-            instance.players[gamepad.playerIndexes[2]].name = this.value.slice(0, this.maxLength);
         }
     }),
     new Input({
