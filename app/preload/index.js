@@ -16,6 +16,7 @@ const MenuSprite = require("../class/ui/MenuSprite");
 const Game = require("../class/game/Game");
 const Player = require("../class/game/Player");
 const Exclusive = require("../class/game/Exclusive");
+const Geyser = require("../class/game/Geyser");
 const Fish = require("../class/game/Fish");
 
 
@@ -398,14 +399,14 @@ const screenShake = {
     y: 0,
     intensity: 10,
     update: () => {
-        if (!game || !game.rockets || !game.circles) return;
+        if (!game || !game.rockets || !game.circles || !game.geysers) return;
 
         let explosions = 0;
         for (const r of game.rockets) {
             if (r.explosion.active && r.x > -r.explosion.size / 2 && r.x < c.width() + r.explosion.size / 2) explosions++;
         }
 
-        const condition = (explosions > 0 || game.circles.filter(x => x.shake).length > 0);
+        const condition = (explosions > 0 || game.circles.filter(x => x.shake).length > 0 || game.geysers.length > 0);
         screenShake.x = (condition) ? (Math.random() - 0.5) * screenShake.intensity * 2 : 0;
         screenShake.y = (condition) ? (Math.random() - 0.5) * screenShake.intensity * 2 : 0;
     }
@@ -1669,6 +1670,11 @@ addEventListener("DOMContentLoaded", () => {
             }
             c.options.setOpacity();
 
+            for (const g of game.geysers) {
+                const grd = c.options.gradient(g.x, 0, g.x + Geyser.width, 0, {pos: 0, color: theme.colors.ui.primary}, {pos: 0.5, color: theme.colors.ui.secondary}, {pos: 1, color: theme.colors.ui.primary});
+                c.options.setOpacity(g.a);
+                c.draw.fill.rect(grd, g.x + offset.x, g.y, Geyser.width, Math.abs(g.y) + c.height(2), Geyser.width / 4);
+            }
             for (const ci of game.circles) {
                 c.options.setOpacity(ci.a);
                 if (ci.lineWidth > -1) c.draw.stroke.arc(ci.color, ci.x + offset.x, ci.y + offset.y, ci.r, ci.lineWidth);
@@ -1690,6 +1696,10 @@ addEventListener("DOMContentLoaded", () => {
                 c.draw.image(image.splash, s.x - image.splash.width / 2 + offset.x, offset.y + 560 + s.h);
             }
             c.options.setOpacity();
+
+            for (const pb of game.poopBombs) {
+                c.draw.image(image.poopbomb, pb.x - image.poopbomb.width / 2 + offset.x, pb.y - image.poopbomb.height / 2 + offset.y);
+            }
             
             if (game.fish.item) {
                 c.options.setOpacity(game.fish.item.takeable ? 1 : 0.35);

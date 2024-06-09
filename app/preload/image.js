@@ -17,6 +17,7 @@ const { readdirSync } = require("fs");
  *  logo: HTMLImageElement,
  *  logo_nmgames: HTMLImageElement,
  *  platforms: HTMLImageElement,
+ *  poopbomb: HTMLImageElement,
  *  splash: HTMLImageElement,
  *  sprites: HTMLImageElement,
  *  stars: HTMLImageElement,

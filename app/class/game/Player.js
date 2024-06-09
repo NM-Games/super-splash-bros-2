@@ -131,8 +131,8 @@ class Player {
      * @param {number} knockback
      */
     damage(ping, min, max, knockback = 0) {
-        if (ping - this.hit.cooldownSince < this.hit.cooldown ||
-         ping - this.respawn < this.spawnProtection ||
+        if ((ping > -1 && ping - this.hit.cooldownSince < this.hit.cooldown) ||
+         (ping > -1 && ping - this.respawn < this.spawnProtection) ||
          this.hasSuperpower(Player.superpower.SHIELD)) return;
 
         this.hit.cooldownSince = ping;

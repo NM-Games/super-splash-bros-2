@@ -8,8 +8,10 @@ const Attack = require("./Attack");
 const Circle = require("./Circle");
 const Rocket = require("./Rocket");
 const Splash = require("./Splash");
-const Exclusive = require("./Exclusive");
 const Fish = require("./Fish");
+const Exclusive = require("./Exclusive");
+const PoopBomb = require("./PoopBomb");
+const Geyser = require("./Geyser");
 const { colors } = require("../../preload/theme");
 const { version } = require("../../../package.json");
 
@@ -26,7 +28,11 @@ class Game {
     }, {
         name: "Poop Bomb",
         condition: () => true,
-        duration: 0
+        /**
+         * @param {Player} p
+         * @param {Game} g
+         */
+        action: (p, g) => g.poopBombs.push(new PoopBomb(p))
     }, {
         name: "Shield",
         condition: () => true,
@@ -76,6 +82,10 @@ class Game {
     rockets;
     /** @type {Splash[]} */
     splashes;
+    /** @type {PoopBomb[]} */
+    poopBombs;
+    /** @type {Geyser[]} */
+    geysers;
     fish;
     startState;
     startedOn;
@@ -105,6 +115,8 @@ class Game {
         this.circles = [];
         this.rockets = [];
         this.splashes = [];
+        this.poopBombs = [];
+        this.geysers = [];
         this.fish = {
             /** @type {Fish | null} */
             item: null,
@@ -287,7 +299,7 @@ class Game {
                     p1.superpower.available = false;
                     p1.superpower.active = true;
                     p1.superpower.lastActivated = this.ping;
-                    if (superpower.action) superpower.action(p1);
+                    if (superpower.action) superpower.action(p1, this);
                 }
             }
             if (p1.superpower.active) {
@@ -375,6 +387,27 @@ class Game {
             if (this.splashes[i].update()) i++;
             else this.splashes.splice(i, 1);
         }
+        for (let i=0; i<this.poopBombs.length;) {
+            if (this.poopBombs[i].update(625 + this.floodLevel)) i++; else {
+                this.players[this.poopBombs[i].player].superpower.active = false;
+                this.geysers.push(new Geyser(this.poopBombs[i].x));
+                this.poopBombs.splice(i, 1);
+            }
+        }
+        for (let i=0; i<this.geysers.length;) {
+            const geyser = this.geysers[i];
+            const updateResult = geyser.update();
+
+            for (const p of this.getPlayers()) {
+                if (p.x < geyser.x + Geyser.width && p.x + p.size > geyser.x && p.y + p.size > geyser.y) {
+                    p.y = geyser.y - p.size;
+                    p.damage(-1, 0.5, 1.2);
+                }
+            }
+
+            if (updateResult) i++;
+            else this.geysers.splice(i, 1);
+        }
 
         if ((this.elapsed + Fish.start) % Fish.frequency < 1000 && !this.fish.spawned) {
             this.fish.spawned = true;
@@ -416,6 +449,8 @@ class Game {
             circles: this.circles,
             rockets: this.rockets,
             splashes: this.splashes,
+            poopBombs: this.poopBombs,
+            geysers: this.geysers,
             fish: this.fish,
             connected,
             startedOn: this.startedOn,
