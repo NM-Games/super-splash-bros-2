@@ -1800,7 +1800,7 @@ addEventListener("DOMContentLoaded", () => {
             const text = (game.winner !== null) ? `Game ends in ${m}:${s}` : (game.remaining >= 0) ? `Water starts rising in ${m}:${s}` : (game.flooded) ? "Fight to the victory!" : "Water is rising!";
             const color = (game.remaining < 0 && game.winner === null && !game.flooded && frames % 60 < 30) ? theme.colors.error.foreground : theme.getTextColor();
             c.draw.text({text, x: 15, y: 35, color, font: {size: 28}, alignment: "left"});
-            if (state.current === state.PLAYING_LAN) c.draw.text({text: `Ping: ${ping} ms`, x: c.width() - 15, y: 25, font: {size: 12}, alignment: "right"});
+            if (state.current === state.PLAYING_LAN) c.draw.text({text: `Ping: ${Math.max(0, ping)} ms`, x: c.width() - 15, y: 25, font: {size: 12}, alignment: "right"});
         } else drawWater();
 
         if (state.current === state.MAIN_MENU) {
