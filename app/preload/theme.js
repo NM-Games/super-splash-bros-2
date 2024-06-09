@@ -24,6 +24,7 @@ const colors = {
     error: {background: "#700", foreground: "#e00"},
     text: {dark: "#505050", light: "#fff"},
     overlay: "rgba(0, 0, 0, 0.75)",
+    squash: "rgba(200, 200, 200, 0.7)",
     shadow: "#000"
 };
 
