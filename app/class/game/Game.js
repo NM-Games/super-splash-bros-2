@@ -59,7 +59,7 @@ class Game {
     }, {
         name: "Exclusive Platform",
         /** @param {Player} p */
-        condition: (p) => Math.abs(p.vy) >= 0.2,
+        condition: (p) => Math.abs(p.vy) >= 1,
         duration: 10000,
         /** @param {Player} p */
         action: (p) => {

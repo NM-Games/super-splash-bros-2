@@ -31,6 +31,7 @@ class Exclusive {
                 player.vy = 0;
             } else {
                 player.y = this.y - player.size;
+                player.vx = Math.min(3, player.vx / 1.14);
                 player.jump.used = player.vy = 0;
                 player.jump.active = false;
             }
