@@ -19,7 +19,7 @@ const colors = {
         "#ee00ff", // purple
         "#7b7b7b"  // gray
     ],
-    ui: {primary: "#42cbe0", secondary: "#32a4d9", indicator: "#800e00"},
+    ui: {primary: "#42cbe0", secondary: "#32a4d9", indicator: "#800e00", highlight: "#df1"},
     bigNotification: {r: "red", o: "orange", y: "yellow", g: "green"},
     error: {background: "#700", foreground: "#e00"},
     text: {dark: "#505050", light: "#fff"},

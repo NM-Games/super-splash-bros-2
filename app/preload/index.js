@@ -1745,9 +1745,11 @@ addEventListener("DOMContentLoaded", () => {
                 const decimalOffset = c.draw.text({text: Math.floor(p.hit.percentage), font: {size: 48, style: "bold"}, measure: true});
                 const decimalText = (parallellogramWidth > 250) ? p.hit.percentage.toFixed(1).slice(-2) + "%" : "%";
 
-                c.options.setShadow(theme.colors.shadow, 4);
+                if (frames % 60 < 30 && p.superpower.available) c.options.setShadow(theme.colors.text.light, 12);
+                else if (frames % 60 < 30 && p.superpower.active) c.options.setShadow(theme.colors.ui.highlight, 12);
+                else c.options.setShadow(theme.colors.shadow, 4);
+
                 if (p.lives < 1 || !p.connected) c.options.setOpacity(0.3);
-                if (p.superpower.available && frames % 60 < 30) c.options.filter.add("brightness(2)");
                 c.draw.fill.parallellogram(theme.colors.players[p.index], x, parallellogram.y, parallellogramWidth, 95);
                 c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.sprite, parallellogram.y - 10, 72, 72);
                 c.options.filter.remove("brightness");
