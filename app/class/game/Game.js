@@ -248,8 +248,10 @@ class Game {
                  p1.y < p2.y + p2.size && p1.y + p1.size > p2.y) {
                     p1.vx /= 1.06;
                     p2.vx /= 1.06;
-                    p1.vy /= 1.05;
-                    p2.vy /= 1.05;
+                    if (p1.vy < -1 && p2.vy < -1) {
+                        p1.vy /= 1.05;
+                        p2.vy /= 1.05;
+                    }
                 }
             }
 
