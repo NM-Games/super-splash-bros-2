@@ -295,6 +295,26 @@ class Game {
             if (p1.keys.attack && this.ping - p1.attacks.melee.lastPerformed >= p1.attacks.melee.cooldown) {
                 p1.attacks.melee.lastPerformed = this.ping;
                 this.attacks.push(new Attack(p1.index, p1.x + p1.size / 2, p1.y + p1.size / 2));
+                this.circles.push(new Circle({
+                    color: colors.players[p1.index],
+                    x: p1.x + p1.size / 2,
+                    y: p1.y + p1.size / 2,
+                    va: 0.02,
+                    vr: 5,
+                    r: Attack.maxSize
+                }));
+                for (let i=0; i<3; i++) {
+                    this.circles.push(new Circle({
+                        color: colors.players[p1.index],
+                        x: p1.x + p1.size / 2,
+                        y: p1.y + p1.size / 2,
+                        va: 0.01,
+                        a0: 0.5,
+                        vr: 12 + i * 6,
+                        lineWidth: 15
+                    }));
+                    if (!p1.hasSuperpower(Player.superpower.KNOCKBACK)) break;
+                }
             }
 
             if (p1.keys.rocket && p1.attacks.rocket.count > 0 && this.ping - p1.attacks.rocket.lastPerformed >= p1.attacks.rocket.cooldown) {
@@ -340,25 +360,7 @@ class Game {
         }
 
         for (let i=0; i<this.attacks.length;) {
-            const attack = this.attacks[i];
-            const updateResult = attack.update();
-            if (attack.canDealDamage()) {
-                for (const p of this.getPlayers()) {
-                    if (p.index === attack.player) continue;
-
-                    const px = p.x + p.size / 2;
-                    const py = p.y + p.size / 2;
-                    const distance = Math.sqrt(Math.abs(px - attack.x) ** 2 + Math.abs(py - attack.y) ** 2);
-                    
-                    if (distance <= p.size / 2 + attack.size) {
-                        let impact = (attack.x - (p.x + p.size / 2) < 0 ? Attack.impact : -Attack.impact);
-                        if (this.players[attack.player].hasSuperpower(Player.superpower.KNOCKBACK)) impact *= 3;
-                        p.damage(this.ping, 2, 5, impact);
-                    }
-                }
-            }
-
-            if (updateResult) i++;
+            if (this.attacks[i].update(this)) i++;
             else this.attacks.splice(i, 1);
         }
         for (let i=0; i<this.circles.length;) {

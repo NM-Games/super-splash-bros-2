@@ -1,3 +1,5 @@
+const { superpower } = require("./Player");
+
 class Attack {
     static maxSize = 100;
     static impact = 3;
@@ -7,8 +9,6 @@ class Attack {
     y;
     a;
     size;
-    #grown;
-    #damaged;
 
     /**
      * @constructor
@@ -20,39 +20,33 @@ class Attack {
         this.player = index;
         this.x = x;
         this.y = y;
-        this.a = 1;
         this.size = 0;
-        this.border = 0;
-        this.#grown = false;
-        this.#damaged = false;
     }
 
     /**
      * Update the melee attack.
-     * @returns {boolean} - `false` when the melee attack should be deleted.
+     * @param {import("./Game")} instance
+     * @returns {boolean} - `false` when the melee attack should be deleted, `true` otherwise.
      */
-    update() {
-        this.border += 12;
+    update(instance) {
+        if (this.size < Attack.maxSize) this.size += 5; else {
+            for (const p of instance.getPlayers()) {
+                if (p.index === this.player) continue;
 
-        if (this.size < Attack.maxSize) this.size += 5;
-        else this.#grown = true;
-        
-        if (this.a > 0) this.a = Math.max(0, this.a - 0.02);
-        else return false;
-
-        return true;
-    }
-
-    /**
-     * Check whether the attack should deal damage
-     * @returns {boolean}
-     */
-    canDealDamage() {
-        if (this.#grown && !this.#damaged) {
-            this.#damaged = true;
-            return true;
+                const px = p.x + p.size / 2;
+                const py = p.y + p.size / 2;
+                const distance = Math.sqrt(Math.abs(px - this.x) ** 2 + Math.abs(py - this.y) ** 2);
+                
+                if (distance <= p.size / 2 + this.size) {
+                    let impact = (this.x - (p.x + p.size / 2) < 0 ? Attack.impact : -Attack.impact);
+                    if (instance.players[this.player].hasSuperpower(superpower.KNOCKBACK)) impact *= 3;
+                    p.damage(instance.ping, 2, 5, impact);
+                }
+            }
+            return false;
         }
-        return false;
+        
+        return true;
     }
 }
 

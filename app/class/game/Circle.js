@@ -4,6 +4,7 @@ class Circle {
     r;
     #r1;
     #vr;
+    a0;
     a;
     #va;
     color;
@@ -18,6 +19,7 @@ class Circle {
      *  y: number,
      *  r0?: number,
      *  r?: number,
+     *  a0?: number,
      *  vr: number,
      *  va: number,
      *  color: string | CanvasGradient | CanvasPattern,
@@ -32,7 +34,8 @@ class Circle {
         this.r = options.r0 ?? 0;
         this.#r1 = options.r ?? Infinity;
         this.#vr = options.vr;
-        this.a = 1;
+        this.a0 = options.a0 ?? 1;
+        this.a = options.a0 ?? 1;
         this.#va = options.va;
         this.color = options.color;
         this.lineWidth = options.lineWidth ?? -1;

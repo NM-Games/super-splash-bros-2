@@ -1774,15 +1774,7 @@ addEventListener("DOMContentLoaded", () => {
                 c.draw.text({text: p.name, x: p.x + p.size / 2 + offset.x, y: p.y + offset.y - (playerIndex === p.index ? 42 : 10), font: {size: 20}});
                 c.options.setOpacity();
             }
-
             c.options.setShadow();
-            for (const a of game.attacks) {
-                c.options.setOpacity(a.a);
-                c.draw.fill.circle(theme.colors.players[a.player], a.x + offset.x, a.y + offset.y, a.size);
-                c.options.setOpacity(a.a / 2);
-                c.draw.stroke.arc(theme.colors.players[a.player], a.x + offset.x, a.y + offset.y, a.border, 15);
-            }
-            c.options.setOpacity();
 
             for (const g of game.geysers) {
                 const grd = c.options.gradient(g.x, 0, g.x + Geyser.width, 0, {pos: 0, color: theme.colors.ui.primary}, {pos: 0.5, color: theme.colors.ui.secondary}, {pos: 1, color: theme.colors.ui.primary});
