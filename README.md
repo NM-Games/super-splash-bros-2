@@ -8,7 +8,7 @@ Compared to Super Splash Bros, the following has been changed/improved:
 - Up to **8 players** are now able to join a single match! For this upgrade, the colors orange, cyan, purple and gray have been added.
 - Collision detection has been changed: players now only feel a little bit of resistance when colliding, but can pass each other now at the same height.
 - Added a local mode where players can connect up to 4 gamepads (e.g. PlayStation or XBox controllers) and fight on a single device.
-- Percentages will **no longer kill players**: instead, a higher percentage means a player is easier pushed away by attacks.
+- Percentages will **no longer kill players**: instead, a higher percentage means a player is easier pushed away by attacks. Percentages cannot exceed 500%.
 - Added several superpowers in addition to shields and squashes. Superpowers can now be achieved from item boxes which look like fish.
 - Player appearance is now customizable! Players can determine their own name, color and superpower.
 - Added the option to remove dummies in Freeplay mode.
