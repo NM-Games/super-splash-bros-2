@@ -166,6 +166,7 @@ const leave = () => {
             state.current = state.MAIN_MENU;
             stop();
         }
+        konamiEasterEgg.deactivate();
         water.flood.disable();
     });
 };
@@ -414,7 +415,8 @@ const screenShake = {
 const konamiEasterEgg = {
     keys: ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"],
     index: 0,
-    activated: false
+    isActive: () => konamiEasterEgg.index >= konamiEasterEgg.keys.length,
+    deactivate: () => konamiEasterEgg.index = 0
 };
 
 let frames = 0;
@@ -1417,10 +1419,10 @@ addEventListener("DOMContentLoaded", () => {
             gameMenu.toggle();
         }
         
-        if (e.key === konamiEasterEgg.keys[konamiEasterEgg.index]) {
-            konamiEasterEgg.index++;
-            if (konamiEasterEgg.index >= konamiEasterEgg.keys.length) konamiEasterEgg.activated = true;
-        } else konamiEasterEgg.index = 0;
+        if (!konamiEasterEgg.isActive()) {
+            if (e.key === konamiEasterEgg.keys[konamiEasterEgg.index]) konamiEasterEgg.index++;
+            else konamiEasterEgg.deactivate();
+        }
 
         if (game) {
             for (let i in config.controls) {
@@ -1609,7 +1611,7 @@ addEventListener("DOMContentLoaded", () => {
         }
 
         introLogo.update();
-        MenuSprite.update(frames, config.graphics.menuSprites, konamiEasterEgg.activated);
+        MenuSprite.update(frames, config.graphics.menuSprites, konamiEasterEgg.isActive());
         
         bigNotification.size = Math.max(bigNotification.defaultSize, bigNotification.size - bigNotification.v);
         if (bigNotification.size > bigNotification.defaultSize) bigNotification.a = Math.min(2, bigNotification.a + 0.2);
