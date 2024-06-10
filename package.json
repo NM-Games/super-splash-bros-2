@@ -1,7 +1,7 @@
 {
   "name": "supersplashbros2",
   "version": "1.0.0",
-  "description": "Super Splash Bros 2 - the one and only Super Splash Bros successor!",
+  "description": "Be the last player standing above the water!",
   "main": "app/index.js",
   "scripts": {
     "start": "electron app",
