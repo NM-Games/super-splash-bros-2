@@ -24,10 +24,9 @@ mac:
   icon: app/img/icons
   publish:
   target:
-    - target: dmg
+    - target: zip
       arch:
         - x64
-        - arm64
 win:
   icon: app/img/icons/512x512.png
   legalTrademarks: Copyright © N&M Games | Licensed as free software (GPL-3.0 or later)
