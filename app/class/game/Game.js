@@ -284,10 +284,13 @@ class Game {
                     p1.superpower.available = p1.superpower.active = false;
                 }
                 if (p1.lives >= 1) {
-                    const highestCoordinates = [1, 3, 5];
-                    const spawnCoordinateIndex = (this.floodLevel < 0) ? highestCoordinates[Math.floor(Math.random() * highestCoordinates.length)] : p1.index;
-                    p1.x = this.spawnCoordinates[spawnCoordinateIndex].x;
-                    p1.y = this.spawnCoordinates[spawnCoordinateIndex].y;
+                    const respawnCoordinates = (this.floodLevel < 0) ? {
+                        x: Math.random() * 400 + 393,
+                        y: -50
+                    } : this.spawnCoordinates[p1.index];
+
+                    p1.x = respawnCoordinates.x;
+                    p1.y = respawnCoordinates.y;
                     p1.vx = p1.vy = 0;
                 }
             }
