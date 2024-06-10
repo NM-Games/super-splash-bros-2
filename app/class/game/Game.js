@@ -325,11 +325,12 @@ class Game {
                 }
             }
             if (p1.superpower.active) {
-                if (Game.superpowers[p1.superpower.selected].duration && this.ping - p1.superpower.lastActivated >= Game.superpowers[p1.superpower.selected].duration)
+                if (!Game.superpowers[p1.superpower.selected].duration)
+                    p1.superpower.active = false;
+                else if (this.ping - p1.superpower.lastActivated >= Game.superpowers[p1.superpower.selected].duration)
                     p1.superpower.active = false;
 
                 if (p1.superpower.active && p1.superpower.selected === Player.superpower.SQUASH && p1.ly === p1.y) {
-                    p1.superpower.active = false;
                     p1.damage(this.ping, 60, 95);
                     this.circles.push(new Circle({x: p1.x + p1.size / 2, y: p1.y + p1.size / 2, color: colors.squash, vr: 15, va: 0.009, shake: true}));
                     for (const p2 of this.getPlayers())
@@ -414,7 +415,6 @@ class Game {
         }
         for (let i=0; i<this.poopBombs.length;) {
             if (this.poopBombs[i].update(625 + this.floodLevel)) i++; else {
-                this.players[this.poopBombs[i].player].superpower.active = false;
                 this.geysers.push(new Geyser(this.poopBombs[i].x));
                 this.poopBombs.splice(i, 1);
             }
@@ -425,7 +425,7 @@ class Game {
 
             for (const p of this.getPlayers()) {
                 if (p.x < geyser.x + Geyser.width && p.x + p.size > geyser.x && p.y + p.size > geyser.y) {
-                    p.y = geyser.y - p.size;
+                    p.y -= Geyser.speed;
                     p.damage(-1, 0.5, 1.2);
                 }
             }
@@ -434,7 +434,7 @@ class Game {
             else this.geysers.splice(i, 1);
         }
 
-        if ((this.elapsed + Fish.start) % Fish.frequency < 1000 && !this.fish.spawned) {
+        if ((this.elapsed + Fish.start) % Fish.frequency < 1000 && !this.fish.spawned && this.startState <= 6) {
             this.fish.spawned = true;
             this.fish.item = new Fish(this.elapsed);
         } else this.fish.spawned = false;
