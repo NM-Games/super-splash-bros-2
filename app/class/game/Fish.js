@@ -6,6 +6,7 @@ class Fish {
     takeable;
     takenBy;
     takeValue;
+    collides;
     collidesWithTaker;
 
     static start = 10000;
@@ -28,6 +29,7 @@ class Fish {
         this.takeable = false;
         this.takenBy = -1;
         this.takeValue = 0;
+        this.collides = false;
         this.collidesWithTaker = false;
     }
 
@@ -50,9 +52,10 @@ class Fish {
         }
 
         if (this.collidesWithTaker) this.takeValue = Math.min(1, this.takeValue + Fish.increment);
-        else this.takeValue = Math.max(0, this.takeValue - Fish.increment / 1.5);
+        else this.takeValue = Math.max(0, this.takeValue - Fish.increment / (this.collides ? 0.9 : 1.5));
 
         if (this.takeValue === 1) keep = false;
+        else if (this.takeValue <= 0) this.takenBy = -1;
 
         return keep;
     }
