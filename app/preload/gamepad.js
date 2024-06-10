@@ -55,7 +55,7 @@ const update = (instance) => {
                     jump: (items[i].buttons[0].pressed),
                     attack: (items[i].buttons[7].pressed),
                     launchRocket: (items[i].buttons[6].pressed),
-                    activateSuperpower: (items[i].buttons[3].pressed),
+                    activateSuperpower: (items[i].buttons[2].pressed),
                     gameMenu: false
                 });
             }
