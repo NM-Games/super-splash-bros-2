@@ -69,8 +69,8 @@ class Player {
         this.respawn = new Date().getTime() - this.spawnProtection;
         this.hit = {
             percentage: 0,
-            cooldown: 400,
-            cooldownSince: -6e9,
+            last: -6e9,
+            effectDuration: 400
         };
         this.attacks = {
             melee: {
@@ -123,11 +123,10 @@ class Player {
      * @param {number} knockback
      */
     damage(ping, min, max, knockback = 0) {
-        if ((ping > -1 && ping - this.hit.cooldownSince < this.hit.cooldown) ||
-         (ping > -1 && ping - this.respawn < this.spawnProtection) ||
+        if (ping - this.respawn < this.spawnProtection ||
          this.hasSuperpower(Player.superpower.SHIELD)) return;
 
-        this.hit.cooldownSince = ping;
+        this.hit.last = ping;
         this.hit.percentage += Math.random() * (max - min) + min;
         this.vx += knockback * (this.hit.percentage / 80 + 1)
     }

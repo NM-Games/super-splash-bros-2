@@ -431,7 +431,7 @@ class Game {
             for (const p of this.getPlayers()) {
                 if (p.x < geyser.x + Geyser.width && p.x + p.size > geyser.x && p.y + p.size > geyser.y) {
                     p.y -= Geyser.speed;
-                    p.damage(-1, 0.5, 1.2);
+                    p.damage(this.ping, 0.5, 1.2);
                 }
             }
 

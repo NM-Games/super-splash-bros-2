@@ -1846,8 +1846,8 @@ addEventListener("DOMContentLoaded", () => {
                 const r = Math.min(Math.max(160, 255 - (p.hit.percentage - 125)), 255);
                 const g = Math.min(Math.max(0, 255 - p.hit.percentage * 2.5), 255);
                 const b = Math.min(Math.max(0, 255 - p.hit.percentage * 5), 255);
-                const shake = (game.ping - p.hit.cooldownSince < p.hit.cooldown) ? {x: (Math.random() - 0.5) * screenShake.intensity, y: (Math.random() - 0.5) * screenShake.intensity} : {x: 0, y: 0};
-                const color = (game.ping - p.hit.cooldownSince < p.hit.cooldown) ? `hsl(${Math.random() * 360}deg 100% 70%)` : `rgb(${r}, ${g}, ${b})`;
+                const shake = (game.ping - p.hit.last < p.hit.effectDuration) ? {x: (Math.random() - 0.5) * screenShake.intensity, y: (Math.random() - 0.5) * screenShake.intensity} : {x: 0, y: 0};
+                const color = (game.ping - p.hit.last < p.hit.effectDuration) ? `hsl(${Math.random() * 360}deg 100% 70%)` : `rgb(${r}, ${g}, ${b})`;
                 const decimalOffset = c.draw.text({text: Math.floor(p.hit.percentage), font: {size: 48, style: "bold"}, measure: true});
                 const decimalText = (parallellogramWidth > 250) ? p.hit.percentage.toFixed(1).slice(-2) + "%" : "%";
 
