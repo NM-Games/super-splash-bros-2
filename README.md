@@ -58,6 +58,12 @@ Your goal is to be the last player standing. But all other players will not volu
 - **Superpowers**  
   Superpowers are not always an attack method, but some of them are even more effective than rockets. More information about superpowers is documented below.
 
+## I'm wet now, help!
+Please remain calm!
+- Players start with three lives, so you will respawn twice.
+- Players respawn at the same location where they were at game start. If the water level has started to rise, players will spawn somewhere at the top platform.
+- When respawning, players have 5 seconds of spawn protection. During this period, they cannot take damage or lose lives.
+
 ## Fish
 The fish is the new item box in Super Splash Bros 2. However, fish only give you your superpower.
 - Players have to collide for about 2 seconds with a fish in order to get their superpower available.
@@ -76,7 +82,7 @@ More superpowers have been added in Super Splash Bros 2. Below are all currently
 - **Shield**  
   Shields protect the performer from enemy attacks. Shields can be recognized by a black and white circle around a player.
   - [+] Shields protect players against any kind of damage, and they also prevent the knockback.
-  - [-] Shields do not protect players against falling into water.
+  - [-] Shields do not protect players against falling into water, unlike spawn protection.
   - [-] Shields significantly slow down players.
 - **Invisibility**  
   Makes the performer invisible for all players! The performer itself will remain slightly visible on their own device.
@@ -104,6 +110,8 @@ More superpowers have been added in Super Splash Bros 2. Below are all currently
   - [+] Enjoy the enemies trying to get you off, since the friction on exclusive platforms is higher.
   - [-] Exclusive platforms give no warning before they disappear.
 
-Be careful though, as you will lose your superpower if you fall into water!
+Be careful though:
+- You will lose your superpower if you fall into water!
+- After three minutes, the water level will start to rise, making it very difficult to reach the fish in the late game.
 
 # Have fun!
