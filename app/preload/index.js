@@ -1901,12 +1901,16 @@ addEventListener("DOMContentLoaded", () => {
         } else drawWater();
 
         if (state.current === state.MAIN_MENU) {
-            if (theme.isDark()) c.options.filter.add("brightness(100)");
+            if (theme.isDark()) {
+                c.options.filter.add("brightness(100)");
+                c.options.setShadow(theme.colors.shadow, 4, 1, 1);
+            }
             c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.change.x, 25, image.logo.width, image.logo.height);
             c.options.filter.remove("brightness");
+            c.options.setShadow();
         } else if (state.current === state.WAITING_LOCAL && game) {
-            c.draw.text({text: "LOCAL MODE", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold"}});
-            c.draw.text({text: "Connect up to 4 gamepads to play!", x: c.width(0.5) + state.change.x, y: c.height(0.125) + 30, font: {size: 18}});
+            c.draw.text({text: "LOCAL MODE", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}});
+            c.draw.text({text: "Connect up to 4 gamepads to play!", x: c.width(0.5) + state.change.x, y: c.height(0.125) + 30, font: {size: 18, shadow: true}});
             for (let i=0; i<gamepad.playerIndexes.length; i++) {
                 const x = c.width(0.5) - 400;
                 const y = c.height(0.2) + i * 100;
@@ -1925,62 +1929,66 @@ addEventListener("DOMContentLoaded", () => {
                 c.options.setOpacity();
             }
         } else if (state.current === state.LAN_GAME_MENU) {
-            c.draw.text({text: "LAN MODE", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold"}});
+            c.draw.text({text: "LAN MODE", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}});
 
-            c.draw.text({text: "...or join a game on this network:", x: c.width(0.5) + state.change.x, y: c.height(0.5) - 50, font: {size: 32, style: "bold"}});
-            c.draw.text({text: "IP address:", x: c.width(0.5) - 230 + state.change.x, y: c.height(0.5) + 60, font: {size: 24}, alignment: "left"});
+            c.draw.text({text: "...or join a game on this network:", x: c.width(0.5) + state.change.x, y: c.height(0.5) - 50, font: {size: 32, style: "bold", shadow: true}});
+            c.draw.text({text: "IP address:", x: c.width(0.5) - 230 + state.change.x, y: c.height(0.5) + 60, font: {size: 24, shadow: true}, alignment: "left"});
             c.options.setOpacity(connectionMessage.a);
-            c.draw.text({text: connectionMessage.text, x: c.width(0.5) + state.change.x, y: c.height(0.5) + Button.height + 180, color: connectionMessage.color ?? theme.getTextColor(), font: {size: 30, style: "bold"}});
+            c.draw.text({text: connectionMessage.text, x: c.width(0.5) + state.change.x, y: c.height(0.5) + Button.height + 180, color: connectionMessage.color ?? theme.getTextColor(), font: {size: 30, style: "bold", shadow: true}});
             c.options.setOpacity();
             for (let i=0; i<3; i++)
-                c.draw.text({text: ".", x: c.width(0.5) - 125 + state.change.x + i * 120, y: c.height(0.5) + 120, font: {size: 40}, alignment: "left"});
+                c.draw.text({text: ".", x: c.width(0.5) - 125 + state.change.x + i * 120, y: c.height(0.5) + 120, font: {size: 40, shadow: true}, alignment: "left"});
         } else if (state.current === state.SETTINGS) {
-            c.draw.text({text: "SETTINGS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold"}});
+            c.draw.text({text: "SETTINGS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}});
 
-            c.draw.text({text: "APPEARANCE", x: c.width(0.2) + state.change.x, y: 180, font: {size: 32, style: "bold"}});
-            c.draw.text({text: "GRAPHICS", x: c.width(0.5) + state.change.x, y: 180, font: {size: 32, style: "bold"}});
-            c.draw.text({text: "CONTROLS", x: c.width(0.8) + state.change.x, y: 180, font: {size: 32, style: "bold"}});
+            c.draw.text({text: "APPEARANCE", x: c.width(0.2) + state.change.x, y: 180, font: {size: 32, style: "bold", shadow: true}});
+            c.draw.text({text: "GRAPHICS", x: c.width(0.5) + state.change.x, y: 180, font: {size: 32, style: "bold", shadow: true}});
+            c.draw.text({text: "CONTROLS", x: c.width(0.8) + state.change.x, y: 180, font: {size: 32, style: "bold", shadow: true}});
 
-            c.draw.text({text: "Player name:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 250, font: {size: 24}, alignment: "left"});
-            c.draw.text({text: "Preferred color:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 345, font: {size: 24}, alignment: "left"});
-            c.draw.text({text: "Superpower:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 525, font: {size: 24}, alignment: "left"});
+            c.draw.text({text: "Player name:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 250, font: {size: 24, shadow: true}, alignment: "left"});
+            c.draw.text({text: "Preferred color:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 345, font: {size: 24, shadow: true}, alignment: "left"});
+            c.draw.text({text: "Superpower:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 525, font: {size: 24, shadow: true}, alignment: "left"});
             
             const colors = ["Yellow", "Green", "Red", "Blue", "Orange", "Cyan", "Purple", "Gray"];
             const superpowers = Game.superpowers.map(s => s.name);
             c.draw.croppedImage(image.sprites, config.appearance.preferredColor * 128, 0, 128, 128, c.width(0.2) - 35 + state.change.x, 370, 70, 70);
             c.draw.croppedImage(image.superpowers, 0, config.appearance.superpower * 70, 140, 70, c.width(0.2) - 70 + state.change.x, 550, 140, 70);
-            c.draw.text({text: colors[config.appearance.preferredColor], x: c.width(0.2) + state.change.x, y: 470, font: {size: 30, style: "bold"}, baseline: "middle"}); 
-            c.draw.text({text: superpowers[config.appearance.superpower], x: c.width(0.2) + state.change.x, y: 650, font: {size: 30, style: "bold"}, baseline: "middle", maxWidth: Button.width - 90}); 
+            c.draw.text({text: colors[config.appearance.preferredColor], x: c.width(0.2) + state.change.x, y: 470, font: {size: 30, style: "bold", shadow: true}, baseline: "middle"}); 
+            c.draw.text({text: superpowers[config.appearance.superpower], x: c.width(0.2) + state.change.x, y: 650, font: {size: 30, style: "bold", shadow: true}, baseline: "middle", maxWidth: Button.width - 90}); 
 
             const keybinds = ["Move left", "Move right", "Jump", "Attack", "Launch rocket", "Activate superpower", "Game menu"];
             for (let i=0; i<keybinds.length; i++)
-                c.draw.text({text: keybinds[i], x: c.width(0.8) - Button.width / 2 - 25 + state.change.x, y: 250 + i * 60, font: {size: 24}, alignment: "left"});
+                c.draw.text({text: keybinds[i], x: c.width(0.8) - Button.width / 2 - 25 + state.change.x, y: 250 + i * 60, font: {size: 24, shadow: true}, alignment: "left"});
         } else if (state.current === state.ABOUT) {
-            if (theme.isDark()) c.options.filter.add("brightness(100)");
+            if (theme.isDark()) {
+                c.options.filter.add("brightness(100)");
+                c.options.setShadow(theme.colors.shadow, 4, 1, 1);
+            }
             c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.change.x, 25, image.logo.width, image.logo.height);
             c.options.filter.remove("brightness");
+            c.options.setShadow();
 
-            c.draw.text({text: "by", x: c.width(0.5) + state.change.x, y: c.height(0.4) - 10, font: {size: 24, style: "bold"}, alignment: "bottom"});
+            c.draw.text({text: "by", x: c.width(0.5) + state.change.x, y: c.height(0.4) - 10, font: {size: 24, style: "bold", shadow: true}, alignment: "bottom"});
             c.draw.image(image.logo_nmgames, c.width(0.5) - image.logo_nmgames.width / 4 + state.change.x, c.height(0.4), image.logo_nmgames.width / 2, image.logo_nmgames.height / 2);
-            c.draw.text({text: `Version ${versions.game}`, x: c.width(0.5) + state.change.x, y: c.height(0.5) + 70, font: {size: 36, style: "bold"}, baseline: "bottom"});
-            c.draw.text({text: `(Electron: ${versions.electron}, Chromium: ${versions.chromium})`, x: c.width(0.5) + state.change.x, y: c.height(0.5) + 100, font: {size: 24}, baseline: "bottom"});
-            c.draw.text({text: `This program is free and open-source software: you are free to modify and/or redistribute it.`, x: c.width(0.5) + state.change.x, y: c.height(0.7), font: {size: 20}, baseline: "bottom"});
-            c.draw.text({text: `There is NO WARRANTY, to the extent permitted by law.`, x: c.width(0.5) + state.change.x, y: c.height(0.7) + 25, font: {size: 20}, baseline: "bottom"});
-            c.draw.text({text: `Read the GNU General Public License version 3 for further details.`, x: c.width(0.5) + state.change.x, y: c.height(0.7) + 50, font: {size: 20}, baseline: "bottom"});
+            c.draw.text({text: `Version ${versions.game}`, x: c.width(0.5) + state.change.x, y: c.height(0.5) + 70, font: {size: 36, style: "bold", shadow: true}, baseline: "bottom"});
+            c.draw.text({text: `(Electron: ${versions.electron}, Chromium: ${versions.chromium})`, x: c.width(0.5) + state.change.x, y: c.height(0.5) + 100, font: {size: 24, shadow: true}, baseline: "bottom"});
+            c.draw.text({text: `This program is free and open-source software: you are free to modify and/or redistribute it.`, x: c.width(0.5) + state.change.x, y: c.height(0.7), font: {size: 20, shadow: true}, baseline: "bottom"});
+            c.draw.text({text: `There is NO WARRANTY, to the extent permitted by law.`, x: c.width(0.5) + state.change.x, y: c.height(0.7) + 25, font: {size: 20, shadow: true}, baseline: "bottom"});
+            c.draw.text({text: `Read the GNU General Public License version 3 for further details.`, x: c.width(0.5) + state.change.x, y: c.height(0.7) + 50, font: {size: 20, shadow: true}, baseline: "bottom"});
         } else if (state.is(state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY) && game) {
             const ips = network.getIPs();
             const mainIP = ips.shift();
             if (state.current === state.WAITING_FREEPLAY) {
-                c.draw.text({text: "FREEPLAY MODE", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold"}});
-                c.draw.text({text: "Practice your skills! If you want, you can remove dummies.", x: c.width(0.5) + state.change.x, y: c.height(0.125) + 30, font: {size: 18}});
+                c.draw.text({text: "FREEPLAY MODE", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}});
+                c.draw.text({text: "Practice your skills! If you want, you can remove dummies.", x: c.width(0.5) + state.change.x, y: c.height(0.125) + 30, font: {size: 18, shadow: true}});
             } else {
                 const text = (state.current === state.WAITING_LAN_GUEST) ? "Waiting until start..." : mainIP;
-                c.draw.text({text, x: c.width(0.5) + state.change.x, y: c.height(0.125), font: {size: 58, style: "bold"}});
+                c.draw.text({text, x: c.width(0.5) + state.change.x, y: c.height(0.125), font: {size: 58, style: "bold", shadow: true}});
             }
 
             if (state.current === state.WAITING_LAN_HOST) {
-                c.draw.text({text: "Players can now connect to this IP address:", x: c.width(0.5) + state.change.x, y: c.height(0.125) - 60, font: {size: 24}});
-                if (ips.length > 0) c.draw.text({text: `If that does not work, try:   ${ips.join("   ")}`, x: c.width(0.5) + state.change.x, y: c.height(0.125) + 30, font: {size: 18}});
+                c.draw.text({text: "Players can now connect to this IP address:", x: c.width(0.5) + state.change.x, y: c.height(0.125) - 60, font: {size: 24, shadow: true}});
+                if (ips.length > 0) c.draw.text({text: `If that does not work, try:   ${ips.join("   ")}`, x: c.width(0.5) + state.change.x, y: c.height(0.125) + 30, font: {size: 18, shadow: true}});
             }
 
             for (let i=0; i<8; i++) {

@@ -311,18 +311,22 @@ const draw = {
      *  maxWidth?: number,
      *  alignment?: "left" | "center" | "right",
      *  baseline?: "alphabetic" | "bottom" | "middle" | "top",
-     *  font: {style?: "bold" | "italic", size: number, family?: string},
+     *  font: {style?: "bold" | "italic", size: number, family?: string, shadow?: boolean},
      *  measure?: boolean
-     * }} options
+     * }} opts
      * @returns {undefined | number}
      */
-    text: (options) => {
-        c.fillStyle = options.color ?? theme.getTextColor();
-        c.textBaseline = options.baseline ?? "alphabetic";
-        c.textAlign = options.alignment ?? "center";
-        c.font = `${options.font.style ?? ""} ${options.font.size}px ${options.font.family ?? "Shantell Sans"}`;
-        if (options.measure) return c.measureText(options.text).width;
-        else c.fillText(options.text, options.x, options.y, options.maxWidth);
+    text: (opts) => {
+        c.fillStyle = opts.color ?? theme.getTextColor();
+        c.textBaseline = opts.baseline ?? "alphabetic";
+        c.textAlign = opts.alignment ?? "center";
+        c.font = `${opts.font.style ?? ""} ${opts.font.size}px ${opts.font.family ?? "Shantell Sans"}`;
+        if (opts.font.shadow && theme.isDark()) options.setShadow(theme.colors.shadow, 4, 1, 1);
+
+        if (opts.measure) return c.measureText(opts.text).width;
+        else c.fillText(opts.text, opts.x, opts.y, opts.maxWidth);
+
+        if (opts.font.shadow && theme.isDark()) options.setShadow();
     },
     /**
      * Draw a button on the screen.
