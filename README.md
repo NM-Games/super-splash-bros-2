@@ -80,21 +80,21 @@ More superpowers have been added in Super Splash Bros 2. Below are all currently
   - [-] The performer will even get more damage from the fall.
   - [-] There is a small chance that the performer will phase through a platform, causing them to fall into water, wasting their squash.
 - **Shield**  
-  Shields protect the performer from enemy attacks. Shields can be recognized by a black and white circle around a player.
+  Shields protect the performer from enemy attacks. Shields can be recognized by a black and white circle around a player. This superpower lasts for 10 seconds.
   - [+] Shields protect players against any kind of damage, and they also prevent the knockback.
   - [-] Shields do not protect players against falling into water, unlike spawn protection.
   - [-] Shields significantly slow down players.
 - **Invisibility**  
-  Makes the performer invisible for all players! The performer itself will remain slightly visible on their own device.
+  Makes the performer invisible for all players! The performer itself will remain slightly visible on their own device. This superpower also lasts for 10 seconds.
   > In Local mode, the performer will become completely invisible because everyone plays on the same device. Be extra careful with your movements!
   - [+] No one can see you (coming).
   - [-] Other projectiles fired by you will not become invisible.
 - **Knockback**  
-  When using regular attacks, the knockback will be tripled.
+  When using regular attacks, the knockback will be tripled for 10 seconds.
   - [+] Significantly improves the basic attack, which is always available and has the shortest cooldown.
   - [-] Does not apply to rockets and other attacks.
 - **Power Jump**  
-  Power Jumps will multiply jump forces of the performer by 1,5.
+  Power Jumps will multiply jump forces of the performer by 1,5 for 10 seconds.
   - [+] It makes dodging rockets easier.
   - [-] You have to be more patient before you are on the ground again.
 - **Life Mender**  
@@ -106,7 +106,7 @@ More superpowers have been added in Super Splash Bros 2. Below are all currently
   - [+] Great way to temporarily get rid of enemies.
   - [-] Requires some timing and aiming skills.
 - **Exclusive Platform**  
-  This superpower creates a special platform underneath the performer. And only the performer can collide with it! Other players will fall right through it.
+  This superpower creates a special platform underneath the performer for 10 seconds. And only the performer can collide with it! Other players will fall right through it.
   - [+] Enjoy the enemies trying to get you off, since the friction on exclusive platforms is higher.
   - [-] Exclusive platforms give no warning before they disappear.
 
