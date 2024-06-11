@@ -1831,8 +1831,8 @@ addEventListener("DOMContentLoaded", () => {
             for (const p of game.players) {
                 if (p === null) continue;
 
-                const x = spacing / 2 + i * (parallellogramWidth + spacing);
-                const y = parallellogram.y;
+                const x = spacing / 2 + i * (parallellogramWidth + spacing) + screenShake.x;
+                const y = parallellogram.y + screenShake.y;
                 const offsets = (parallellogramWidth > 250) ? {
                     sprite: -3,
                     lives: 80,
@@ -1858,17 +1858,17 @@ addEventListener("DOMContentLoaded", () => {
                 else c.options.setShadow(theme.colors.shadow, 4);
 
                 if (p.lives < 1 || !p.connected) c.options.setOpacity(0.3);
-                c.draw.fill.parallellogram(theme.colors.players[p.index], x, parallellogram.y, parallellogramWidth, 95);
-                c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.sprite, parallellogram.y - 10, 72, 72);
+                c.draw.fill.parallellogram(theme.colors.players[p.index], x, y, parallellogramWidth, 95);
+                c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.sprite, y - 10, 72, 72);
                 c.options.filter.remove("brightness");
                 
                 c.options.setShadow(theme.colors.shadow, 2);
                 for (let l=0; l<p.lives; l++) c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.lives + l * 20, y - 19, 16, 16);
                 c.options.setShadow(theme.colors.shadow, 3, 1, 1);
-                c.draw.text({text: p.name, x: x + 11, y: parallellogram.y + 85, color: theme.colors.text.light, font: {size: nameSize}, alignment: "left", maxWidth: parallellogramWidth - 35});
+                c.draw.text({text: p.name, x: x + 11, y: y + 85, color: theme.colors.text.light, font: {size: nameSize}, alignment: "left", maxWidth: parallellogramWidth - 35});
                 if (p.lives >= 1 && p.connected) {
-                    c.draw.text({text: Math.floor(p.hit.percentage), x: x + offsets.percentage + shake.x, y: parallellogram.y + shake.y + 64, color, font: {size: 54, style: "bold"}, alignment: "left", baseline: "bottom"});
-                    c.draw.text({text: decimalText, x: x + decimalOffset + offsets.percentage + shake.x + 4, y: parallellogram.y + shake.y + 57, color, font: {size: 20, style: "bold"}, alignment: "left", baseline: "bottom"});
+                    c.draw.text({text: Math.floor(p.hit.percentage), x: x + offsets.percentage + shake.x, y: y + shake.y + 64, color, font: {size: 54, style: "bold"}, alignment: "left", baseline: "bottom"});
+                    c.draw.text({text: decimalText, x: x + decimalOffset + offsets.percentage + shake.x + 4, y: y + shake.y + 57, color, font: {size: 20, style: "bold"}, alignment: "left", baseline: "bottom"});
                     
                     c.options.setShadow();
                     c.draw.image(image.explosion, x + parallellogramWidth - offsets.rockets - 12, y + 5, 24, 24);
@@ -1886,8 +1886,8 @@ addEventListener("DOMContentLoaded", () => {
                 }
                 c.options.setShadow();
                 c.options.setOpacity();
-                if (!p.connected) c.draw.image(image.disconnected, x + (parallellogramWidth - 115) / 2, parallellogram.y - 10, 115, 115);
-                else if (p.lives < 1) c.draw.image(image.eliminated, x + (parallellogramWidth - 115) / 2, parallellogram.y - 10, 115, 115);
+                if (!p.connected) c.draw.image(image.disconnected, x + (parallellogramWidth - 115) / 2, y - 10, 115, 115);
+                else if (p.lives < 1) c.draw.image(image.eliminated, x + (parallellogramWidth - 115) / 2, y - 10, 115, 115);
 
                 i++;
             }
@@ -1896,7 +1896,7 @@ addEventListener("DOMContentLoaded", () => {
             const s = ("0" + Math.max(0, game.remaining % 60)).slice(-2);
             const text = (game.winner !== null) ? `Game ends in ${m}:${s}` : (game.remaining >= 0) ? `Water starts rising in ${m}:${s}` : (game.flooded) ? "Fight to the victory!" : "Water is rising!";
             const color = (game.remaining < 0 && game.winner === null && !game.flooded && frames % 60 < 30) ? theme.colors.error.foreground : theme.getTextColor();
-            c.draw.text({text, x: 15, y: 35, color, font: {size: 28}, alignment: "left"});
+            c.draw.text({text, x: 15 + screenShake.x, y: 35 + screenShake.y, color, font: {size: 28}, alignment: "left"});
             if (state.current === state.PLAYING_LAN) c.draw.text({text: `Ping: ${Math.max(0, ping)} ms`, x: c.width() - 15, y: 25, font: {size: 12}, alignment: "right"});
         } else drawWater();
 
@@ -2047,7 +2047,14 @@ addEventListener("DOMContentLoaded", () => {
         if (bigNotification.a > 0) {
             c.options.setOpacity(bigNotification.a);
             c.options.setShadow(bigNotification.color, 16, 1, 1);
-            c.draw.text({text: bigNotification.text, x: c.width(0.5), y: c.height(0.4), font: {size: bigNotification.size, style: "bold"}, baseline: "middle", maxWidth: c.width(0.9)});
+            c.draw.text({
+                text: bigNotification.text,
+                x: c.width(0.5) + screenShake.x,
+                y: c.height(0.4) + screenShake.y,
+                font: {size: bigNotification.size, style: "bold"},
+                baseline: "middle",
+                maxWidth: c.width((bigNotification.size === bigNotification.defaultSize) ? 0.92 : 5)
+            });
             c.options.setShadow();
             c.options.setOpacity();
         }
