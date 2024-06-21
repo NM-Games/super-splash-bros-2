@@ -9,7 +9,8 @@
     "build-windows": "electron-builder -w",
     "build-mac": "electron-builder -m dmg",
     "build-mac-zip": "electron-builder -m zip",
-    "build-linux": "electron-builder -l"
+    "build-linux": "electron-builder -l",
+    "build-all": "electron-builder -w -l -m zip"
   },
   "repository": {
     "type": "git",
@@ -28,11 +29,11 @@
   },
   "homepage": "https://github.com/NM-Games/super-splash-bros-2#readme",
   "devDependencies": {
-    "electron": "30.0.8",
+    "electron": "31.0.2",
     "electron-builder": "24.13.3"
   },
   "dependencies": {
     "discord-rpc": "4.0.1",
-    "ws": "8.17.0"
+    "ws": "8.17.1"
   }
 }
