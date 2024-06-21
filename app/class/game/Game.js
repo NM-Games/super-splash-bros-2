@@ -349,12 +349,13 @@ class Game {
                 }
             }
             if (p1.superpower.active) {
-                if (!Game.superpowers[p1.superpower.selected].duration)
+                if (!Game.superpowers[p1.superpower.selected].duration && p1.superpower.selected !== Player.superpower.SQUASH)
                     p1.superpower.active = false;
                 else if (this.ping - p1.superpower.lastActivated >= Game.superpowers[p1.superpower.selected].duration)
                     p1.superpower.active = false;
 
                 if (p1.superpower.active && p1.superpower.selected === Player.superpower.SQUASH && p1.ly === p1.y) {
+                    p1.superpower.active = false;
                     p1.damage(this.ping, 60, 95);
                     this.circles.push(new Circle({x: p1.x + p1.size / 2, y: p1.y + p1.size / 2, color: colors.squash, vr: 15, va: 0.009, shake: true}));
                     for (const p2 of this.getPlayers())
