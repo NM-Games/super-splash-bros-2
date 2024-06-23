@@ -105,8 +105,9 @@ app.on("ready", () => {
         if (gameserver.kill()) window.webContents.send("gameserver-stopped");
     });
     ipcMain.on("lan-cycle-theme", () => gameserver.postMessage("theme"));
-    ipcMain.on("ban", (_e, index) => gameserver.postMessage(`ban:${index}`));
-    ipcMain.on("start", () => gameserver.postMessage("start"));
+    ipcMain.on("lan-unban", () => gameserver.postMessage("unban"));
+    ipcMain.on("lan-ban", (_e, index) => gameserver.postMessage(`ban:${index}`));
+    ipcMain.on("lan-start", () => gameserver.postMessage("start"));
 
     ipcMain.on("discord-activity-update", (_e, state, playerIndex, playerName, partySize, partyMax, startTimestamp) => {
         discord.setActivity({

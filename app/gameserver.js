@@ -30,6 +30,7 @@ process.parentPort.on("message", (msg) => {
     else if (msg.data === "theme") game.theme = cycle(game.theme);
     else if (msg.data.startsWith("theme:")) game.theme = msg.data.slice(6);
     else if (msg.data.startsWith("ban:")) game.ban(+msg.data.slice(4));
+    else if (msg.data === "unban") game.blacklist.splice(0, game.blacklist.length);
 });
 
 const game = new Game("lan");

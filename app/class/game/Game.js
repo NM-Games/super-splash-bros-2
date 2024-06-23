@@ -492,6 +492,7 @@ class Game {
             winner: this.winner,
             floodLevel: this.floodLevel,
             flooded: (this.floodLevel === Game.floodMaxLevel),
+            banCount: this.blacklist.length,
             remaining
         };
     }

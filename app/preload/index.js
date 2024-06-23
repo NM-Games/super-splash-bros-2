@@ -935,21 +935,33 @@ Button.items = [
         id: "LANGameTheme",
         text: "Theme",
         state: state.WAITING_LAN_HOST,
-        x: () => c.width(1/2) - 250,
+        x: () => c.width(1/2) - 360,
         y: () => c.height(17/20),
         onclick: () => ipcRenderer.send("lan-cycle-theme")
+    }),
+    new Button({
+        id: "LANUnban",
+        text: "Unban everyone",
+        state: state.WAITING_LAN_HOST,
+        disabled: true,
+        x: () => c.width(1/2),
+        y: () => c.height(17/20),
+        onclick: function() {
+            this.hovering = false;
+            ipcRenderer.send("lan-unban");
+        }
     }),
     new Button({
         id: "StartLANGame",
         text: "Start!",
         state: state.WAITING_LAN_HOST,
-        x: () => c.width(1/2) + 250,
+        x: () => c.width(1/2) + 360,
         y: () => c.height(17/20),
         disabled: true,
         onclick: function() {
             this.hovering = false;
             banButton.hoverIndex = -1;
-            ipcRenderer.send("start");
+            ipcRenderer.send("lan-start");
         }
     }),
     // LAN game waiting menu (guest)
@@ -1524,7 +1536,7 @@ addEventListener("DOMContentLoaded", () => {
             } else if (button.active) button.active = false;
         }
         if (banButton.hoverIndex > -1 && banButton.active) {
-            if (state.current === state.WAITING_LAN_HOST) ipcRenderer.send("ban", banButton.hoverIndex);
+            if (state.current === state.WAITING_LAN_HOST) ipcRenderer.send("lan-ban", banButton.hoverIndex);
             else if (state.current === state.WAITING_FREEPLAY) instance.ban(banButton.hoverIndex);
         }
         banButton.hoverIndex = -1;
@@ -1553,6 +1565,7 @@ addEventListener("DOMContentLoaded", () => {
             if (!lgame) lgame = JSON.parse(JSON.stringify(game));
             
             Button.getButtonById("StartLANGame").disabled = (game.connected <= 1);
+            Button.getButtonById("LANUnban").disabled = (game.banCount === 0);
             Button.getButtonById(`Back-${state.WAITING_LAN_HOST}`).danger = (game.connected > 1);
 
             if (lgame.startState === 0 && game.startState === 1) water.flood.enable(false, true);
