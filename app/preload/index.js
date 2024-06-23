@@ -2000,6 +2000,7 @@ addEventListener("DOMContentLoaded", () => {
             } else {
                 const text = (state.current === state.WAITING_LAN_GUEST) ? "Waiting until start..." : mainIP;
                 c.draw.text({text, x: c.width(0.5) + state.change.x, y: c.height(0.125), font: {size: 58, style: "bold", shadow: true}});
+                if (state.current === state.WAITING_LAN_GUEST) c.draw.text({text: `You have joined ${getEnteredIP().join(".")}`, x: c.width(0.5) + state.change.x, y: c.height(0.125) + 40, font: {size: 18, shadow: true}});
             }
 
             if (state.current === state.WAITING_LAN_HOST) {
