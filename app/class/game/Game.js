@@ -23,6 +23,7 @@ class Game {
         name: "Squash",
         /** @param {Player} p */
         condition: (p) => Math.abs(p.vy) >= 1,
+        conditionText: "Requires player to be in the air",
         /** @param {Player} p */
         action: (p) => p.vy = 100
     }, {
@@ -60,6 +61,7 @@ class Game {
         name: "Exclusive Platform",
         /** @param {Player} p */
         condition: (p) => Math.abs(p.vy) >= 1,
+        conditionText: "Requires player to be in the air",
         duration: 10000,
         /** @param {Player} p */
         action: (p) => {
@@ -339,14 +341,12 @@ class Game {
                 } else if (this.fish.item.takenBy === p1.index) this.fish.item.collides = this.fish.item.collidesWithTaker = false;
             }
 
-            if (p1.keys.superpower && p1.superpower.available && !p1.superpower.active) {
-                const superpower = Game.superpowers[p1.superpower.selected];
-                if (superpower.condition(p1)) {
-                    p1.superpower.available = false;
-                    p1.superpower.active = true;
-                    p1.superpower.lastActivated = this.ping;
-                    if (superpower.action) superpower.action(p1, this);
-                }
+            p1.superpower.meetsCondition = Game.superpowers[p1.superpower.selected].condition(p1);
+            if (p1.keys.superpower && p1.superpower.available && !p1.superpower.active && p1.superpower.meetsCondition) {
+                p1.superpower.available = false;
+                p1.superpower.active = true;
+                p1.superpower.lastActivated = this.ping;
+                if (Game.superpowers[p1.superpower.selected].action) Game.superpowers[p1.superpower.selected].action(p1, this);
             }
             if (p1.superpower.active) {
                 if (!Game.superpowers[p1.superpower.selected].duration && p1.superpower.selected !== Player.superpower.SQUASH)

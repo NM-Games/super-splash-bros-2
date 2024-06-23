@@ -89,6 +89,7 @@ class Player {
             selected: appearance.superpower,
             available: false,
             active: false,
+            meetsCondition: false,
             lastActivated: -6e9
         };
         this.exclusivePlatform = null;

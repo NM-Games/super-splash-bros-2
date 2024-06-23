@@ -76,6 +76,7 @@ The fish is the new item box in Super Splash Bros 2. However, fish only give you
 More superpowers have been added in Super Splash Bros 2. Below are all currently available superpowers:
 - **Squash**  
   Performing a squash will cause the player to move to the ground very fast. Once the player hits the ground, it will create a shockwave, moving other players out of the way. All players, including the performer, will take damage as well.
+  - This superpower requires the player to be in the air, otherwise it will not activate.
   - [+] Other players get seriously damaged and pushed away from the performer.
   - [-] The performer will even get more damage from the fall.
   - [-] There is a small chance that the performer will phase through a platform, causing them to fall into water, wasting their squash.
@@ -107,6 +108,7 @@ More superpowers have been added in Super Splash Bros 2. Below are all currently
   - [-] Requires some timing and aiming skills.
 - **Exclusive Platform**  
   This superpower creates a special platform underneath the performer for 10 seconds. And only the performer can collide with it! Other players will fall right through it.
+  - This superpower requires the player to be in the air, otherwise it will not activate.
   - [+] Enjoy the enemies trying to get you off, since the friction on exclusive platforms is higher.
   - [-] Exclusive platforms give no warning before they disappear.
 

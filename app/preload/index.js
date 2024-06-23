@@ -1853,8 +1853,9 @@ addEventListener("DOMContentLoaded", () => {
                 const decimalOffset = c.draw.text({text: Math.floor(p.hit.percentage), font: {size: 48, style: "bold"}, measure: true});
                 const decimalText = (parallellogramWidth > 250) ? p.hit.percentage.toFixed(1).slice(-2) + "%" : "%";
 
-                if (frames % 60 < 30 && p.superpower.available) c.options.setShadow(theme.colors.text.light, 12);
-                else if (frames % 60 < 30 && p.superpower.active) c.options.setShadow(theme.colors.ui.highlight, 12);
+                if (frames % 30 < 20 && p.superpower.available && p.superpower.meetsCondition) c.options.setShadow(theme.colors.text.light, 12);
+                else if (frames % 30 < 20 && p.superpower.available) c.options.setShadow(theme.colors.error.foreground, 12);
+                else if (frames % 30 < 20 && p.superpower.active) c.options.setShadow(theme.colors.ui.highlight, 12);
                 else c.options.setShadow(theme.colors.shadow, 4);
 
                 if (p.lives < 1 || !p.connected) c.options.setOpacity(0.3);
@@ -1954,7 +1955,9 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.croppedImage(image.sprites, config.appearance.preferredColor * 128, 0, 128, 128, c.width(0.2) - 35 + state.change.x, 370, 70, 70);
             c.draw.croppedImage(image.superpowers, 0, config.appearance.superpower * 70, 140, 70, c.width(0.2) - 70 + state.change.x, 550, 140, 70);
             c.draw.text({text: colors[config.appearance.preferredColor], x: c.width(0.2) + state.change.x, y: 470, font: {size: 30, style: "bold", shadow: true}, baseline: "middle"}); 
-            c.draw.text({text: superpowers[config.appearance.superpower], x: c.width(0.2) + state.change.x, y: 650, font: {size: 30, style: "bold", shadow: true}, baseline: "middle", maxWidth: Button.width - 90}); 
+            c.draw.text({text: superpowers[config.appearance.superpower], x: c.width(0.2) + state.change.x, y: 650, font: {size: 30, style: "bold", shadow: true}, baseline: "middle", maxWidth: Button.width - 90});
+            if (Game.superpowers[config.appearance.superpower].conditionText)
+                c.draw.text({text: Game.superpowers[config.appearance.superpower].conditionText, x: c.width(0.2) + state.change.x, y: 690, font: {size: 16, shadow: true}, baseline: "middle"});
 
             const keybinds = ["Move left", "Move right", "Jump", "Attack", "Launch rocket", "Activate superpower", "Game menu"];
             for (let i=0; i<keybinds.length; i++)
