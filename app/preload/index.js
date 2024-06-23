@@ -134,9 +134,10 @@ const connect = (asHost) => {
                 const reason = (e.reason) ? e.reason : "You have been disconnected because the game you were in was closed.";
                 state.change.to(state.LAN_GAME_MENU, true, () => {
                     stop();
+                    dialog.close();
+                    gameMenu.visible = false;
                     water.flood.disable();
                     errorAlert.show(reason);
-                    theme.current = config.graphics.theme;
                 });
             }
         },
@@ -161,6 +162,7 @@ const leave = () => {
                 socket.close();
                 errorAlert.suppress();
                 state.current = state.LAN_GAME_MENU;
+                stop();
             }
         } else if (state.is(state.PLAYING_LOCAL, state.PLAYING_FREEPLAY)) {
             state.current = state.MAIN_MENU;
@@ -172,6 +174,7 @@ const leave = () => {
 };
 
 const stop = () => {
+    theme.current = config.graphics.theme;
     instance = game = undefined;
     playerIndex = -1;
 };
@@ -1381,7 +1384,6 @@ addEventListener("DOMContentLoaded", () => {
         setConnectElementsState(false);
     });
     ipcRenderer.on("gameserver-stopped", () => {
-        theme.current = config.graphics.theme;
         errorAlert.suppress();
         if (state.current === state.WAITING_LAN_HOST) state.change.to(state.LAN_GAME_MENU, true, stop); else {
             state.current = state.LAN_GAME_MENU;
