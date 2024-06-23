@@ -12,7 +12,7 @@ class Fish {
     static start = 10000;
     static frequency = 20000;
     static hideDelay = 8000;
-    static increment = 0.01;
+    static increment = 0.025;
 
     static width = 69;
     static height = 100;

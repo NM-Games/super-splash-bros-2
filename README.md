@@ -66,7 +66,7 @@ Please remain calm!
 
 ## Fish
 The fish is the new item box in Super Splash Bros 2. However, fish only give you your superpower.
-- Players have to collide for about 2 seconds with a fish in order to get their superpower available.
+- Players have to collide for about 0.9 seconds with a fish in order to get their superpower available.
 - Fish spawn every 15 to 36 seconds, depending on how many players were in the lobby at game start.
 - A fish spawn begins with the fish teleporting between the left and right sides of the water, and shortly after it will jump into the air.
 - Fish remain in the air for 8 seconds. If the fish has not been fully claimed yet, it will fall down into the water again.
