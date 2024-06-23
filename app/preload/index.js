@@ -499,6 +499,7 @@ Button.items = [
                 instance.addDummies();
                 instance.hostIndex = playerIndex = config.appearance.preferredColor;
                 Button.getButtonById("FreeplayGameTheme").text = `Theme: ${instance.theme}`;
+                Button.getButtonById("FreeplayDummyFire").text = `Dummy fire: ${instance.dummyFire ? "ON" : "OFF"}`;
             });
         }
     }),
@@ -1002,7 +1003,7 @@ Button.items = [
         id: "FreeplayGameTheme",
         text: "Theme",
         state: state.WAITING_FREEPLAY,
-        x: () => c.width(1/2) - 250,
+        x: () => c.width(1/2) - 360,
         y: () => c.height(17/20),
         onclick: () => {
             instance.theme = theme.cycle(instance.theme)
@@ -1011,10 +1012,21 @@ Button.items = [
         }
     }),
     new Button({
+        id: "FreeplayDummyFire",
+        text: "Dummy fire",
+        state: state.WAITING_FREEPLAY,
+        x: () => c.width(1/2),
+        y: () => c.height(17/20),
+        onclick: () => {
+            instance.dummyFire = !instance.dummyFire;
+            Button.getButtonById("FreeplayDummyFire").text = `Dummy fire: ${instance.dummyFire ? "ON" : "OFF"}`;
+        }
+    }),
+    new Button({
         id: "StartFreeplayGame",
         text: "Start!",
         state: state.WAITING_FREEPLAY,
-        x: () => c.width(1/2) + 250,
+        x: () => c.width(1/2) + 360,
         y: () => c.height(17/20),
         onclick: function() {
             this.hovering = false;

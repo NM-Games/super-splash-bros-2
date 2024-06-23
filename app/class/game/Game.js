@@ -94,6 +94,8 @@ class Game {
     startedOn;
     endedOn;
     mode;
+    /** Applies to Freeplay mode only! */
+    dummyFire;
     /** @type {string[]} */
     blacklist;
     /** @type {number} */
@@ -126,6 +128,7 @@ class Game {
             spawned: false,
             lastSpawned: false
         };
+        if (mode === "freeplay") this.dummyFire = false;
         this.startState = 0;
         this.startedOn = -6e9;
         this.endedOn = -6e9;
@@ -322,6 +325,7 @@ class Game {
                 }
             }
 
+            if (this.dummyFire && Math.random() < 0.003 && this.hostIndex !== p1.index) p1.keys.rocket = true;
             if (p1.keys.rocket && p1.attacks.rocket.count > 0 && this.ping - p1.attacks.rocket.lastPerformed >= p1.attacks.rocket.cooldown) {
                 p1.attacks.rocket.lastPerformed = this.ping;
                 p1.attacks.rocket.count--;
@@ -459,7 +463,10 @@ class Game {
             this.fish.item = null;
         }
 
-        for (const p of this.getPlayers()) p.updateCoordinates();
+        for (const p of this.getPlayers()) {
+            p.updateCoordinates();
+            if (this.dummyFire) p.keys.rocket = false;
+        }
     }
 
     /** Export the game to clients. */
