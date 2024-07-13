@@ -1,27 +1,26 @@
 /**
  * @typedef {{
  *  appearance: {playerName: string, preferredColor: number, superpower: number},
- *  graphics: {theme: import("./theme").Themes, fullScreen: boolean, waterFlow: boolean, menuSprites: boolean},
+ *  graphics: {theme: import("./preload/theme").Themes, fullScreen: boolean, waterFlow: boolean, menuSprites: boolean},
  *  controls: {moveLeft: string, moveRight: string, jump: string, attack: string, launchRocket: string, activateSuperpower: string, gameMenu: string},
  *  audio: {music: boolean, sfx: boolean}
  * }} Settings
  */
 
+const { app } = require("electron");
 const { readFileSync, writeFileSync, existsSync } = require("fs");
-const { homedir, EOL, platform } = require("os");
+const { EOL } = require("os");
 const { join } = require("path");
 
-const filePath = (platform() === "win32")
-    ? join(homedir(), "AppData", "Roaming", "ssb2settings.json")
-    : join(homedir(), ".ssb2settings.json");
+const { generateName } = require("./class/game/Player");
 
-const generatePlayerName = () => {
-    return "Splasher" + ("000" + Math.ceil(Math.random() * 9999)).slice(-4);
-};
 
+const filePath = join(app.getPath("appData"), app.name, "settings.json");
+
+/** @type {Settings} */
 const template = {
     appearance: {
-        playerName: generatePlayerName(),
+        playerName: generateName(),
         preferredColor: 0,
         superpower: 0
     },
@@ -68,7 +67,7 @@ const get = () => {
  */
 const set = (settings) => {
     const json = JSON.stringify(settings, null, 4);
-    writeFileSync(filePath, json + EOL);
+    writeFileSync(filePath, json.replaceAll("\n", EOL) + EOL);
 };
 
 /**
@@ -83,4 +82,4 @@ const init = () => {
     }
 };
 
-module.exports = {init, get, set, filePath, template, generatePlayerName};
+module.exports = {init, get, set, filePath, template};

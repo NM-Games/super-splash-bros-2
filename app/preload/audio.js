@@ -3,7 +3,7 @@
  * @param {HTMLAudioElement} audio
  * 
  * @callback UpdateCallback
- * @param {import("./settings").Settings["audio"]} config
+ * @param {import("../configfile").Settings["audio"]} config
  */
 
 const { join } = require("path");

@@ -8,7 +8,6 @@ const audio = require("./audio");
 const theme = require("./theme");
 const socket = require("./socket");
 const gamepad = require("./gamepad");
-const settings = require("./settings");
 const network = require("../network");
 const Button = require("../class/ui/Button");
 const Input = require("../class/ui/Input");
@@ -18,7 +17,6 @@ const Player = require("../class/game/Player");
 const Exclusive = require("../class/game/Exclusive");
 const Geyser = require("../class/game/Geyser");
 const Fish = require("../class/game/Fish");
-
 
 const state = {
     MAIN_MENU: 0,
@@ -189,7 +187,7 @@ const checkLANAvailability = () => {
 
 const keyChange = () => (JSON.stringify(keys) !== JSON.stringify(lastKeys));
 
-/** @type {import("./settings").Settings} */
+/** @type {import("../configfile").Settings} */
 const config = {appearance: {}, graphics: {}, controls: {}, audio: {}};
 const versions = {game: "", electron: "", chromium: ""};
 const keys = {
@@ -741,7 +739,7 @@ Button.items = [
         onclick: function() {
             config.audio.music = !config.audio.music;
             audio._update(config.audio);
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     }),
     new Button({
@@ -752,7 +750,7 @@ Button.items = [
         onclick: function() {
             config.audio.sfx = !config.audio.sfx;
             audio._update(config.audio);
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     }),
     new Button({
@@ -777,7 +775,7 @@ Button.items = [
         height: Button.height / 2,
         onclick: () => {
             if (config.appearance.preferredColor-- <= 0) config.appearance.preferredColor = 7;
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     }),
     new Button({
@@ -789,7 +787,7 @@ Button.items = [
         height: Button.height / 2,
         onclick: () => {
             if (config.appearance.preferredColor++ >= 7) config.appearance.preferredColor = 0;
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     }),
     // for the superpower switch:
@@ -803,7 +801,7 @@ Button.items = [
         onclick: () => {
             if (config.appearance.superpower-- <= 0)
                 config.appearance.superpower = Game.superpowers.length - 1;
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     }),
     new Button({
@@ -816,7 +814,7 @@ Button.items = [
         onclick: () => {
             if (config.appearance.superpower++ >= Game.superpowers.length - 1)
                 config.appearance.superpower = 0;
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     }),
     new Button({
@@ -828,7 +826,7 @@ Button.items = [
         onclick: function() {
             config.graphics.theme = theme.current = theme.cycle();
             this.text = `Theme: ${theme.current}`;
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     }),
     new Button({
@@ -851,7 +849,7 @@ Button.items = [
         onclick: function() {
             config.graphics.waterFlow = !config.graphics.waterFlow;
             this.text = `Water flow: ${config.graphics.waterFlow ? "ON":"OFF"}`;
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     }),
     new Button({
@@ -863,7 +861,7 @@ Button.items = [
         onclick: function() {
             config.graphics.menuSprites = !config.graphics.menuSprites;
             this.text = `Menu sprites: ${config.graphics.menuSprites ? "ON":"OFF"}`;
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     }),
     // About menu
@@ -1079,7 +1077,7 @@ Button.gameMenuItems = [
         onclick: function() {
             config.audio.music = !config.audio.music;
             audio._update(config.audio);
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     }),
     new Button({
@@ -1089,7 +1087,7 @@ Button.gameMenuItems = [
         onclick: function() {
             config.audio.sfx = !config.audio.sfx;
             audio._update(config.audio);
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     })
 ];
@@ -1228,9 +1226,9 @@ Input.items = [
         width: Button.width + 50,
         size: 25,
         onblur: function() {
-            if (this.value.trim().length === 0) this.value = settings.generatePlayerName();
+            if (this.value.trim().length === 0) this.value = Player.generateName();
             config.appearance.playerName = this.value.slice(0, this.maxLength);
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     }),
     new Input({
@@ -1242,7 +1240,7 @@ Input.items = [
         keybind: true,
         onkeybindselected: (key) => {
             config.controls.moveLeft = key;
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     }),
     new Input({
@@ -1254,7 +1252,7 @@ Input.items = [
         keybind: true,
         onkeybindselected: (key) => {
             config.controls.moveRight = key;
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     }),
     new Input({
@@ -1266,7 +1264,7 @@ Input.items = [
         keybind: true,
         onkeybindselected: (key) => {
             config.controls.jump = key;
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     }),
     new Input({
@@ -1278,7 +1276,7 @@ Input.items = [
         keybind: true,
         onkeybindselected: (key) => {
             config.controls.attack = key;
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     }),
     new Input({
@@ -1290,7 +1288,7 @@ Input.items = [
         keybind: true,
         onkeybindselected: (key) => {
             config.controls.launchRocket = key;
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     }),
     new Input({
@@ -1302,7 +1300,7 @@ Input.items = [
         keybind: true,
         onkeybindselected: (key) => {
             config.controls.activateSuperpower = key;
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     }),
     new Input({
@@ -1314,7 +1312,7 @@ Input.items = [
         keybind: true,
         onkeybindselected: (key) => {
             config.controls.gameMenu = key;
-            settings.set(config);
+            ipcRenderer.send("update-config", config);
         }
     })
 ];
@@ -1322,36 +1320,11 @@ Input.items = [
 addEventListener("DOMContentLoaded", () => {
     c.init();
 
-    settings.init();
-    const configFile = settings.get();
-    config.appearance = configFile.appearance ?? settings.template.appearance;
-    config.graphics = configFile.graphics ?? settings.template.graphics;
-    config.controls = configFile.controls ?? settings.template.controls;
-    config.audio = configFile.audio ?? settings.template.audio;
-
-    audio._update(config.audio);
     audio.music.loop = true;
 
     checkLANAvailability();
     setInterval(checkLANAvailability, 5000);
     setInterval(() => ping = (game) ? new Date().getTime() - game.ping : 0, 1000);
-
-    Input.getInputById("Username").value = config.appearance.playerName;
-
-    theme.current = config.graphics.theme;
-    Button.getButtonById("Theme").text = `Theme: ${theme.current}`;
-
-    if (config.graphics.fullScreen) ipcRenderer.send("toggle-fullscreen");
-    Button.getButtonById("WaterFlow").text = `Water flow: ${config.graphics.waterFlow ? "ON":"OFF"}`;
-    Button.getButtonById("MenuSprites").text = `Menu sprites: ${config.graphics.menuSprites ? "ON":"OFF"}`;
-
-    Input.getInputById("Keybind-MoveLeft").value = Input.displayKeybind(config.controls.moveLeft);
-    Input.getInputById("Keybind-MoveRight").value = Input.displayKeybind(config.controls.moveRight);
-    Input.getInputById("Keybind-Jump").value = Input.displayKeybind(config.controls.jump);
-    Input.getInputById("Keybind-Attack").value = Input.displayKeybind(config.controls.attack);
-    Input.getInputById("Keybind-LaunchRocket").value = Input.displayKeybind(config.controls.launchRocket);
-    Input.getInputById("Keybind-ActivateSuperpower").value = Input.displayKeybind(config.controls.activateSuperpower);
-    Input.getInputById("Keybind-GameMenu").value = Input.displayKeybind(config.controls.gameMenu);
 
     const ip = network.getIPs()[0] ?? "...";
     const ipFragments = ip.split(".");
@@ -1383,13 +1356,31 @@ addEventListener("DOMContentLoaded", () => {
     ipcRenderer.on("fullscreen-status", (_e, enabled) => {
         config.graphics.fullScreen = enabled;
         Button.getButtonById("Fullscreen").text = `Full screen: ${enabled ? "ON":"OFF"}`;
-        settings.set(config);
+        ipcRenderer.send("update-config", config);
     });
-    ipcRenderer.on("information", (_e, gameV, electronV, chromiumV, maxWidth) => {
-        versions.game = gameV;
-        versions.electron = electronV;
-        versions.chromium = chromiumV;
+    ipcRenderer.on("start", (_e, conf, ver, maxWidth) => {
+        for (let i in config) config[i] = conf[i];
+        for (let i in versions) versions[i] = ver[i];
         MenuSprite.generate(maxWidth);
+
+        Input.getInputById("Username").value = config.appearance.playerName;
+
+        theme.current = config.graphics.theme;
+        Button.getButtonById("Theme").text = `Theme: ${theme.current}`;
+    
+        if (config.graphics.fullScreen) ipcRenderer.send("toggle-fullscreen");
+        Button.getButtonById("WaterFlow").text = `Water flow: ${config.graphics.waterFlow ? "ON":"OFF"}`;
+        Button.getButtonById("MenuSprites").text = `Menu sprites: ${config.graphics.menuSprites ? "ON":"OFF"}`;
+    
+        Input.getInputById("Keybind-MoveLeft").value = Input.displayKeybind(config.controls.moveLeft);
+        Input.getInputById("Keybind-MoveRight").value = Input.displayKeybind(config.controls.moveRight);
+        Input.getInputById("Keybind-Jump").value = Input.displayKeybind(config.controls.jump);
+        Input.getInputById("Keybind-Attack").value = Input.displayKeybind(config.controls.attack);
+        Input.getInputById("Keybind-LaunchRocket").value = Input.displayKeybind(config.controls.launchRocket);
+        Input.getInputById("Keybind-ActivateSuperpower").value = Input.displayKeybind(config.controls.activateSuperpower);
+        Input.getInputById("Keybind-GameMenu").value = Input.displayKeybind(config.controls.gameMenu);
+    
+        audio._update(config.audio);
     });
     ipcRenderer.on("gameserver-error", (_e, err) => {
         errorAlert.show(`${err.name}: ${err.message}`);
@@ -1655,7 +1646,7 @@ addEventListener("DOMContentLoaded", () => {
         if (frames - connectionMessage.shownAt >= connectionMessage.duration) connectionMessage.a = Math.max(connectionMessage.a - 0.05, 0);
         screenShake.update();
         
-        water.x += Number(config.graphics.waterFlow) * water.vx;
+        water.x += Number(config.graphics.waterFlow ?? 0) * water.vx;
         if (water.x < -image.water.width) water.x = 0;
         if (water.flood.enabling) {
             water.flood.level -= water.flood.levelSpeed;
@@ -1728,11 +1719,6 @@ addEventListener("DOMContentLoaded", () => {
         }
 
         const drawWater = () => {
-            water.imageX = 0;
-            while (water.imageX < c.width() + image.water.width) {
-                c.draw.image(image.water, water.x + water.imageX, water.flood.level - image.water.height);
-                water.imageX += image.water.width;
-            }
             c.draw.fill.rect(
                 c.options.gradient(0, water.flood.level, 0, water.flood.level + c.height(),
                 {pos: 0, color: theme.colors.ui.secondary}, {pos: 0.5, color: theme.colors.ui.primary}, {pos: 1, color: theme.colors.ui.secondary}),
@@ -1741,7 +1727,13 @@ addEventListener("DOMContentLoaded", () => {
                 c.width(),
                 c.height() + 2
             );
-            if (water.flood.showMessage) c.draw.text({text: "Good luck, have fun!", x: c.width(0.5), y: water.flood.level + c.height(0.5), color: theme.colors.ui.secondary, font: {size: 100, style: "bold"}, baseline: "middle"});        
+            if (water.flood.showMessage) c.draw.text({text: "Good luck, have fun!", x: c.width(0.5), y: water.flood.level + c.height(0.5), color: theme.colors.ui.secondary, font: {size: 100, style: "bold"}, baseline: "middle"});
+
+            water.imageX = 0;
+            while (water.imageX < c.width() + image.water.width) {
+                c.draw.image(image.water, water.x + water.imageX, water.flood.level - image.water.height);
+                water.imageX += image.water.width;
+            }
         };
 
         if (state.is(state.MAIN_MENU, state.SETTINGS, state.ABOUT, state.WAITING_LOCAL, state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY)) {

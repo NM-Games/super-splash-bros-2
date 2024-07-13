@@ -1,6 +1,6 @@
 /**
  * @typedef {import("../../preload/theme").Themes} Themes
- * @typedef {import("../../preload/settings").Settings["appearance"]} Appearance
+ * @typedef {import("../../configfile").Settings["appearance"]} Appearance
  */
 
 const Player = require("./Player");

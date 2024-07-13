@@ -3,6 +3,7 @@ const { join } = require("path");
 
 const network = require("./network");
 const { version } = require("../package.json");
+const configfile = require("./configfile");
 const discord = require("./discord");
 
 
@@ -27,14 +28,15 @@ if (process.platform === "darwin") {
     }]));
 }
 
-app.on("ready", () => {
+app.whenReady().then(() => {
     if (!app.requestSingleInstanceLock()) {
         dialog.showErrorBox(`Cannot start ${app.name}`, "You already have an instance running on this device!");
         app.exit(1);
         return;
     }
+    configfile.init();
 
-    const toggleFullScreen = () => {
+    const toggleFullScreen = (init) => {
         window.setFullScreen(!window.isFullScreen());
     };
 
@@ -57,15 +59,18 @@ app.on("ready", () => {
     window.setTitle(app.name);
     window.loadFile(join(__dirname, "window", "index.html"));
     window.setIcon(join(__dirname, "img", "icons", "128x128.png"));
-    window.webContents.on("dom-ready", () => {
-        let totalWidth = 0;
-        for (const scr of screen.getAllDisplays()) totalWidth += scr.bounds.width;
-
-        window.webContents.send("information", version, process.versions.electron, process.versions.chrome, totalWidth);
-    });
 
     window.on("ready-to-show", () => {
         window.webContents.send("fullscreen-status", window.isFullScreen());
+
+        let totalWidth = 0;
+        for (const scr of screen.getAllDisplays()) totalWidth += scr.bounds.width;
+        window.webContents.send("start",
+            configfile.get(),
+            {game: version, electron: process.versions.electron, chromium: process.versions.chrome},
+            totalWidth
+        );
+
         window.show();
     });
 
@@ -104,6 +109,9 @@ app.on("ready", () => {
     ipcMain.on("stop-gameserver", () => {
         if (gameserver.kill()) window.webContents.send("gameserver-stopped");
     });
+
+    ipcMain.on("update-config", (_e, config) => configfile.set(config));
+
     ipcMain.on("lan-cycle-theme", () => gameserver.postMessage("theme"));
     ipcMain.on("lan-unban", () => gameserver.postMessage("unban"));
     ipcMain.on("lan-ban", (_e, index) => gameserver.postMessage(`ban:${index}`));

@@ -47,9 +47,13 @@ class Player {
     respawn;
     spawnProtection;
 
+    static generateName() {
+        return "Splasher" + ("000" + Math.ceil(Math.random() * 9999)).slice(-4);
+    }
+
     /**
      * @constructor
-     * @param {import("../../preload/settings").Settings["appearance"]} appearance
+     * @param {import("../../configfile").Settings["appearance"]} appearance
      * @param {number | undefined} index
      * @param {{x: number, y: number}[]} coordinates
      */
@@ -105,7 +109,7 @@ class Player {
 
     /**
      * Set the keys of a player.
-     * @param {import("../../preload/settings").Settings["controls"]} keys
+     * @param {import("../../configfile").Settings["controls"]} keys
      */
     setKeys(keys) {
         this.keys.left = keys.moveLeft;

@@ -37,7 +37,7 @@ const send = (data) => {
 };
 /**
  * Update the pressed keys.
- * @param {import("./settings").Settings["controls"]} keys 
+ * @param {import("../configfile").Settings["controls"]} keys 
  */
 const sendKeys = (keys) => {
     if (!ws || ws.readyState !== ws.OPEN) return;
@@ -63,7 +63,7 @@ const parse = (data) => {
  * Connect with a Super Splash Bros server.
  * @param {{
  *  ip: string,
- *  appearance: import("./settings").Settings["appearance"]
+ *  appearance: import("../configfile").Settings["appearance"]
  *  timeout?: number,
  *  onopen?: EmptyCallback,
  *  onclose?: EmptyCallback,

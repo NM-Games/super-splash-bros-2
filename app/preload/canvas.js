@@ -400,7 +400,7 @@ const draw = {
         });
         options.filter.remove("grayscale");
     }
-}
+};
 
 module.exports = {
     init,
