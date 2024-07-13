@@ -24,8 +24,6 @@ const Game = require("./class/game/Game");
 
 
 process.parentPort.on("message", (msg) => {
-    console.log(`Incoming post message: ${msg.data}`);
-
     if (msg.data === "start") game.start();
     else if (msg.data === "theme") game.theme = cycle(game.theme);
     else if (msg.data.startsWith("theme:")) game.theme = msg.data.slice(6);
@@ -73,7 +71,6 @@ wss.on("connection", (socket, request) => {
     socket.ip = request.socket.remoteAddress;
     socket.on("message", (data) => {
         const payload = Buffer.isBuffer(data) ? new TextDecoder().decode(data) : data;
-        console.log(`Incoming socket message: ${payload}`);
         
         /** @type {SocketData} */
         let json;
