@@ -36,7 +36,7 @@ app.whenReady().then(() => {
     }
     configfile.init();
 
-    const toggleFullScreen = (init) => {
+    const toggleFullScreen = () => {
         window.setFullScreen(!window.isFullScreen());
     };
 
@@ -61,8 +61,6 @@ app.whenReady().then(() => {
     window.setIcon(join(__dirname, "img", "icons", "128x128.png"));
 
     window.on("ready-to-show", () => {
-        window.webContents.send("fullscreen-status", window.isFullScreen());
-
         let totalWidth = 0;
         for (const scr of screen.getAllDisplays()) totalWidth += scr.bounds.width;
         window.webContents.send("start",
@@ -71,6 +69,7 @@ app.whenReady().then(() => {
             totalWidth
         );
 
+        window.webContents.send("fullscreen-status", window.isFullScreen());
         window.show();
     });
 
