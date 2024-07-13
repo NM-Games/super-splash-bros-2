@@ -15,7 +15,7 @@ client.login({clientId: "1245061758662479943", scopes: ["rpc.activities.write"]}
  *  startTimestamp: number | undefined
  * }} activity
  */
-const setActivity = (activity) => {
+module.exports = (activity) => {
     client.setActivity({
         state: activity.state,
         partySize: activity.party.size,
@@ -27,5 +27,3 @@ const setActivity = (activity) => {
         smallImageText: activity.player.name
     });
 };
-
-module.exports = {setActivity};

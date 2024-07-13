@@ -118,7 +118,7 @@ app.whenReady().then(() => {
     ipcMain.on("lan-start", () => gameserver.postMessage("start"));
 
     ipcMain.on("discord-activity-update", (_e, state, playerIndex, playerName, partySize, partyMax, startTimestamp) => {
-        discord.setActivity({
+        discord({
             state,
             player: {index: playerIndex, name: playerName},
             party: {size: partySize, max: partyMax},
