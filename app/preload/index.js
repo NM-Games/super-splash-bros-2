@@ -496,8 +496,9 @@ Button.items = [
                 instance.players[config.appearance.preferredColor] = new Player(config.appearance, config.appearance.preferredColor, instance.spawnCoordinates);
                 instance.addDummies();
                 instance.hostIndex = playerIndex = config.appearance.preferredColor;
+                const difficulty = (instance.dummyDifficulty === 0) ? "None" : (instance.dummyDifficulty === 1) ? "Easy" : (instance.dummyDifficulty === 2) ? "Normal" : "Hard";
                 Button.getButtonById("FreeplayGameTheme").text = `Theme: ${instance.theme}`;
-                Button.getButtonById("FreeplayDummyFire").text = `Dummy fire: ${instance.dummyFire ? "ON" : "OFF"}`;
+                Button.getButtonById("FreeplayDummyDifficulty").text = `Difficulty: ${difficulty}`;
             });
         }
     }),
@@ -1010,14 +1011,15 @@ Button.items = [
         }
     }),
     new Button({
-        id: "FreeplayDummyFire",
+        id: "FreeplayDummyDifficulty",
         text: "Dummy fire",
         state: state.WAITING_FREEPLAY,
         x: () => c.width(1/2),
         y: () => c.height(17/20),
         onclick: () => {
-            instance.dummyFire = !instance.dummyFire;
-            Button.getButtonById("FreeplayDummyFire").text = `Dummy fire: ${instance.dummyFire ? "ON" : "OFF"}`;
+            if (instance.dummyDifficulty++ >= 3) instance.dummyDifficulty = 0;
+            const difficulty = (instance.dummyDifficulty === 0) ? "None" : (instance.dummyDifficulty === 1) ? "Easy" : (instance.dummyDifficulty === 2) ? "Normal" : "Hard";
+            Button.getButtonById("FreeplayDummyDifficulty").text = `Difficulty: ${difficulty}`;
         }
     }),
     new Button({

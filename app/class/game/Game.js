@@ -95,7 +95,7 @@ class Game {
     endedOn;
     mode;
     /** Applies to Freeplay mode only! */
-    dummyFire;
+    dummyDifficulty;
     /** @type {string[]} */
     blacklist;
     /** @type {number} */
@@ -128,7 +128,7 @@ class Game {
             spawned: false,
             lastSpawned: false
         };
-        if (mode === "freeplay") this.dummyFire = false;
+        if (mode === "freeplay") this.dummyDifficulty = 0;
         this.startState = 0;
         this.startedOn = -6e9;
         this.endedOn = -6e9;
@@ -325,7 +325,25 @@ class Game {
                 }
             }
 
-            if (this.dummyFire && Math.random() < 0.003 && this.hostIndex !== p1.index) p1.keys.rocket = true;
+            if (this.dummyDifficulty > 0 && this.hostIndex !== p1.index) {
+                if (this.dummyDifficulty === 1 && Math.random() < 0.003) p1.keys.rocket = true;
+                else if (this.dummyDifficulty === 2) {
+                    if (Math.random() < 0.01 && Math.abs(p1.y - this.players[this.hostIndex].y) < 20) p1.keys.rocket = true;
+                    p1.keys.jump = (p1.y > 600);
+                    p1.keys.left = (p1.x > Player.platforms[2].x + Player.platforms[2].w);
+                    p1.keys.right = (p1.x < Player.platforms[2].x);
+                } else if (this.dummyDifficulty === 3) {
+                    p1.facing = (p1.x > this.players[this.hostIndex].x) ? "l" : "r";
+                    if (Math.random() < 0.02 && Math.abs(p1.y - this.players[this.hostIndex].y) < 20) p1.keys.rocket = true;
+                    p1.keys.jump = (this.rockets.filter(r => Math.abs(p1.y - r.y) < p1.size / 2).length > 0 || p1.y > 600);
+                    p1.keys.left = (p1.x > Player.platforms[1].x + Player.platforms[1].w && p1.y < 500);
+                    p1.keys.right = (p1.x < Player.platforms[1].x && p1.y < 500);
+                }
+
+                const distance = Math.sqrt(Math.abs(p1.x - this.players[this.hostIndex].x) ** 2 + Math.abs(p1.y - this.players[this.hostIndex].y) ** 2);
+                p1.keys.attack = (distance < this.dummyDifficulty * 50); // 50 (easy), 100 (normal), 150 (hard)
+            }
+
             if (p1.keys.rocket && p1.attacks.rocket.count > 0 && this.ping - p1.attacks.rocket.lastPerformed >= p1.attacks.rocket.cooldown) {
                 p1.attacks.rocket.lastPerformed = this.ping;
                 p1.attacks.rocket.count--;
