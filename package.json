@@ -29,11 +29,11 @@
   },
   "homepage": "https://github.com/NM-Games/super-splash-bros-2#readme",
   "devDependencies": {
-    "electron": "31.0.2",
+    "electron": "31.2.0",
     "electron-builder": "24.13.3"
   },
   "dependencies": {
     "discord-rpc": "4.0.1",
-    "ws": "8.17.1"
+    "ws": "8.18.0"
   }
 }
