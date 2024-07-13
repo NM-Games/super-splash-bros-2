@@ -48,7 +48,6 @@ app.whenReady().then(() => {
         minWidth: 1350,
         webPreferences: {
             sandbox: false,
-            contextIsolation: false,
             devTools: !app.isPackaged,
             preload: join(__dirname, "preload", "index.js")
         }
