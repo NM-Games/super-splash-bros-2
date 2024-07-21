@@ -120,10 +120,12 @@ class Input {
         this.value = "";
 
         addEventListener("keydown", (e) => {
-            if (!this.focused || (e.key.length === 1 && (isNaN(e.key) || e.key === " ") && this.numbersOnly)) return;
+            if (!this.focused || (e.key.length === 1 && e.key !== "." && (isNaN(e.key) || e.key === " ") && this.numbersOnly)) return;
 
-            if (e.key === "Tab") this.ontab(e.shiftKey);
+            if (e.key === "Tab" || (e.key === "." && !e.shiftKey && this.id.startsWith("IP"))) this.ontab(e.shiftKey);
             else if (e.key === "Backspace" && this.value.length === 0) this.onemptybackspace();
+
+            if (this.numbersOnly && e.key === ".") return;
 
             if (this.keybind) {
                 this.keybind = e.key;

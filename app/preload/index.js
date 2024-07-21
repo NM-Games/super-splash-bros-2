@@ -189,7 +189,6 @@ const keyChange = () => (JSON.stringify(keys) !== JSON.stringify(lastKeys));
 const keybindIDs = ["moveLeft", "moveRight", "jump", "attack", "launchRocket", "activateSuperpower", "gameMenu"];
 const updateKeybinds = () => {
     for (const k of keybindIDs) config.controls[k] = Input.getInputById(`Keybind-${k}`).keybind;
-    console.warn(config.controls);
     ipcRenderer.send("update-config", config);
 };
 
@@ -1151,7 +1150,7 @@ Input.items = [
         maxLength: 3,
         numbersOnly: true,
         onmaxlengthreached: function() {
-            this.switchToID("IP-2")
+            this.switchToID("IP-2");
         },
         ontab: function(shift) {
             if (!shift) this.onmaxlengthreached();
