@@ -493,7 +493,7 @@ Button.items = [
             state.change.to(state.WAITING_FREEPLAY, false, () => {
                 instance = new Game("freeplay");
                 instance.theme = config.graphics.theme;
-                instance.players[config.appearance.preferredColor] = new Player(config.appearance, config.appearance.preferredColor, instance.spawnCoordinates);
+                instance.players[config.appearance.preferredColor] = new Player(config.appearance, config.appearance.preferredColor, instance.spawnCoordinates, instance.mode);
                 instance.addDummies();
                 instance.hostIndex = playerIndex = config.appearance.preferredColor;
                 const difficulty = (instance.dummyDifficulty === 0) ? "None" : (instance.dummyDifficulty === 1) ? "Easy" : (instance.dummyDifficulty === 2) ? "Normal" : "Hard";
@@ -1918,7 +1918,7 @@ addEventListener("DOMContentLoaded", () => {
                 
                 if (!game.players[j].connected) c.options.setOpacity(0.5);
                 c.draw.fill.rect(theme.colors.players[j], x + state.change.x, y, 500, 80, 8);
-                c.draw.croppedImage(image.sprites, j * 128, 0, 128, 128, x + 8 + state.change.x, y + 8, 64, 64);
+                c.draw.croppedImage(image.sprites, j * 128, Number(game.players[j].facing === "l") * 128, 128, 128, x + 8 + state.change.x, y + 8, 64, 64);
                 if (game.players[j].connected) {
                     c.options.setShadow(theme.colors.shadow, 4, 1, 1);
                     c.draw.text({text: game.players[j].name, x: x + state.change.x + 85, y: y + 52, font: {size: 32}, color: theme.colors.text.light, alignment: "left"});

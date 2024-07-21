@@ -56,8 +56,9 @@ class Player {
      * @param {import("../../configfile").Settings["appearance"]} appearance
      * @param {number | undefined} index
      * @param {{x: number, y: number}[]} coordinates
+     * @param {import("./Game").Modes} gamemode
      */
-    constructor(appearance, index, coordinates) {
+    constructor(appearance, index, coordinates, gamemode) {
         this.index = index ?? appearance.preferredColor;
         this.connected = true;
         this.name = appearance.playerName;
@@ -66,7 +67,7 @@ class Player {
         this.vx = 0;
         this.vy = 0;
         this.size = 64;
-        this.facing = (Math.random() > 0.5) ? "l" : "r";
+        this.facing = (Math.random() > 0.5 && gamemode !== "local") ? "l" : "r";
         this.lives = 3;
         this.jump = {used: 0, active: false, heldKey: false};
         this.spawnProtection = 5000;

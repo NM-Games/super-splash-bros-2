@@ -1,4 +1,5 @@
 /**
+ * @typedef {"local" | "lan" | "freeplay"} Modes
  * @typedef {import("../../preload/theme").Themes} Themes
  * @typedef {import("../../configfile").Settings["appearance"]} Appearance
  */
@@ -109,7 +110,7 @@ class Game {
 
     /**
      * @constructor
-     * @param {"local" | "lan" | "freeplay"} mode
+     * @param {Modes} mode
      */
     constructor(mode) {
         this.theme = "";
@@ -164,7 +165,7 @@ class Game {
             let success = -1;
             for (let i=0; i<this.players.length; i++) {
                 if (this.players[i] === null) {
-                    this.players[i] = new Player(appearance, i, this.spawnCoordinates);
+                    this.players[i] = new Player(appearance, i, this.spawnCoordinates, this.mode);
                     this.ips[i] = ip;
                     success = i;
                     break;
@@ -172,7 +173,7 @@ class Game {
             }
             return success;
         } else {
-            this.players[appearance.preferredColor] = new Player(appearance, undefined, this.spawnCoordinates);
+            this.players[appearance.preferredColor] = new Player(appearance, undefined, this.spawnCoordinates, this.mode);
             this.ips[appearance.preferredColor] = ip;
             if (ip.includes("127.0.0.1")) this.hostIndex = appearance.preferredColor;
         }
@@ -228,7 +229,12 @@ class Game {
     update() {
         this.ping = new Date().getTime();
 
-        if (this.startState === 1 && this.ping - this.startedOn >= 3000) { // disable flooding effect
+        if (this.startState === 0 && this.mode === "local") {
+            for (const p of this.getPlayers()) {
+                if (p.keys.left) p.facing = "l";
+                else if (p.keys.right) p.facing = "r";
+            }
+        } else if (this.startState === 1 && this.ping - this.startedOn >= 3000) { // disable flooding effect
             this.startState = 2;
             if (this.mode === "local") {
                 for (let i=0; i<this.players.length; i++) {

@@ -48,17 +48,15 @@ const update = (instance) => {
 
         if (items[i] !== null) {
             names.push(instance.players[pi].name);
-            if (instance.startState >= 6) {
-                instance.players[pi].setKeys({
-                    moveLeft: (items[i].axes[0] < -0.3),
-                    moveRight: (items[i].axes[0] > 0.3),
-                    jump: (items[i].buttons[0].pressed),
-                    attack: (items[i].buttons[7].pressed),
-                    launchRocket: (items[i].buttons[6].pressed),
-                    activateSuperpower: (items[i].buttons[2].pressed),
-                    gameMenu: false
-                });
-            }
+            instance.players[pi].setKeys({
+                moveLeft: (items[i].axes[0] < -0.3),
+                moveRight: (items[i].axes[0] > 0.3),
+                jump: (items[i].buttons[0].pressed),
+                attack: (items[i].buttons[7].pressed),
+                launchRocket: (items[i].buttons[6].pressed),
+                activateSuperpower: (items[i].buttons[2].pressed),
+                gameMenu: false
+            });
         }
 
     }
