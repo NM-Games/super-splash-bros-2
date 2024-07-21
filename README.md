@@ -41,6 +41,19 @@ If that does not work, try building the app yourself by running `npm install && 
 |Activate power-up|Q|Square|X|
 |Game menu|Escape (also in Local mode)|*N/A*|*N/A*|
 
+## Game modes
+Super Splash Bros 2 can be played in three different modes:
+- **Local mode**  
+  In Local mode, up to 4 players can compete against each other on a single device. This is done by using PlayStation or XBox controllers. The controls are mentioned above. The player colors are determined by the light bar color: blue, red, green and magenta. When (dis)connecting controllers, this can be messed up a bit, so move your left thumbstick to see which player you actually are.
+- **LAN mode**  
+  In LAN mode, up to 8 players can compete against each other on several devices connected to the same LAN (Local Area Network). One player creates the game and becomes host of it, while other players join the game by using the local IP address of the host. The host has the ability to ban players, based on their local own IP address. The host also determines the theme and when the game starts.
+- **Freeplay mode**  
+  In Freeplay mode, one player competes against up to 7 dummies, although it is possible to play with less dummies or even alone. Freeplay mode is a great game mode to practice your skills in. The dummies can even show some behavior, based on the selected difficulty:
+  - **None** means that the dummies will not do anything at all.
+  - **Easy** will let the dummies randomly fire rockets, if they have at least one.
+  - **Normal** increases the rocket fire probability, but only if the dummy is near the same Y level as the player. Dummies will also jump if they are in danger of falling into water, and move away from the outer platforms.
+  - **Hard** increases the rocket fire probability even more if the dummy is near the same Y level as the player. Furthermore, dummies will always face the player, jump if they are in danger of getting hit by a rocket, and move further away from the outer platforms.
+
 ## Attack methods
 Your goal is to be the last player standing. But all other players will not voluntarily take a dip. So, how are you going to take everyone else out?
 - **Melee attack**  
