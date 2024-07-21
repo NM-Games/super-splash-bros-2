@@ -9,7 +9,7 @@ Compared to Super Splash Bros, the following has been changed/improved:
 - Collision detection has been changed: players now only feel a little bit of resistance when colliding, but can pass each other now at the same height.
 - Added a local mode where players can connect up to 4 gamepads (e.g. PlayStation or XBox controllers) and fight on a single device.
 - Percentages will **no longer kill players**: instead, a higher percentage means a player is easier pushed away by attacks. Percentages cannot exceed 500%.
-- Added several power-ups in addition to shields and squashes. Power-ups can now be achieved from item boxes which look like fish.
+- Added several power-ups in addition to shields (now known as *force fields*) and squashes. Power-ups can now be achieved from item boxes which look like fish.
 - Player appearance is now customizable! Players can determine their own name, color and power-up.
 - Added the option to remove dummies in Freeplay mode.
 - Added a synthwave theme!
@@ -54,7 +54,7 @@ Your goal is to be the last player standing. But all other players will not volu
   - Players can hold up to 6 rockets at a time.
   - Rockets do 30%-50% damage to the player who got hit by it.
   - Rockets have a 5 second cooldown.
-  - If a player lands on top of a rocket, the player will ride it! During a rocket ride, a player cannot move horizontally, so the only ways to get off a rocket is by jumping or waiting. You likely prefer the first method!
+  - If a player lands on top of a rocket, the player will ride it! During a rocket ride, a player cannot move horizontally, so you can only get off by jumping or waiting. Most players prefer the first method!
 - **Power-ups**  
   Power-ups are not always an attack method, but some of them are even more effective than rockets. More information about power-ups is documented below.
 
@@ -62,11 +62,11 @@ Your goal is to be the last player standing. But all other players will not volu
 Please remain calm!
 - Players start with three lives, so you will respawn twice.
 - Players respawn at the same location where they were at game start. If the water level has started to rise, players will spawn somewhere at the top platform.
-- When respawning, players have 5 seconds of spawn protection. During this period, they cannot take damage or lose lives.
+- When respawning, players have 5 seconds of spawn protection. During this period, they cannot get knocked, take damage and lose lives.
 
 ## Fish
 The fish is the new item box in Super Splash Bros 2. However, fish only give you your power-up.
-- Players have to collide for about 0.9 seconds with a fish in order to get their power-up available.
+- Players have to collide for about 0,9 seconds with a fish in order to get their power-up available.
 - Fish spawn every 15 to 36 seconds, depending on how many players were in the lobby at game start.
 - A fish spawn begins with the fish teleporting between the left and right sides of the water, and shortly after it will jump into the air.
 - Fish remain in the air for 8 seconds. If the fish has not been fully claimed yet, it will fall down into the water again.
@@ -80,37 +80,45 @@ More power-ups have been added in Super Splash Bros 2. Below are all currently a
   - [+] Other players get seriously damaged and pushed away from the performer.
   - [-] The performer will even get more damage from the fall.
   - [-] There is a small chance that the performer will phase through a platform, causing them to fall into water, wasting their squash.
-- **Shield**  
-  Shields protect the performer from enemy attacks. Shields can be recognized by a black and white circle around a player. This power-up lasts for 10 seconds.
-  - [+] Shields protect players against any kind of damage, and they also prevent the knockback.
-  - [-] Shields do not protect players against falling into water, unlike spawn protection.
-  - [-] Shields significantly slow down players.
+- **Force Field**  
+  Force fields protect the performer from enemy attacks. Force fields can be recognized by a black and white circle around a player. This power-up lasts for 10 seconds.
+  - [+] Force fields protect players against any kind of damage, and they also prevent the knockback.
+  - [+] Rockets bounce on force fields, and melee attack damage will be dealt to the attacker.
+  - [-] Force fields do not protect players against falling into water, unlike spawn protection.
+  - [-] Force fields significantly slow down players.
+  - [-] Rockets fired by enemies inside your force field stay inside your force field, so do not let anyone come near you.
 - **Invisibility**  
   Makes the performer invisible for all players! The performer itself will remain slightly visible on their own device. This power-up also lasts for 10 seconds.
   > In Local mode, the performer will become completely invisible because everyone plays on the same device. Be extra careful with your movements!
-  - [+] No one can see you (coming).
-  - [-] Other projectiles fired by you will not become invisible.
+  - [+] No one can see you (coming), allowing you to greatly surprise your enemies.
+  - [-] Off-screen indicators and projectiles fired by you will not become invisible.
 - **Knockback**  
-  When using regular attacks, the knockback will be tripled for 10 seconds.
+  When using regular attacks, the knockback will be tripled for 20 seconds.
   - [+] Significantly improves the basic attack, which is always available and has the shortest cooldown.
   - [-] Does not apply to rockets and other attacks.
 - **Power Jump**  
-  Power Jumps will multiply jump forces of the performer by 1,5 for 10 seconds.
+  Power Jumps will multiply jump forces of the performer by 1,5 for 20 seconds.
   - [+] It makes dodging rockets easier.
+  - [+] When hit by a rocket, you can get back to the play area easier.
   - [-] You have to be more patient before you are on the ground again.
 - **Life Mender**  
-  Restores a life upon activation.
+  Restores one life upon activation. And you have a 20% chance for a bonus life.
   - [+] Can be life saving.
   - [-] Not the most powerful power-up, compared to the next one.
 - **Poop Bomb**  
   Activating this power-up will drop a poop bomb out of the back of the performer. The poop bomb will move towards the water. Once it hits the water, it will create a geyser that will push all players nearby it upwards, and damages them too. After the geyser disappeared, you still have a moment until all the victims are back on the platforms again.
-  - [+] Great way to temporarily get rid of enemies.
+  - [+] Great way to temporarily get rid of enemies, and to make them more vulnerable for a rocket hit.
   - [-] Requires some timing and aiming skills.
 - **Exclusive Platform**  
   This power-up creates a special platform underneath the performer for 10 seconds. And only the performer can collide with it! Other players will fall right through it.
   - This power-up requires the player to be in the air, otherwise it will not activate.
   - [+] Enjoy the enemies trying to get you off, since the friction on exclusive platforms is higher.
   - [-] Exclusive platforms give no warning before they disappear.
+- **Infinite Rockets**  
+  This power-up does exactly what it says: it grants the performer an infinite amount of rockets for 5 seconds! Also, the rocket fire cooldown is reduced from 5 seconds to 0,25 seconds.
+  - [+] Enemies have to be very cautious when someone is firing 20 times faster.
+  - [-] You have to be careful around fish and force fields, because that is very dangerous for you.
+  - [-] When the power-up ends, you have to regenerate your rockets from zero.
 
 Be careful though:
 - You will lose your power-up if you fall into water!

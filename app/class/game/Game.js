@@ -28,7 +28,7 @@ class Game {
         /** @param {Player} p */
         action: (p) => p.vy = 100
     }, {
-        name: "Shield",
+        name: "Force Field",
         condition: () => true,
         duration: 10000
     }, {
@@ -38,17 +38,17 @@ class Game {
     }, {
         name: "Knockback",
         condition: () => true,
-        duration: 10000
+        duration: 20000
     }, {
         name: "Power Jump",
         condition: () => true,
-        duration: 10000
+        duration: 20000
     }, {
         name: "Life Mender",
         /** @param {Player} p */
         condition: (p) => (p.lives > 0 && p.connected),
         /** @param {Player} p */
-        action: (p) => p.lives++,
+        action: (p) => p.lives += (Math.random() > 0.8) ? 2 : 1,
         duration: 0
     }, {
         name: "Poop Bomb",
@@ -69,6 +69,12 @@ class Game {
             p.exclusivePlatform = new Exclusive(p.x, p.y, p.size);
             p.vy = 0;
         }
+    }, {
+        name: "Infinite Rockets",
+        condition: () => true,
+        /** @param {Player} p */
+        action: (p) => p.attacks.rocket.count = Infinity,
+        duration: 5000
     }];
 
     /** @type {Themes} */
@@ -350,7 +356,8 @@ class Game {
                 p1.keys.attack = (distance < this.dummyDifficulty * 50); // 50 (easy), 100 (normal), 150 (hard)
             }
 
-            if (p1.keys.rocket && p1.attacks.rocket.count > 0 && this.ping - p1.attacks.rocket.lastPerformed >= p1.attacks.rocket.cooldown) {
+            const rocketCooldown = p1.hasPowerup(Player.powerup.INFINITE_ROCKETS) ? 250 : p1.attacks.rocket.cooldown;
+            if (p1.keys.rocket && p1.attacks.rocket.count > 0 && this.ping - p1.attacks.rocket.lastPerformed >= rocketCooldown) {
                 p1.attacks.rocket.lastPerformed = this.ping;
                 p1.attacks.rocket.count--;
                 this.rockets.push(new Rocket(p1.index, p1.x + Number(p1.facing === "r") * p1.size, p1.y, p1.facing));
@@ -389,6 +396,11 @@ class Game {
                     for (const p2 of this.getPlayers())
                         p2.damage(this.ping, 40, 80, (p1.index === p2.index) ? 0 : (p1.x < p2.x) ? 15 : -15);
                 }
+
+                if (!p1.powerup.active && !isFinite(p1.attacks.rocket.count)) {
+                    p1.attacks.rocket.count = 0;
+                    p1.attacks.rocket.lastRegenerated = this.ping;
+                }
             }
         }
 
@@ -413,12 +425,14 @@ class Game {
             }));
             for (const p of this.getPlayers()) {
                 if (rocket.x < p.x + p.size && rocket.x + rocket.width > p.x && rocket.y > p.y && rocket.y < p.y + p.size && !rocket.explosion.active) {
-                    if (p.ly + p.size <= rocket.y) {
+                    if (p.ly + p.size <= rocket.y) { // rocket ride if landed on top
                         p.x += (rocket.direction === "r" ? Rocket.speed : -Rocket.speed) * 2;
                         p.vx = 0;
                         p.y = rocket.y - p.size;
                         p.jump.used = p.vy = 0;
                         p.jump.active = false;
+                    } else if (p.hasPowerup(Player.powerup.FORCE_FIELD)) {
+                        rocket.bounce();
                     } else {
                         p.damage(this.ping, 30, 50, (rocket.direction === "r" ? Rocket.impact : -Rocket.impact));
                         rocket.explode();
@@ -439,7 +453,7 @@ class Game {
                 }
             }
             if (this.fish.item && rocket.x < this.fish.item.x + Fish.width && rocket.x + rocket.width > this.fish.item.x && rocket.y > this.fish.item.y && rocket.y < this.fish.item.y + Fish.height && !rocket.explosion.active)
-                rocket.direction = (rocket.direction === "l") ? "r" : "l";
+                rocket.bounce();
 
             if (updateResult) i++;
             else this.rockets.splice(i, 1);

@@ -40,7 +40,9 @@ class Attack {
                 if (distance <= p.size / 2 + this.size) {
                     let impact = (this.x - (p.x + p.size / 2) < 0 ? Attack.impact : -Attack.impact);
                     if (instance.players[this.player].hasPowerup(powerup.KNOCKBACK)) impact *= 3;
-                    p.damage(instance.ping, 2, 5, impact);
+
+                    if (p.hasPowerup(powerup.FORCE_FIELD)) instance.players[this.player].damage(instance.ping, 2, 5, -impact);
+                    else p.damage(instance.ping, 2, 5, impact);
                 }
             }
             return false;

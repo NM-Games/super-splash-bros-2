@@ -45,6 +45,13 @@ class Rocket {
         return true;
     }
 
+    /** Toggle the rocket direction. */
+    bounce() {
+        if (this.explosion.active) return;
+        this.direction = (this.direction === "l") ? "r" : "l";
+    }
+
+    /** Let the rocket explode. */
     explode() {
         this.explosion.active = true;
     }

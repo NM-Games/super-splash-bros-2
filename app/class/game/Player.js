@@ -15,13 +15,14 @@ class Player {
     ];
     static powerup = {
         SQUASH: 0,
-        SHIELD: 1,
+        FORCE_FIELD: 1,
         INVISIBILITY: 2,
         KNOCKBACK: 3,
         POWER_JUMP: 4,
         LIFE_MENDER: 5,
         POOP_BOMB: 6,
-        EXCLUSIVE_PLATFORM: 7
+        EXCLUSIVE_PLATFORM: 7,
+        INFINITE_ROCKETS: 8
     };
 
     index;
@@ -130,7 +131,7 @@ class Player {
      */
     damage(ping, min, max, knockback = 0) {
         if (ping - this.respawn < this.spawnProtection ||
-         this.hasPowerup(Player.powerup.SHIELD)) return;
+         this.hasPowerup(Player.powerup.FORCE_FIELD)) return;
 
         this.hit.last = ping;
         this.hit.percentage += Math.random() * (max - min) + min;
@@ -162,7 +163,7 @@ class Player {
                 this.vx += Player.acceleration;
             } else this.vx /= Player.deceleration;
 
-            if (this.hasPowerup(Player.powerup.SHIELD)) {
+            if (this.hasPowerup(Player.powerup.FORCE_FIELD)) {
                 this.vx /= Player.deceleration;
                 this.vy += Player.g / 2;
             }
