@@ -27,6 +27,7 @@ class Input {
     y;
     width;
     size;
+    /** @type {string | boolean} */
     keybind;
     maxLength;
     numbersOnly;
@@ -66,6 +67,8 @@ class Input {
         if (keybind.startsWith("Arrow")) return keybind.slice(5);
         else if (keybind === " ") return "Space";
         else if (keybind === "Escape") return "Esc";
+        else if (keybind === "Backspace") return "Back";
+        else if (keybind === "CapsLock") return "Caps";
         else if (keybind === "Control") return "Ctrl";
         else if (keybind === "AltGraph") return "AltGr";
         else if (keybind === "Compose") return "Comp.";
@@ -123,6 +126,7 @@ class Input {
             else if (e.key === "Backspace" && this.value.length === 0) this.onemptybackspace();
 
             if (this.keybind) {
+                this.keybind = e.key;
                 this.value = Input.displayKeybind(e.key);
                 
                 const inputs = Input.items.map((item) => item.keybind ? item.value : null);
@@ -131,7 +135,7 @@ class Input {
                 
                 if (uniques.length !== inputs.length) Input.keybindsInvalid = true; else {
                     Input.keybindsInvalid = (uniques.length !== inputs.length);
-                    this.onkeybindselected(e.key);
+                    this.onkeybindselected(this.keybind);
                     this.focused = false;
                     this.onblur();
                     setTimeout(() => Input.isRemapping = false, 25);

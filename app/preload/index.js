@@ -186,19 +186,20 @@ const checkLANAvailability = () => {
 };
 
 const keyChange = () => (JSON.stringify(keys) !== JSON.stringify(lastKeys));
+const keybindIDs = ["moveLeft", "moveRight", "jump", "attack", "launchRocket", "activateSuperpower", "gameMenu"];
+const updateKeybinds = () => {
+    for (const k of keybindIDs) config.controls[k] = Input.getInputById(`Keybind-${k}`).keybind;
+    console.warn(config.controls);
+    ipcRenderer.send("update-config", config);
+};
 
 /** @type {import("../configfile").Settings} */
 const config = {appearance: {}, graphics: {}, controls: {}, audio: {}};
 const versions = {game: "", electron: "", chromium: ""};
-const keys = {
-    moveLeft: false,
-    moveRight: false,
-    jump: false,
-    attack: false,
-    launchRocket: false,
-    activateSuperpower: false,
-    gameMenu: false
-};
+/** @type {{moveLeft: boolean, moveRight: boolean, jump: boolean, attack: boolean, launchRocket: boolean, activateSuperpower: boolean, gameMenu: boolean}} */
+const keys = {};
+for (const k of keybindIDs) keys[k] = false;
+
 const water = {
     imageX: 0,
     x: 0,
@@ -1234,88 +1235,67 @@ Input.items = [
         }
     }),
     new Input({
-        id: "Keybind-MoveLeft",
+        id: "Keybind-moveLeft",
         state: state.SETTINGS,
         x: () => c.width(4/5) + 150,
         y: () => 240,
         width: 100,
         keybind: true,
-        onkeybindselected: (key) => {
-            config.controls.moveLeft = key;
-            ipcRenderer.send("update-config", config);
-        }
+        onkeybindselected: updateKeybinds
     }),
     new Input({
-        id: "Keybind-MoveRight",
+        id: "Keybind-moveRight",
         state: state.SETTINGS,
         x: () => c.width(4/5) + 150,
         y: () => 300,
         width: 100,
         keybind: true,
-        onkeybindselected: (key) => {
-            config.controls.moveRight = key;
-            ipcRenderer.send("update-config", config);
-        }
+        onkeybindselected: updateKeybinds
     }),
     new Input({
-        id: "Keybind-Jump",
+        id: "Keybind-jump",
         state: state.SETTINGS,
         x: () => c.width(4/5) + 150,
         y: () => 360,
         width: 100,
         keybind: true,
-        onkeybindselected: (key) => {
-            config.controls.jump = key;
-            ipcRenderer.send("update-config", config);
-        }
+        onkeybindselected: updateKeybinds
     }),
     new Input({
-        id: "Keybind-Attack",
+        id: "Keybind-attack",
         state: state.SETTINGS,
         x: () => c.width(4/5) + 150,
         y: () => 420,
         width: 100,
         keybind: true,
-        onkeybindselected: (key) => {
-            config.controls.attack = key;
-            ipcRenderer.send("update-config", config);
-        }
+        onkeybindselected: updateKeybinds
     }),
     new Input({
-        id: "Keybind-LaunchRocket",
+        id: "Keybind-launchRocket",
         state: state.SETTINGS,
         x: () => c.width(4/5) + 150,
         y: () => 480,
         width: 100,
         keybind: true,
-        onkeybindselected: (key) => {
-            config.controls.launchRocket = key;
-            ipcRenderer.send("update-config", config);
-        }
+        onkeybindselected: updateKeybinds
     }),
     new Input({
-        id: "Keybind-ActivateSuperpower",
+        id: "Keybind-activateSuperpower",
         state: state.SETTINGS,
         x: () => c.width(4/5) + 150,
         y: () => 540,
         width: 100,
         keybind: true,
-        onkeybindselected: (key) => {
-            config.controls.activateSuperpower = key;
-            ipcRenderer.send("update-config", config);
-        }
+        onkeybindselected: updateKeybinds
     }),
     new Input({
-        id: "Keybind-GameMenu",
+        id: "Keybind-gameMenu",
         state: state.SETTINGS,
         x: () => c.width(4/5) + 150,
         y: () => 600,
         width: 100,
         keybind: true,
-        onkeybindselected: (key) => {
-            config.controls.gameMenu = key;
-            ipcRenderer.send("update-config", config);
-        }
+        onkeybindselected: updateKeybinds
     })
 ];
 
@@ -1374,14 +1354,11 @@ addEventListener("DOMContentLoaded", () => {
         Button.getButtonById("WaterFlow").text = `Water flow: ${config.graphics.waterFlow ? "ON":"OFF"}`;
         Button.getButtonById("MenuSprites").text = `Menu sprites: ${config.graphics.menuSprites ? "ON":"OFF"}`;
     
-        Input.getInputById("Keybind-MoveLeft").value = Input.displayKeybind(config.controls.moveLeft);
-        Input.getInputById("Keybind-MoveRight").value = Input.displayKeybind(config.controls.moveRight);
-        Input.getInputById("Keybind-Jump").value = Input.displayKeybind(config.controls.jump);
-        Input.getInputById("Keybind-Attack").value = Input.displayKeybind(config.controls.attack);
-        Input.getInputById("Keybind-LaunchRocket").value = Input.displayKeybind(config.controls.launchRocket);
-        Input.getInputById("Keybind-ActivateSuperpower").value = Input.displayKeybind(config.controls.activateSuperpower);
-        Input.getInputById("Keybind-GameMenu").value = Input.displayKeybind(config.controls.gameMenu);
-    
+        for (const k of keybindIDs) {
+            Input.getInputById(`Keybind-${k}`).keybind = config.controls[k];
+            Input.getInputById(`Keybind-${k}`).value = Input.displayKeybind(config.controls[k]);
+        }
+
         audio._update(config.audio);
     });
     ipcRenderer.on("gameserver-error", (_e, err) => {
@@ -1425,28 +1402,29 @@ addEventListener("DOMContentLoaded", () => {
     }, 15000);
 
     addEventListener("keydown", (e) => {
+        const key = e.key.toLowerCase();
         const button = Button.getButtonById(`Back-${state.current}`);
-        if (e.key === "Escape" && dialog.visible) dialog.close();
-        else if (e.key === "Escape" && button !== null && !button.disabled && !Input.isRemapping) button.onclick();
-        else if (e.key.toLowerCase() === "v" && e.ctrlKey && Input.getInputById("Username").focused) {
+        if (key === "escape" && dialog.visible) dialog.close();
+        else if (key === "escape" && button !== null && !button.disabled && !Input.isRemapping) button.onclick();
+        else if (key === "v" && e.ctrlKey && Input.getInputById("Username").focused) {
             Input.getInputById("Username").value += clipboard.readText();
             Input.getInputById("Username").value = Input.getInputById("Username").value.slice(0, Input.getInputById("Username").maxLength);
-        } else if (e.key === "Backspace" && e.ctrlKey && Input.getInputById("Username").focused) {
+        } else if (key === "backspace" && e.ctrlKey && Input.getInputById("Username").focused) {
             Input.getInputById("Username").value = "";
-        } else if (e.key === config.controls.gameMenu && !gameMenu.holdingKey && isInGame) {
+        } else if (key === config.controls.gameMenu.toLowerCase() && !gameMenu.holdingKey && isInGame) {
             gameMenu.holdingKey = true;
             gameMenu.toggle();
         }
         
         if (!konamiEasterEgg.isActive()) {
-            if (e.key === konamiEasterEgg.keys[konamiEasterEgg.index]) konamiEasterEgg.index++;
+            if (key === konamiEasterEgg.keys[konamiEasterEgg.index].toLowerCase()) konamiEasterEgg.index++;
             else konamiEasterEgg.deactivate();
         }
 
         if (game) {
-            for (let i in config.controls) {
-                if (e.key === config.controls[i]) {
-                    keys[i] = true;
+            for (const k of keybindIDs) {
+                if (key === config.controls[k].toLowerCase()) {
+                    keys[k] = true;
                     break;
                 }
             }
@@ -1458,10 +1436,11 @@ addEventListener("DOMContentLoaded", () => {
         }
     });
     addEventListener("keyup", (e) => {
+        const key = e.key.toLowerCase();
         if (game) {
-            for (let i in config.controls) {
-                if (e.key === config.controls[i]) {
-                    keys[i] = false;
+            for (const k of keybindIDs) {
+                if (key === config.controls[k].toLowerCase()) {
+                    keys[k] = false;
                     break;
                 }
             }
@@ -1472,7 +1451,7 @@ addEventListener("DOMContentLoaded", () => {
             lastKeys = JSON.parse(JSON.stringify(keys));
         }
 
-        if (e.key === config.controls.gameMenu) gameMenu.holdingKey = false; 
+        if (key === config.controls.gameMenu.toLowerCase()) gameMenu.holdingKey = false; 
     });
 
     addEventListener("mousemove", (e) => {
