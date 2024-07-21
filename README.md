@@ -9,8 +9,8 @@ Compared to Super Splash Bros, the following has been changed/improved:
 - Collision detection has been changed: players now only feel a little bit of resistance when colliding, but can pass each other now at the same height.
 - Added a local mode where players can connect up to 4 gamepads (e.g. PlayStation or XBox controllers) and fight on a single device.
 - Percentages will **no longer kill players**: instead, a higher percentage means a player is easier pushed away by attacks. Percentages cannot exceed 500%.
-- Added several superpowers in addition to shields and squashes. Superpowers can now be achieved from item boxes which look like fish.
-- Player appearance is now customizable! Players can determine their own name, color and superpower.
+- Added several power-ups in addition to shields and squashes. Power-ups can now be achieved from item boxes which look like fish.
+- Player appearance is now customizable! Players can determine their own name, color and power-up.
 - Added the option to remove dummies in Freeplay mode.
 - Added a synthwave theme!
 - Added music and sound effects! If you want, you can turn these off in the Settings menu and in the in-game menu.
@@ -38,7 +38,7 @@ If that does not work, try building the app yourself by running `npm install && 
 |Jump|W|Cross|A|
 |Attack|Space|R2|RT|
 |Launch rocket|E|L2|LT|
-|Activate superpower|Q|Square|X|
+|Activate power-up|Q|Square|X|
 |Game menu|Escape (also in Local mode)|*N/A*|*N/A*|
 
 ## Attack methods
@@ -55,8 +55,8 @@ Your goal is to be the last player standing. But all other players will not volu
   - Rockets do 30%-50% damage to the player who got hit by it.
   - Rockets have a 5 second cooldown.
   - If a player lands on top of a rocket, the player will ride it! During a rocket ride, a player cannot move horizontally, so the only ways to get off a rocket is by jumping or waiting. You likely prefer the first method!
-- **Superpowers**  
-  Superpowers are not always an attack method, but some of them are even more effective than rockets. More information about superpowers is documented below.
+- **Power-ups**  
+  Power-ups are not always an attack method, but some of them are even more effective than rockets. More information about power-ups is documented below.
 
 ## I'm wet now, help!
 Please remain calm!
@@ -65,28 +65,28 @@ Please remain calm!
 - When respawning, players have 5 seconds of spawn protection. During this period, they cannot take damage or lose lives.
 
 ## Fish
-The fish is the new item box in Super Splash Bros 2. However, fish only give you your superpower.
-- Players have to collide for about 0.9 seconds with a fish in order to get their superpower available.
+The fish is the new item box in Super Splash Bros 2. However, fish only give you your power-up.
+- Players have to collide for about 0.9 seconds with a fish in order to get their power-up available.
 - Fish spawn every 15 to 36 seconds, depending on how many players were in the lobby at game start.
 - A fish spawn begins with the fish teleporting between the left and right sides of the water, and shortly after it will jump into the air.
 - Fish remain in the air for 8 seconds. If the fish has not been fully claimed yet, it will fall down into the water again.
 - Firing a rocket on a fish may result in some instant karma.
 
-## Superpowers
-More superpowers have been added in Super Splash Bros 2. Below are all currently available superpowers:
+## Power-ups
+More power-ups have been added in Super Splash Bros 2. Below are all currently available power-ups:
 - **Squash**  
   Performing a squash will cause the player to move to the ground very fast. Once the player hits the ground, it will create a shockwave, moving other players out of the way. All players, including the performer, will take damage as well.
-  - This superpower requires the player to be in the air, otherwise it will not activate.
+  - This power-up requires the player to be in the air, otherwise it will not activate.
   - [+] Other players get seriously damaged and pushed away from the performer.
   - [-] The performer will even get more damage from the fall.
   - [-] There is a small chance that the performer will phase through a platform, causing them to fall into water, wasting their squash.
 - **Shield**  
-  Shields protect the performer from enemy attacks. Shields can be recognized by a black and white circle around a player. This superpower lasts for 10 seconds.
+  Shields protect the performer from enemy attacks. Shields can be recognized by a black and white circle around a player. This power-up lasts for 10 seconds.
   - [+] Shields protect players against any kind of damage, and they also prevent the knockback.
   - [-] Shields do not protect players against falling into water, unlike spawn protection.
   - [-] Shields significantly slow down players.
 - **Invisibility**  
-  Makes the performer invisible for all players! The performer itself will remain slightly visible on their own device. This superpower also lasts for 10 seconds.
+  Makes the performer invisible for all players! The performer itself will remain slightly visible on their own device. This power-up also lasts for 10 seconds.
   > In Local mode, the performer will become completely invisible because everyone plays on the same device. Be extra careful with your movements!
   - [+] No one can see you (coming).
   - [-] Other projectiles fired by you will not become invisible.
@@ -101,19 +101,19 @@ More superpowers have been added in Super Splash Bros 2. Below are all currently
 - **Life Mender**  
   Restores a life upon activation.
   - [+] Can be life saving.
-  - [-] Not the most powerful superpower, compared to the next one.
+  - [-] Not the most powerful power-up, compared to the next one.
 - **Poop Bomb**  
-  Activating this superpower will drop a poop bomb out of the back of the performer. The poop bomb will move towards the water. Once it hits the water, it will create a geyser that will push all players nearby it upwards, and damages them too. After the geyser disappeared, you still have a moment until all the victims are back on the platforms again.
+  Activating this power-up will drop a poop bomb out of the back of the performer. The poop bomb will move towards the water. Once it hits the water, it will create a geyser that will push all players nearby it upwards, and damages them too. After the geyser disappeared, you still have a moment until all the victims are back on the platforms again.
   - [+] Great way to temporarily get rid of enemies.
   - [-] Requires some timing and aiming skills.
 - **Exclusive Platform**  
-  This superpower creates a special platform underneath the performer for 10 seconds. And only the performer can collide with it! Other players will fall right through it.
-  - This superpower requires the player to be in the air, otherwise it will not activate.
+  This power-up creates a special platform underneath the performer for 10 seconds. And only the performer can collide with it! Other players will fall right through it.
+  - This power-up requires the player to be in the air, otherwise it will not activate.
   - [+] Enjoy the enemies trying to get you off, since the friction on exclusive platforms is higher.
   - [-] Exclusive platforms give no warning before they disappear.
 
 Be careful though:
-- You will lose your superpower if you fall into water!
+- You will lose your power-up if you fall into water!
 - After three minutes, the water level will start to rise, making it very difficult to reach the fish in the late game.
 
 # Have fun!

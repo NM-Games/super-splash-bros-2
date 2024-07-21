@@ -20,7 +20,7 @@ class Game {
     static floodDelay = 180;
     static floodMaxLevel = -400;
 
-    static superpowers = [{
+    static powerups = [{
         name: "Squash",
         /** @param {Player} p */
         condition: (p) => Math.abs(p.vy) >= 1,
@@ -188,7 +188,7 @@ class Game {
         if (this.mode !== "freeplay") return;
 
         for (let i=0; i<this.players.length; i++) {
-            if (this.players[i] === null) this.join({playerName: `Dummy ${i + 1}`, preferredColor: i, superpower: 0}, `dummy::${i}`);
+            if (this.players[i] === null) this.join({playerName: `Dummy ${i + 1}`, preferredColor: i, powerup: 0}, `dummy::${i}`);
         }
     }
 
@@ -292,7 +292,7 @@ class Game {
                     p1.lives--;
                     p1.hit.percentage = 0;
                     p1.respawn = this.ping;
-                    p1.superpower.available = p1.superpower.active = false;
+                    p1.powerup.available = p1.powerup.active = false;
                 }
                 if (p1.lives >= 1) {
                     const respawnCoordinates = (this.floodLevel < 0) ? {
@@ -327,7 +327,7 @@ class Game {
                         vr: 12 + i * 6,
                         lineWidth: 15
                     }));
-                    if (!p1.hasSuperpower(Player.superpower.KNOCKBACK)) break;
+                    if (!p1.hasPowerup(Player.powerup.KNOCKBACK)) break;
                 }
             }
 
@@ -362,28 +362,28 @@ class Game {
             
             if (this.fish.item) {
                 if (p1.x < this.fish.item.x + Fish.width && p1.x + p1.size > this.fish.item.x && this.fish.item.takeable &&
-                 p1.y < this.fish.item.y + Fish.height && p1.y + p1.size > this.fish.item.y && !p1.superpower.available && !p1.superpower.active) {
+                 p1.y < this.fish.item.y + Fish.height && p1.y + p1.size > this.fish.item.y && !p1.powerup.available && !p1.powerup.active) {
                     if (this.fish.item.takenBy === -1) this.fish.item.takenBy = p1.index;
                     if (this.fish.item.takenBy === p1.index) this.fish.item.collidesWithTaker = true;
                     this.fish.item.collides = true;
                 } else if (this.fish.item.takenBy === p1.index) this.fish.item.collides = this.fish.item.collidesWithTaker = false;
             }
 
-            p1.superpower.meetsCondition = Game.superpowers[p1.superpower.selected].condition(p1);
-            if (p1.keys.superpower && p1.superpower.available && !p1.superpower.active && p1.superpower.meetsCondition) {
-                p1.superpower.available = false;
-                p1.superpower.active = true;
-                p1.superpower.lastActivated = this.ping;
-                if (Game.superpowers[p1.superpower.selected].action) Game.superpowers[p1.superpower.selected].action(p1, this);
+            p1.powerup.meetsCondition = Game.powerups[p1.powerup.selected].condition(p1);
+            if (p1.keys.powerup && p1.powerup.available && !p1.powerup.active && p1.powerup.meetsCondition) {
+                p1.powerup.available = false;
+                p1.powerup.active = true;
+                p1.powerup.lastActivated = this.ping;
+                if (Game.powerups[p1.powerup.selected].action) Game.powerups[p1.powerup.selected].action(p1, this);
             }
-            if (p1.superpower.active) {
-                if (!Game.superpowers[p1.superpower.selected].duration && p1.superpower.selected !== Player.superpower.SQUASH)
-                    p1.superpower.active = false;
-                else if (this.ping - p1.superpower.lastActivated >= Game.superpowers[p1.superpower.selected].duration)
-                    p1.superpower.active = false;
+            if (p1.powerup.active) {
+                if (!Game.powerups[p1.powerup.selected].duration && p1.powerup.selected !== Player.powerup.SQUASH)
+                    p1.powerup.active = false;
+                else if (this.ping - p1.powerup.lastActivated >= Game.powerups[p1.powerup.selected].duration)
+                    p1.powerup.active = false;
 
-                if (p1.superpower.active && p1.superpower.selected === Player.superpower.SQUASH && p1.ly === p1.y) {
-                    p1.superpower.active = false;
+                if (p1.powerup.active && p1.powerup.selected === Player.powerup.SQUASH && p1.ly === p1.y) {
+                    p1.powerup.active = false;
                     p1.damage(this.ping, 60, 95);
                     this.circles.push(new Circle({x: p1.x + p1.size / 2, y: p1.y + p1.size / 2, color: colors.squash, vr: 15, va: 0.009, shake: true}));
                     for (const p2 of this.getPlayers())
@@ -475,7 +475,7 @@ class Game {
         } else this.fish.spawned = false;
         if (this.fish.item && !this.fish.item.update(this.elapsed)) {
             if (this.fish.item.takeValue === 1) {
-                this.players[this.fish.item.takenBy].superpower.available = true;
+                this.players[this.fish.item.takenBy].powerup.available = true;
                 this.circles.push(new Circle({
                     color: colors.ui.primary,
                     x: this.fish.item.x + Fish.width / 2,

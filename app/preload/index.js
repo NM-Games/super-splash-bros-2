@@ -186,7 +186,7 @@ const checkLANAvailability = () => {
 };
 
 const keyChange = () => (JSON.stringify(keys) !== JSON.stringify(lastKeys));
-const keybindIDs = ["moveLeft", "moveRight", "jump", "attack", "launchRocket", "activateSuperpower", "gameMenu"];
+const keybindIDs = ["moveLeft", "moveRight", "jump", "attack", "launchRocket", "activatePowerup", "gameMenu"];
 const updateKeybinds = () => {
     for (const k of keybindIDs) config.controls[k] = Input.getInputById(`Keybind-${k}`).keybind;
     ipcRenderer.send("update-config", config);
@@ -195,7 +195,7 @@ const updateKeybinds = () => {
 /** @type {import("../configfile").Settings} */
 const config = {appearance: {}, graphics: {}, controls: {}, audio: {}};
 const versions = {game: "", electron: "", chromium: ""};
-/** @type {{moveLeft: boolean, moveRight: boolean, jump: boolean, attack: boolean, launchRocket: boolean, activateSuperpower: boolean, gameMenu: boolean}} */
+/** @type {{moveLeft: boolean, moveRight: boolean, jump: boolean, attack: boolean, launchRocket: boolean, activatePowerup: boolean, gameMenu: boolean}} */
 const keys = {};
 for (const k of keybindIDs) keys[k] = false;
 
@@ -465,7 +465,7 @@ Button.items = [
                 instance = new Game("local");
                 instance.theme = config.graphics.theme;
                 for (const i of gamepad.playerIndexes) {
-                    instance.join({playerName: "", preferredColor: i, superpower: 0}, `10.0.0.${i}`);
+                    instance.join({playerName: "", preferredColor: i, powerup: 0}, `10.0.0.${i}`);
                     instance.players[i].connected = false;
                 }
                 Button.getButtonById("LocalGameTheme").text = `Theme: ${instance.theme}`;    
@@ -562,9 +562,9 @@ Button.items = [
             instance.start();
         }
     }),
-    // Local game superpower switchers
+    // Local game powerup switchers
     new Button({
-        id: "Local-SuperpowerPrev-0",
+        id: "Local-PowerupPrev-0",
         icon: () => [0, 2],
         state: state.WAITING_LOCAL,
         x: () => c.width(0.5) + 150,
@@ -573,12 +573,12 @@ Button.items = [
         height: 60,
         disabled: true,
         onclick: () => {
-            if (instance.players[gamepad.playerIndexes[0]].superpower.selected-- <= 0)
-                instance.players[gamepad.playerIndexes[0]].superpower.selected = Game.superpowers.length - 1;
+            if (instance.players[gamepad.playerIndexes[0]].powerup.selected-- <= 0)
+                instance.players[gamepad.playerIndexes[0]].powerup.selected = Game.powerups.length - 1;
         }
     }),
     new Button({
-        id: "Local-SuperpowerNext-0",
+        id: "Local-PowerupNext-0",
         icon: () => [1, 2],
         state: state.WAITING_LOCAL,
         x: () => c.width(0.5) + 375,
@@ -587,12 +587,12 @@ Button.items = [
         height: 60,
         disabled: true,
         onclick: () => {
-            if (instance.players[gamepad.playerIndexes[0]].superpower.selected++ >= Game.superpowers.length - 1)
-                instance.players[gamepad.playerIndexes[0]].superpower.selected = 0;
+            if (instance.players[gamepad.playerIndexes[0]].powerup.selected++ >= Game.powerups.length - 1)
+                instance.players[gamepad.playerIndexes[0]].powerup.selected = 0;
         }
     }),
     new Button({
-        id: "Local-SuperpowerPrev-1",
+        id: "Local-PowerupPrev-1",
         icon: () => [0, 2],
         state: state.WAITING_LOCAL,
         x: () => c.width(0.5) + 150,
@@ -601,12 +601,12 @@ Button.items = [
         height: 60,
         disabled: true,
         onclick: () => {
-            if (instance.players[gamepad.playerIndexes[1]].superpower.selected-- <= 0)
-                instance.players[gamepad.playerIndexes[1]].superpower.selected = Game.superpowers.length - 1;
+            if (instance.players[gamepad.playerIndexes[1]].powerup.selected-- <= 0)
+                instance.players[gamepad.playerIndexes[1]].powerup.selected = Game.powerups.length - 1;
         }
     }),
     new Button({
-        id: "Local-SuperpowerNext-1",
+        id: "Local-PowerupNext-1",
         icon: () => [1, 2],
         state: state.WAITING_LOCAL,
         x: () => c.width(0.5) + 375,
@@ -615,12 +615,12 @@ Button.items = [
         height: 60,
         disabled: true,
         onclick: () => {
-            if (instance.players[gamepad.playerIndexes[1]].superpower.selected++ >= Game.superpowers.length - 1)
-                instance.players[gamepad.playerIndexes[1]].superpower.selected = 0;
+            if (instance.players[gamepad.playerIndexes[1]].powerup.selected++ >= Game.powerups.length - 1)
+                instance.players[gamepad.playerIndexes[1]].powerup.selected = 0;
         }
     }),
     new Button({
-        id: "Local-SuperpowerPrev-2",
+        id: "Local-PowerupPrev-2",
         icon: () => [0, 2],
         state: state.WAITING_LOCAL,
         x: () => c.width(0.5) + 150,
@@ -629,12 +629,12 @@ Button.items = [
         height: 60,
         disabled: true,
         onclick: () => {
-            if (instance.players[gamepad.playerIndexes[2]].superpower.selected-- <= 0)
-                instance.players[gamepad.playerIndexes[2]].superpower.selected = Game.superpowers.length - 1;
+            if (instance.players[gamepad.playerIndexes[2]].powerup.selected-- <= 0)
+                instance.players[gamepad.playerIndexes[2]].powerup.selected = Game.powerups.length - 1;
         }
     }),
     new Button({
-        id: "Local-SuperpowerNext-2",
+        id: "Local-PowerupNext-2",
         icon: () => [1, 2],
         state: state.WAITING_LOCAL,
         x: () => c.width(0.5) + 375,
@@ -643,12 +643,12 @@ Button.items = [
         height: 60,
         disabled: true,
         onclick: () => {
-            if (instance.players[gamepad.playerIndexes[2]].superpower.selected++ >= Game.superpowers.length - 1)
-                instance.players[gamepad.playerIndexes[2]].superpower.selected = 0;
+            if (instance.players[gamepad.playerIndexes[2]].powerup.selected++ >= Game.powerups.length - 1)
+                instance.players[gamepad.playerIndexes[2]].powerup.selected = 0;
         }
     }),
     new Button({
-        id: "Local-SuperpowerPrev-3",
+        id: "Local-PowerupPrev-3",
         icon: () => [0, 2],
         state: state.WAITING_LOCAL,
         x: () => c.width(0.5) + 150,
@@ -657,12 +657,12 @@ Button.items = [
         height: 60,
         disabled: true,
         onclick: () => {
-            if (instance.players[gamepad.playerIndexes[3]].superpower.selected-- <= 0)
-                instance.players[gamepad.playerIndexes[3]].superpower.selected = Game.superpowers.length - 1;
+            if (instance.players[gamepad.playerIndexes[3]].powerup.selected-- <= 0)
+                instance.players[gamepad.playerIndexes[3]].powerup.selected = Game.powerups.length - 1;
         }
     }),
     new Button({
-        id: "Local-SuperpowerNext-3",
+        id: "Local-PowerupNext-3",
         icon: () => [1, 2],
         state: state.WAITING_LOCAL,
         x: () => c.width(0.5) + 375,
@@ -671,8 +671,8 @@ Button.items = [
         height: 60,
         disabled: true,
         onclick: () => {
-            if (instance.players[gamepad.playerIndexes[3]].superpower.selected++ >= Game.superpowers.length - 1)
-                instance.players[gamepad.playerIndexes[3]].superpower.selected = 0;
+            if (instance.players[gamepad.playerIndexes[3]].powerup.selected++ >= Game.powerups.length - 1)
+                instance.players[gamepad.playerIndexes[3]].powerup.selected = 0;
         }
     }),
     // LAN mode menu
@@ -791,7 +791,7 @@ Button.items = [
             ipcRenderer.send("update-config", config);
         }
     }),
-    // for the superpower switch:
+    // for the powerup switch:
     new Button({
         icon: () => [0, 2],
         state: state.SETTINGS,
@@ -800,8 +800,8 @@ Button.items = [
         width: Button.height / 2,
         height: Button.height / 2,
         onclick: () => {
-            if (config.appearance.superpower-- <= 0)
-                config.appearance.superpower = Game.superpowers.length - 1;
+            if (config.appearance.powerup-- <= 0)
+                config.appearance.powerup = Game.powerups.length - 1;
             ipcRenderer.send("update-config", config);
         }
     }),
@@ -813,8 +813,8 @@ Button.items = [
         width: Button.height / 2,
         height: Button.height / 2,
         onclick: () => {
-            if (config.appearance.superpower++ >= Game.superpowers.length - 1)
-                config.appearance.superpower = 0;
+            if (config.appearance.powerup++ >= Game.powerups.length - 1)
+                config.appearance.powerup = 0;
             ipcRenderer.send("update-config", config);
         }
     }),
@@ -1279,7 +1279,7 @@ Input.items = [
         onkeybindselected: updateKeybinds
     }),
     new Input({
-        id: "Keybind-activateSuperpower",
+        id: "Keybind-activatePowerup",
         state: state.SETTINGS,
         x: () => c.width(4/5) + 150,
         y: () => 540,
@@ -1581,9 +1581,9 @@ addEventListener("DOMContentLoaded", () => {
             } else if (lgame.startState === 7 && game.startState === 8) leave();
 
             if (!state.is(state.WAITING_LOCAL, state.PLAYING_LOCAL, state.LAN_GAME_MENU)) {
-                if (!lgame.players[playerIndex].superpower.available && game.players[playerIndex].superpower.available) {
-                    const superpowerName = Game.superpowers[game.players[playerIndex].superpower.selected].name.toUpperCase();
-                    bigNotification.show(`${superpowerName} READY`, theme.colors.bigNotification.g, 120, 0.003);
+                if (!lgame.players[playerIndex].powerup.available && game.players[playerIndex].powerup.available) {
+                    const powerupName = Game.powerups[game.players[playerIndex].powerup.selected].name.toUpperCase();
+                    bigNotification.show(`${powerupName} READY`, theme.colors.bigNotification.g, 120, 0.003);
                 }
                 if (lgame.players[playerIndex].lives > 0 && game.players[playerIndex].lives === 0)
                     bigNotification.show("GAME OVER", theme.colors.bigNotification.r, 200, 0.008);
@@ -1736,7 +1736,7 @@ addEventListener("DOMContentLoaded", () => {
                     c.options.setShadow();
                 }
 
-                if (p.superpower.active && p.superpower.selected === Player.superpower.INVISIBILITY) c.options.setOpacity((playerIndex === p.index) ? 0.2 : 0);
+                if (p.powerup.active && p.powerup.selected === Player.powerup.INVISIBILITY) c.options.setOpacity((playerIndex === p.index) ? 0.2 : 0);
                 if (frames % 4 < 2 || game.ping - p.respawn >= p.spawnProtection) c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, p.x + offset.x, p.y + offset.y, p.size, p.size);
                 c.options.setOpacity();
 
@@ -1766,12 +1766,12 @@ addEventListener("DOMContentLoaded", () => {
             for (const p of game.players) {
                 if (p === null) continue;
 
-                if (p.superpower.active && p.superpower.selected === Player.superpower.SHIELD) {
+                if (p.powerup.active && p.powerup.selected === Player.powerup.SHIELD) {
                     c.options.setShadow(theme.colors.shadow, 7);
                     c.draw.stroke.arc(theme.colors.text.light, p.x + offset.x + p.size / 2, p.y + offset.y + p.size / 2, Math.sqrt(p.size ** 2 * 2) / 2);
                     c.options.setShadow();   
                 }
-                if (p.superpower.active && p.superpower.selected === Player.superpower.INVISIBILITY) c.options.setOpacity((playerIndex === p.index) ? 0.2 : 0);
+                if (p.powerup.active && p.powerup.selected === Player.powerup.INVISIBILITY) c.options.setOpacity((playerIndex === p.index) ? 0.2 : 0);
                 c.draw.text({text: p.name, x: p.x + p.size / 2 + offset.x, y: p.y + offset.y - (playerIndex === p.index ? 42 : 10), font: {size: 20}});
                 c.options.setOpacity();
             }
@@ -1852,9 +1852,9 @@ addEventListener("DOMContentLoaded", () => {
                 const decimalOffset = c.draw.text({text: Math.floor(p.hit.percentage), font: {size: 48, style: "bold"}, measure: true});
                 const decimalText = (parallellogramWidth > 250) ? p.hit.percentage.toFixed(1).slice(-2) + "%" : "%";
 
-                if (frames % 30 < 20 && p.superpower.available && p.superpower.meetsCondition) c.options.setShadow(theme.colors.text.light, 12);
-                else if (frames % 30 < 20 && p.superpower.available) c.options.setShadow(theme.colors.error.foreground, 12);
-                else if (frames % 30 < 20 && p.superpower.active) c.options.setShadow(theme.colors.ui.highlight, 12);
+                if (frames % 30 < 20 && p.powerup.available && p.powerup.meetsCondition) c.options.setShadow(theme.colors.text.light, 12);
+                else if (frames % 30 < 20 && p.powerup.available) c.options.setShadow(theme.colors.error.foreground, 12);
+                else if (frames % 30 < 20 && p.powerup.active) c.options.setShadow(theme.colors.ui.highlight, 12);
                 else c.options.setShadow(theme.colors.shadow, 4);
 
                 if (p.lives < 1 || !p.connected) c.options.setOpacity(0.3);
@@ -1923,7 +1923,7 @@ addEventListener("DOMContentLoaded", () => {
                     c.options.setShadow(theme.colors.shadow, 4, 1, 1);
                     c.draw.text({text: game.players[j].name, x: x + state.change.x + 85, y: y + 52, font: {size: 32}, color: theme.colors.text.light, alignment: "left"});
                 } else c.options.filter.add("grayscale(1)");
-                c.draw.croppedImage(image.superpowers, 0, game.players[j].superpower.selected * 70, 140, 70, x + state.change.x + 595, y, 140, 70);
+                c.draw.croppedImage(image.powerups, 0, game.players[j].powerup.selected * 70, 140, 70, x + state.change.x + 595, y, 140, 70);
                 c.options.filter.remove("grayscale");
                 c.options.setShadow();
                 c.options.setOpacity();
@@ -1947,18 +1947,18 @@ addEventListener("DOMContentLoaded", () => {
 
             c.draw.text({text: "Player name:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 250, font: {size: 24, shadow: true}, alignment: "left"});
             c.draw.text({text: "Preferred color:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 345, font: {size: 24, shadow: true}, alignment: "left"});
-            c.draw.text({text: "Superpower:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 525, font: {size: 24, shadow: true}, alignment: "left"});
+            c.draw.text({text: "Power-up:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 525, font: {size: 24, shadow: true}, alignment: "left"});
             
             const colors = ["Yellow", "Green", "Red", "Blue", "Orange", "Cyan", "Purple", "Gray"];
-            const superpowers = Game.superpowers.map(s => s.name);
+            const powerups = Game.powerups.map(p => p.name);
             c.draw.croppedImage(image.sprites, config.appearance.preferredColor * 128, 0, 128, 128, c.width(0.2) - 35 + state.change.x, 370, 70, 70);
-            c.draw.croppedImage(image.superpowers, 0, config.appearance.superpower * 70, 140, 70, c.width(0.2) - 70 + state.change.x, 550, 140, 70);
+            c.draw.croppedImage(image.powerups, 0, config.appearance.powerup * 70, 140, 70, c.width(0.2) - 70 + state.change.x, 550, 140, 70);
             c.draw.text({text: colors[config.appearance.preferredColor], x: c.width(0.2) + state.change.x, y: 470, font: {size: 30, style: "bold", shadow: true}, baseline: "middle"}); 
-            c.draw.text({text: superpowers[config.appearance.superpower], x: c.width(0.2) + state.change.x, y: 650, font: {size: 30, style: "bold", shadow: true}, baseline: "middle", maxWidth: Button.width - 90});
-            if (Game.superpowers[config.appearance.superpower].conditionText)
-                c.draw.text({text: Game.superpowers[config.appearance.superpower].conditionText, x: c.width(0.2) + state.change.x, y: 690, font: {size: 16, shadow: true}, baseline: "middle"});
+            c.draw.text({text: powerups[config.appearance.powerup], x: c.width(0.2) + state.change.x, y: 650, font: {size: 30, style: "bold", shadow: true}, baseline: "middle", maxWidth: Button.width - 90});
+            if (Game.powerups[config.appearance.powerup].conditionText)
+                c.draw.text({text: Game.powerups[config.appearance.powerup].conditionText, x: c.width(0.2) + state.change.x, y: 690, font: {size: 16, shadow: true}, baseline: "middle"});
 
-            const keybinds = ["Move left", "Move right", "Jump", "Attack", "Launch rocket", "Activate superpower", "Game menu"];
+            const keybinds = ["Move left", "Move right", "Jump", "Attack", "Launch rocket", "Activate power-up", "Game menu"];
             for (let i=0; i<keybinds.length; i++)
                 c.draw.text({text: keybinds[i], x: c.width(0.8) - Button.width / 2 - 25 + state.change.x, y: 250 + i * 60, font: {size: 24, shadow: true}, alignment: "left"});
         } else if (state.current === state.ABOUT) {

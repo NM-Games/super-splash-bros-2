@@ -38,8 +38,8 @@ const update = (instance) => {
         if (instance.players[pi] === null) continue;
 
         getInputById(`Local-Player${i}`).disabled =
-        getButtonById(`Local-SuperpowerPrev-${i}`).disabled =
-        getButtonById(`Local-SuperpowerNext-${i}`).disabled = (items[i] === null);
+        getButtonById(`Local-PowerupPrev-${i}`).disabled =
+        getButtonById(`Local-PowerupNext-${i}`).disabled = (items[i] === null);
 
         instance.players[pi].name = getInputById(`Local-Player${i}`).value;
         instance.players[pi].connected = (items[i] !== null && !prohibitReconnecting[i]);
@@ -54,7 +54,7 @@ const update = (instance) => {
                 jump: (items[i].buttons[0].pressed),
                 attack: (items[i].buttons[7].pressed),
                 launchRocket: (items[i].buttons[6].pressed),
-                activateSuperpower: (items[i].buttons[2].pressed),
+                activatePowerup: (items[i].buttons[2].pressed),
                 gameMenu: false
             });
         }

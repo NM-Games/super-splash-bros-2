@@ -1,4 +1,4 @@
-const { superpower } = require("./Player");
+const { powerup } = require("./Player");
 
 class Attack {
     static maxSize = 100;
@@ -39,7 +39,7 @@ class Attack {
                 
                 if (distance <= p.size / 2 + this.size) {
                     let impact = (this.x - (p.x + p.size / 2) < 0 ? Attack.impact : -Attack.impact);
-                    if (instance.players[this.player].hasSuperpower(superpower.KNOCKBACK)) impact *= 3;
+                    if (instance.players[this.player].hasPowerup(powerup.KNOCKBACK)) impact *= 3;
                     p.damage(instance.ping, 2, 5, impact);
                 }
             }

@@ -13,7 +13,7 @@ class Player {
         {x: 250, y: 550, w: 750, h: 27}, // bottom
         {x: 1035, y: 328, w: 200, h: 27} // right
     ];
-    static superpower = {
+    static powerup = {
         SQUASH: 0,
         SHIELD: 1,
         INVISIBILITY: 2,
@@ -40,7 +40,7 @@ class Player {
     hit;
     lives;
     attacks;
-    superpower;
+    powerup;
     /** @type {Exclusive | null} */
     exclusivePlatform;
     keys;
@@ -90,8 +90,8 @@ class Player {
                 lastPerformed: -6e9
             }
         };
-        this.superpower = {
-            selected: appearance.superpower,
+        this.powerup = {
+            selected: appearance.powerup,
             available: false,
             active: false,
             meetsCondition: false,
@@ -104,7 +104,7 @@ class Player {
             jump: false,
             attack: false,
             rocket: false,
-            superpower: false
+            powerup: false
         };
     }
 
@@ -118,7 +118,7 @@ class Player {
         this.keys.jump = keys.jump;
         this.keys.attack = keys.attack;
         this.keys.rocket = keys.launchRocket;
-        this.keys.superpower = keys.activateSuperpower;
+        this.keys.powerup = keys.activatePowerup;
     }
 
     /**
@@ -130,7 +130,7 @@ class Player {
      */
     damage(ping, min, max, knockback = 0) {
         if (ping - this.respawn < this.spawnProtection ||
-         this.hasSuperpower(Player.superpower.SHIELD)) return;
+         this.hasPowerup(Player.powerup.SHIELD)) return;
 
         this.hit.last = ping;
         this.hit.percentage += Math.random() * (max - min) + min;
@@ -139,12 +139,12 @@ class Player {
     }
 
     /**
-     * Check whether a player has a specific superpower active.
+     * Check whether a player has a specific powerup active.
      * @param {number} index
      * @returns {boolean}
      */
-    hasSuperpower(index) {
-        return (this.superpower.active && this.superpower.selected === index);
+    hasPowerup(index) {
+        return (this.powerup.active && this.powerup.selected === index);
     }
 
     /** Update a player. Collision detection between players is done in the Game class. */
@@ -162,16 +162,16 @@ class Player {
                 this.vx += Player.acceleration;
             } else this.vx /= Player.deceleration;
 
-            if (this.hasSuperpower(Player.superpower.SHIELD)) {
+            if (this.hasPowerup(Player.powerup.SHIELD)) {
                 this.vx /= Player.deceleration;
                 this.vy += Player.g / 2;
             }
     
-            if (this.keys.jump && !this.jump.heldKey && this.jump.used < Player.maxJumps && !this.hasSuperpower(Player.superpower.SQUASH)) {
+            if (this.keys.jump && !this.jump.heldKey && this.jump.used < Player.maxJumps && !this.hasPowerup(Player.powerup.SQUASH)) {
                 this.jump.active = true;
                 this.jump.used++;
                 this.y -= 2;
-                this.vy = -Player.jumpForce * (this.hasSuperpower(Player.superpower.POWER_JUMP) ? 1.5 : 1);
+                this.vy = -Player.jumpForce * (this.hasPowerup(Player.powerup.POWER_JUMP) ? 1.5 : 1);
             }
             this.jump.heldKey = this.keys.jump;
         } else this.x = this.y = -1e8;
@@ -195,7 +195,7 @@ class Player {
                 }
             }
         }
-        if (!this.superpower.active) this.exclusivePlatform = null;
+        if (!this.powerup.active) this.exclusivePlatform = null;
         if (this.exclusivePlatform) this.exclusivePlatform.update(this);
     }
 

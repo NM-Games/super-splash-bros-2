@@ -21,7 +21,7 @@ const { readdirSync } = require("fs");
  *  splash: HTMLImageElement,
  *  sprites: HTMLImageElement,
  *  stars: HTMLImageElement,
- *  superpowers: HTMLImageElement,
+ *  powerups: HTMLImageElement,
  *  water: HTMLImageElement,
  *  _getAspectRatio: AspectRatioCallback
  * }}

@@ -1,8 +1,8 @@
 /**
  * @typedef {{
- *  appearance: {playerName: string, preferredColor: number, superpower: number},
+ *  appearance: {playerName: string, preferredColor: number, powerup: number},
  *  graphics: {theme: import("./preload/theme").Themes, fullScreen: boolean, waterFlow: boolean, menuSprites: boolean},
- *  controls: {moveLeft: string, moveRight: string, jump: string, attack: string, launchRocket: string, activateSuperpower: string, gameMenu: string},
+ *  controls: {moveLeft: string, moveRight: string, jump: string, attack: string, launchRocket: string, activatePowerup: string, gameMenu: string},
  *  audio: {music: boolean, sfx: boolean}
  * }} Settings
  */
@@ -22,7 +22,7 @@ const template = {
     appearance: {
         playerName: generateName(),
         preferredColor: 0,
-        superpower: 0
+        powerup: 0
     },
     graphics: {
         theme: "daylight",
@@ -36,7 +36,7 @@ const template = {
         jump: "w",
         attack: " ",
         launchRocket: "e",
-        activateSuperpower: "q",
+        activatePowerup: "q",
         gameMenu: "Escape"
     },
     audio: {
