@@ -396,11 +396,9 @@ class Game {
                     for (const p2 of this.getPlayers())
                         p2.damage(this.ping, 40, 80, (p1.index === p2.index) ? 0 : (p1.x < p2.x) ? 15 : -15);
                 }
-
-                if (!p1.powerup.active && !isFinite(p1.attacks.rocket.count)) {
-                    p1.attacks.rocket.count = 0;
-                    p1.attacks.rocket.lastRegenerated = this.ping;
-                }
+            } else if (!isFinite(p1.attacks.rocket.count)) {
+                p1.attacks.rocket.count = 0;
+                p1.attacks.rocket.lastRegenerated = this.ping;
             }
         }
 
