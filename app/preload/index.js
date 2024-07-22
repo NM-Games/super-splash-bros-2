@@ -1593,6 +1593,10 @@ addEventListener("DOMContentLoaded", () => {
                 }
                 if (lgame.players[playerIndex].lives > 0 && game.players[playerIndex].lives === 0)
                     bigNotification.show("GAME OVER", theme.colors.bigNotification.r, 200, 0.008);
+
+                if (state.is(state.PLAYING_FREEPLAY) && lgame.players.filter(p => p && p.lives > 0).length > 1 &&
+                 game.players.filter(p => p && p.lives > 0).length === 1 && game.players[playerIndex].lives > 0)
+                    bigNotification.show("VICTORY!", theme.colors.bigNotification.g, 220, 0.008);
             }
         }
 
@@ -1900,7 +1904,11 @@ addEventListener("DOMContentLoaded", () => {
 
             const m = Math.max(0, Math.floor(game.remaining / 60));
             const s = ("0" + Math.max(0, game.remaining % 60)).slice(-2);
-            const text = (game.winner !== null) ? `Returning to menu in ${m}:${s}` : (game.remaining >= 0) ? `Water starts rising in ${m}:${s}` : (game.flooded) ? "Fight to the victory!" : "Water is rising!";
+            const text = (game.winner !== null) ? `Returning to menu in ${m}:${s}`
+             : (game.remaining >= 0) ? `Water starts rising in ${m}:${s}`
+             : (!game.flooded) ? "Water is rising!"
+             : (state.is(state.PLAYING_FREEPLAY) && game.players.filter(p => p && p.lives > 0).length === 1 && game.players[playerIndex].lives > 0) ? "Congratulations!"
+             : "Fight to the victory!";
             const color = (game.remaining < 0 && game.winner === null && !game.flooded && frames % 60 < 30) ? theme.colors.error.foreground : theme.getTextColor();
             c.draw.text({text, x: 15 + screenShake.x, y: 35 + screenShake.y, color, font: {size: 28}, alignment: "left"});
             if (state.current === state.PLAYING_LAN) c.draw.text({text: `Ping: ${Math.max(0, ping)} ms`, x: c.width() - 15, y: 25, font: {size: 12}, alignment: "right"});
