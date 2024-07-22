@@ -12,7 +12,7 @@ Compared to Super Splash Bros, the following has been changed/improved:
 - Added several power-ups in addition to shields (now known as *force fields*) and squashes. Power-ups can now be achieved from item boxes which look like fish.
 - Player appearance is now customizable! Players can determine their own name, color and power-up.
 - Added the option to remove dummies in Freeplay mode.
-- Added a synthwave theme!
+- Added synthwave, foggy and lava themes!
 - Added music and sound effects! If you want, you can turn these off in the Settings menu and in the in-game menu.
 - Keybinds can be remapped! Only for keyboards, not for gamepads, maybe later :)
 - If you press the right buttons in the right order, something festive might happen on menu screens...

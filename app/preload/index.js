@@ -1709,9 +1709,16 @@ addEventListener("DOMContentLoaded", () => {
             c.options.setOpacity();
             c.draw.fill.rect(c.options.gradient(0, c.height(0.3), 0, c.height(), {pos: 0, color: "transparent"}, {pos: 1, color: "#d51ec4"}), 0, 0, c.width(), c.height());
             c.draw.fill.circle(c.options.gradient(0, c.height() - 600, 0, c.height(), {pos: 0, color: "yellow"}, {pos: 1, color: "#ff1f82"}), c.width(0.5), c.height() - 169, c.width(0.2));
+        } else if (theme.current === "foggy") {
+            c.options.setOpacity(0.05);
+            c.draw.fill.rect(c.options.pattern(image.stars), 0, 0, c.width(), c.height());
+            c.options.setOpacity();
+            c.draw.fill.rect(c.options.gradient(0, 0, 0, c.height(1.5), {pos: 0, color: "transparent"}, {pos: 1, color: theme.colors.text.light}), 0, 0, c.width(), c.height());
         }
 
         const drawWater = () => {
+            if (theme.current === "lava") c.options.filter.add("hue-rotate(190deg)", "brightness(0.6)", "saturate(2)");
+
             c.draw.fill.rect(
                 c.options.gradient(0, water.flood.level, 0, water.flood.level + c.height(),
                 {pos: 0, color: theme.colors.ui.secondary}, {pos: 0.5, color: theme.colors.ui.primary}, {pos: 1, color: theme.colors.ui.secondary}),
@@ -1727,6 +1734,7 @@ addEventListener("DOMContentLoaded", () => {
                 c.draw.image(image.water, water.x + water.imageX, water.flood.level - image.water.height);
                 water.imageX += image.water.width;
             }
+            c.options.filter.remove("hue-rotate", "brightness", "saturate");
         };
 
         if (state.is(state.MAIN_MENU, state.SETTINGS, state.ABOUT, state.WAITING_LOCAL, state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY)) {
@@ -1737,7 +1745,10 @@ addEventListener("DOMContentLoaded", () => {
         } else if (state.is(state.PLAYING_LOCAL, state.PLAYING_LAN, state.PLAYING_FREEPLAY) && game) {
             const offset = {x: (c.width() - image.platforms.width) / 2 + screenShake.x, y: c.height() - image.platforms.height + screenShake.y};
 
+            if (theme.current === "foggy") c.options.filter.add("sepia(1)", "hue-rotate(150deg)", "brightness(1.5)");
             c.draw.image(image.platforms, offset.x, offset.y);
+            c.options.filter.remove("sepia", "hue-rotate", "brightness");
+
             for (const p of game.players) {
                 if (p === null) continue;
                 
@@ -1793,7 +1804,10 @@ addEventListener("DOMContentLoaded", () => {
             for (const g of game.geysers) {
                 const grd = c.options.gradient(g.x, 0, g.x + Geyser.width, 0, {pos: 0, color: theme.colors.ui.primary}, {pos: 0.5, color: theme.colors.ui.secondary}, {pos: 1, color: theme.colors.ui.primary});
                 c.options.setOpacity(g.a);
+
+                if (theme.current === "lava") c.options.filter.add("hue-rotate(190deg)", "brightness(0.6)", "saturate(2)");
                 c.draw.fill.rect(grd, g.x + offset.x, g.y, Geyser.width, Math.abs(g.y) + c.height(2), Geyser.width / 4);
+                c.options.filter.remove("hue-rotate", "brightness", "saturate");
             }
             for (const ci of game.circles) {
                 c.options.setOpacity(ci.a);
@@ -1813,7 +1827,10 @@ addEventListener("DOMContentLoaded", () => {
 
             for (const s of game.splashes) {
                 c.options.setOpacity(s.a);
+
+                if (theme.current === "lava") c.options.filter.add("hue-rotate(190deg)", "brightness(0.6)", "saturate(2)");
                 c.draw.image(image.splash, s.x - image.splash.width / 2 + offset.x, offset.y + 560 + s.h);
+                c.options.filter.remove("hue-rotate", "brightness", "saturate");
             }
             c.options.setOpacity();
 

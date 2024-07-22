@@ -1,5 +1,5 @@
 /**
- * @typedef {"daylight" | "sunset" | "night" | "synthwave"} Themes
+ * @typedef {"daylight" | "sunset" | "night" | "synthwave" | "foggy" | "lava"} Themes
  */
 
 const colors = {
@@ -8,6 +8,8 @@ const colors = {
         sunset: "#ffb914",
         night: "#000000",
         synthwave: "#1b023b",
+        foggy: "#769aac",
+        lava: "#410900"
     },
     players: [
         "#ffd900", // yellow
@@ -42,14 +44,16 @@ module.exports = {
         if (from === "daylight") return "sunset";
         else if (from === "sunset") return "night";
         else if (from === "night") return "synthwave";
-        else if (from === "synthwave") return "daylight";
+        else if (from === "synthwave") return "foggy";
+        else if (from === "foggy") return "lava";
+        else if (from === "lava") return "daylight";
     },
     /**
      * Check whether the theme is a dark theme for optimal text colors.
      * @returns {boolean}
      */
     isDark: function() {
-        return ["night", "synthwave"].includes(this.current);
+        return ["night", "synthwave", "foggy", "lava"].includes(this.current);
     },
     /**
      * Get the background color/gradient.
