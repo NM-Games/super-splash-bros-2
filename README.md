@@ -28,6 +28,7 @@ Mac users have to sign the app themselves by running `sudo codesign --force --de
 If that does not work, try building the app yourself by running `npm install && npm run build-mac`, assuming that npm is installed.
 
 ## Known issues
+- There is a chance that the game will not load on startup and show a white screen instead. Restarting the game solves that.
 - Trying to access a LAN game by another method than typing in the usual host IP address, such as SSH tunneling, might result in crashing the game.
 
 ## Controls
@@ -53,6 +54,8 @@ Super Splash Bros 2 can be played in three different modes:
   - **Easy** will let the dummies randomly fire rockets, if they have at least one.
   - **Normal** increases the rocket fire probability, but only if the dummy is near the same Y level as the player. Dummies will also jump if they are in danger of falling into water, and move away from the outer platforms.
   - **Hard** increases the rocket fire probability even more if the dummy is near the same Y level as the player. Furthermore, dummies will always face the player, jump if they are in danger of getting hit by a rocket, and move further away from the outer platforms.
+  - **CHAOS**: Starting from Easy difficulty, dummies will use their melee attack when *you* come close to them. Depending on the difficulty, the closer you get, the earlier they start attacking. But; the CHAOS difficulty does the same when dummies approach *each other*. Dummies will also jump and fire rockets at random, but still tend to stay away from the outer platforms. And, the finishing touch: everybody (including the player) receives a power-up at the start of the match, and every 30 seconds after!
+    > **Note:** A beefy computer is recommended when playing on CHAOS difficulty, because of the many attacks, rockets and power-ups.
 
 ## Attack methods
 Your goal is to be the last player standing. But all other players will not voluntarily take a dip. So, how are you going to take everyone else out?

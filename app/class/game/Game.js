@@ -195,7 +195,13 @@ class Game {
         if (this.mode !== "freeplay") return;
 
         for (let i=0; i<this.players.length; i++) {
-            if (this.players[i] === null) this.join({playerName: `Dummy ${i + 1}`, preferredColor: i, powerup: 0}, `dummy::${i}`);
+            if (this.players[i] === null) {
+                this.join({
+                    playerName: `Dummy ${i + 1}`,
+                    preferredColor: i,
+                    powerup: Math.floor(Math.random() * Game.powerups.length)
+                }, `dummy::${i}`);
+            }
         }
     }
 
@@ -262,6 +268,9 @@ class Game {
 
         this.elapsed = this.ping - this.startedOn - 8900;
         if (this.elapsed >= Game.floodDelay * 1000) this.floodLevel = Math.max(Game.floodMaxLevel, this.floodLevel - 0.1);
+        if (this.elapsed % 30000 < 150 && this.dummyDifficulty === 4) {
+            for (const p of this.getPlayers()) p.powerup.available = (p.lives > 0);
+        }
 
         const alive = [];
         for (let i=0; i<this.players.length; i++) {
@@ -290,6 +299,11 @@ class Game {
                         p1.vy /= 1.05;
                         p2.vy /= 1.05;
                     }
+                }
+
+                if ((this.dummyDifficulty === 4 || (this.dummyDifficulty > 0 && this.hostIndex === p2.index)) && this.hostIndex !== p1.index) {
+                    const distance = Math.sqrt(Math.abs(p1.x - p2.x) ** 2 + Math.abs(p1.y - p2.y) ** 2);
+                    if (distance < this.dummyDifficulty * 50) p1.keys.attack = true; // 50 (easy), 100 (normal), 150 (hard), 200 (CHAOS)
                 }
             }
 
@@ -351,10 +365,19 @@ class Game {
                     p1.keys.jump = (this.rockets.filter(r => Math.abs(p1.y - r.y) < p1.size / 2).length > 0 || p1.y > 600);
                     p1.keys.left = (p1.x > Player.platforms[1].x + Player.platforms[1].w && p1.y < 500);
                     p1.keys.right = (p1.x < Player.platforms[1].x && p1.y < 500);
+                } else if (this.dummyDifficulty === 4) {
+                    if (Math.random() < 0.002 || p1.hasPowerup(Player.powerup.INFINITE_ROCKETS)) p1.keys.rocket = true;
+                    p1.keys.jump = (Math.random() < 0.008);
+                    p1.keys.left = (
+                        (p1.x > Player.platforms[1].x + Player.platforms[1].w && p1.y < 500) ||
+                        (this.attacks.filter(a => a.player === p1.index).length > 0 && p1.x > 625)
+                    );
+                    p1.keys.right = (
+                        (p1.x < Player.platforms[1].x && p1.y < 500) ||
+                        (this.attacks.filter(a => a.player === p1.index).length > 0 && p1.x < 625)
+                    );
+                    p1.keys.powerup = (Math.random() < 0.012);
                 }
-
-                const distance = Math.sqrt(Math.abs(p1.x - this.players[this.hostIndex].x) ** 2 + Math.abs(p1.y - this.players[this.hostIndex].y) ** 2);
-                p1.keys.attack = (distance < this.dummyDifficulty * 50); // 50 (easy), 100 (normal), 150 (hard)
             }
 
             const rocketCooldown = p1.hasPowerup(Player.powerup.INFINITE_ROCKETS) ? 250 : p1.attacks.rocket.cooldown;
@@ -502,7 +525,7 @@ class Game {
 
         for (const p of this.getPlayers()) {
             p.updateCoordinates();
-            if (this.dummyFire) p.keys.rocket = false;
+            if (this.dummyDifficulty > 0 && this.hostIndex !== p.index) p.keys.attack = p.keys.rocket = false;
         }
     }
 
