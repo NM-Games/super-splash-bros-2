@@ -496,7 +496,7 @@ class Game {
             const updateResult = geyser.update();
 
             for (const p of this.getPlayers()) {
-                if (p.x < geyser.x + Geyser.width && p.x + p.size > geyser.x && p.y + p.size > geyser.y) {
+                if (p.x < geyser.x + Geyser.width && p.x + p.size > geyser.x && p.y + p.size > geyser.y && !p.hasPowerup(Player.powerup.FORCE_FIELD)) {
                     p.y -= Geyser.speed;
                     p.damage(this.ping, 0.5, 1.2);
                 }

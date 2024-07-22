@@ -140,7 +140,7 @@ class Player {
     }
 
     /**
-     * Check whether a player has a specific powerup active.
+     * Check whether a player has a specific power-up active.
      * @param {number} index
      * @returns {boolean}
      */

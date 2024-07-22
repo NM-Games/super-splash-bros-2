@@ -127,6 +127,7 @@ More power-ups have been added in Super Splash Bros 2. Below are all currently a
   Activating this power-up will drop a poop bomb out of the back of the performer. The poop bomb will move towards the water. Once it hits the water, it will create a geyser that will push all players nearby it upwards, and damages them too. After the geyser disappeared, you still have a moment until all the victims are back on the platforms again.
   - [+] Great way to temporarily get rid of enemies, and to make them more vulnerable for a rocket hit.
   - [-] Requires some timing and aiming skills.
+  - [-] Not strong enough against enemies with force fields.
 - **Exclusive Platform**  
   This power-up creates a special platform underneath the performer for 10 seconds. And only the performer can collide with it! Other players will fall right through it.
   - This power-up requires the player to be in the air, otherwise it will not activate.
