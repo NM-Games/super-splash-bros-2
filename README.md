@@ -70,6 +70,7 @@ Your goal is to be the last player standing. But all other players will not volu
   - Players can hold up to 6 rockets at a time.
   - Rockets do 30%-50% damage to the player who got hit by it.
   - Rockets have a 5 second cooldown.
+  - Rockets phase through players with spawn protection.
   - If a player lands on top of a rocket, the player will ride it! During a rocket ride, a player cannot move horizontally, so you can only get off by jumping or waiting. Most players prefer the first method!
 - **Power-ups**  
   Power-ups are not always an attack method, but some of them are even more effective than rockets. More information about power-ups is documented below.

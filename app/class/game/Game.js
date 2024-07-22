@@ -446,7 +446,8 @@ class Game {
                 va: 0.015
             }));
             for (const p of this.getPlayers()) {
-                if (rocket.x < p.x + p.size && rocket.x + rocket.width > p.x && rocket.y > p.y && rocket.y < p.y + p.size && !rocket.explosion.active) {
+                if (rocket.x < p.x + p.size && rocket.x + rocket.width > p.x && rocket.y > p.y && rocket.y < p.y + p.size
+                 && !rocket.explosion.active && this.ping - p.respawn >= p.spawnProtection) {
                     if (p.ly + p.size <= rocket.y) { // rocket ride if landed on top
                         p.x += (rocket.direction === "r" ? Rocket.speed : -Rocket.speed) * 2;
                         p.vx = 0;
