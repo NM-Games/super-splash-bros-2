@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, ipcMain, screen, dialog, globalShortcut, utilityProcess } = require("electron");
+const { app, BrowserWindow, Menu, ipcMain, screen, dialog, utilityProcess } = require("electron");
 const { join } = require("path");
 
 const network = require("./network");
@@ -84,8 +84,7 @@ app.whenReady().then(() => {
     window.on("close", beforeClose);
     
     ipcMain.on("toggle-fullscreen", toggleFullScreen);
-    globalShortcut.register("F11", toggleFullScreen);
-    globalShortcut.register("F12", () => window.webContents.openDevTools());
+    ipcMain.on("toggle-devtools", () => window.webContents.openDevTools());
     window.on("enter-full-screen", () => {
         window.webContents.send("fullscreen-status", true);
     });

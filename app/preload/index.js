@@ -1421,6 +1421,9 @@ addEventListener("DOMContentLoaded", () => {
             gameMenu.toggle();
         }
         
+        if (key === "f11") ipcRenderer.send("toggle-fullscreen");
+        else if (key === "f12") ipcRenderer.send("toggle-devtools");
+
         if (!konamiEasterEgg.isActive()) {
             if (key === konamiEasterEgg.keys[konamiEasterEgg.index].toLowerCase()) konamiEasterEgg.index++;
             else konamiEasterEgg.deactivate();
