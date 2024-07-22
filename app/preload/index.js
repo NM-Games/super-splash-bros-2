@@ -1874,7 +1874,7 @@ addEventListener("DOMContentLoaded", () => {
                     c.draw.image(image.explosion, x + parallellogramWidth - offsets.rockets - 12, y + 5, 24, 24);
                     c.options.setShadow(theme.colors.shadow, 2);
 
-                    if (frames % 4 < 2 || p.attacks.rocket.count === 0 || game.ping - p.attacks.rocket.lastPerformed >= p.attacks.rocket.cooldown) c.draw.text({
+                    if (frames % 4 < 2 || [0, Infinity].includes(p.attacks.rocket.count) || game.ping - p.attacks.rocket.lastPerformed >= p.attacks.rocket.cooldown) c.draw.text({
                         text: isFinite(p.attacks.rocket.count) ? p.attacks.rocket.count : "∞",
                         x: x + parallellogramWidth - offsets.rockets,
                         y: y + 18,
