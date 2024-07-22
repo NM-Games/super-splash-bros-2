@@ -46,7 +46,7 @@ Super Splash Bros 2 can be played in three different modes:
 - **Local mode**  
   In Local mode, up to 4 players can compete against each other on a single device. This is done by using PlayStation or XBox controllers. The controls are mentioned above. The player colors are determined by the light bar color: blue, red, green and magenta. When (dis)connecting controllers, this can be messed up a bit, so move your left thumbstick to see which player you actually are.
 - **LAN mode**  
-  In LAN mode, up to 8 players can compete against each other on several devices connected to the same LAN (Local Area Network). One player creates the game and becomes host of it, while other players join the game by using the local IP address of the host. The host has the ability to ban players, based on their local own IP address. The host also determines the theme and when the game starts.
+  In LAN mode, up to 8 players can compete against each other on several devices connected to the same LAN (Local Area Network). If your device does not have any network connections, this mode is disabled. One player creates the game and becomes host of it, while other players join the game by using the local IP address of the host. The host has the ability to ban players, based on their local own IP address. The host also determines the theme and when the game starts.
 - **Freeplay mode**  
   In Freeplay mode, one player competes against up to 7 dummies, although it is possible to play with less dummies or even alone. Freeplay mode is a great game mode to practice your skills in. The dummies can even show some behavior, based on the selected difficulty:
   - **None** means that the dummies will not do anything at all.
@@ -115,7 +115,8 @@ More power-ups have been added in Super Splash Bros 2. Below are all currently a
   - [+] When hit by a rocket, you can get back to the play area easier.
   - [-] You have to be more patient before you are on the ground again.
 - **Life Mender**  
-  Restores one life upon activation. And you have a 20% chance for a bonus life.
+  Restores one life upon activation, but you have a 20% chance for an extra life! Please note that the maximum life amount is 5.
+  - This power-up requires the player to have less than 5 lives, otherwise it will not activate.
   - [+] Can be life saving.
   - [-] Not the most powerful power-up, compared to the next one.
 - **Poop Bomb**  

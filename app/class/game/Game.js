@@ -46,9 +46,10 @@ class Game {
     }, {
         name: "Life Mender",
         /** @param {Player} p */
-        condition: (p) => (p.lives > 0 && p.connected),
+        condition: (p) => (p.connected && p.lives > 0 && p.lives < 5),
+        conditionText: "Requires player to have less than 5 lives",
         /** @param {Player} p */
-        action: (p) => p.lives += (Math.random() > 0.8) ? 2 : 1,
+        action: (p) => p.lives = Math.min(p.lives + ((Math.random() > 0.8) ? 2 : 1), 5),
         duration: 0
     }, {
         name: "Poop Bomb",
