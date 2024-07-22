@@ -419,6 +419,9 @@ class Game {
                     this.circles.push(new Circle({x: p1.x + p1.size / 2, y: p1.y + p1.size / 2, color: colors.squash, vr: 15, va: 0.009, shake: true}));
                     for (const p2 of this.getPlayers())
                         p2.damage(this.ping, 40, 80, (p1.index === p2.index) ? 0 : (p1.x < p2.x) ? 15 : -15);
+                    if (Math.random() >= 0.85) {
+                        for (let i=0; i<2; i++) this.geysers.push(new Geyser(i * 1250));
+                    }
                 }
             } else if (!isFinite(p1.attacks.rocket.count)) {
                 p1.attacks.rocket.count = 0;

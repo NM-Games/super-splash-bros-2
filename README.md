@@ -95,6 +95,7 @@ More power-ups have been added in Super Splash Bros 2. Below are all currently a
   Performing a squash will cause the player to move to the ground very fast. Once the player hits the ground, it will create a shockwave, moving other players out of the way. All players, including the performer, will take damage as well.
   - This power-up requires the player to be in the air, otherwise it will not activate.
   - [+] Other players get seriously damaged and pushed away from the performer.
+  - [+] There is a 15% chance for the bonus of two geysers left and right, which will launch everyone in the air as well.
   - [-] The performer will even get more damage from the fall.
   - [-] There is a small chance that the performer will phase through a platform, causing them to fall into water, wasting their squash.
 - **Force Field**  
