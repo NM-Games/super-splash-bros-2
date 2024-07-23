@@ -228,6 +228,7 @@ const water = {
             this.showMessage = message;
             this.onfinishedenabling = onfinished;
             this.levelSpeed = Number(boost) * c.height() / 10;
+            audio._play(audio.flood);
         },
         /**
          * Disable flooding.
@@ -403,10 +404,7 @@ const screenShake = {
     update: () => {
         if (!game || !game.rockets || !game.circles || !game.geysers) return;
 
-        let explosions = 0;
-        for (const r of game.rockets) {
-            if (r.explosion.active && r.x > -r.explosion.size / 2 && r.x < c.width() + r.explosion.size / 2) explosions++;
-        }
+        const explosions = game.rockets.filter(r => r.explosion.active && r.x > -r.explosion.size / 2 && r.x < c.width() + r.explosion.size / 2);
 
         const condition = (explosions > 0 || game.circles.filter(x => x.shake).length > 0 || game.geysers.length > 0);
         screenShake.x = (condition) ? (Math.random() - 0.5) * screenShake.intensity * 2 : 0;
@@ -1410,13 +1408,16 @@ addEventListener("DOMContentLoaded", () => {
         const key = e.key.toLowerCase();
         const button = Button.getButtonById(`Back-${state.current}`);
         if (key === "escape" && dialog.visible) dialog.close();
-        else if (key === "escape" && button !== null && !button.disabled && !Input.isRemapping) button.onclick();
-        else if (key === "v" && e.ctrlKey && Input.getInputById("Username").focused) {
+        else if (key === "escape" && button !== null && !button.disabled && !Input.isRemapping) {
+            button.onclick();
+            audio._play(audio.click_back);
+        } else if (key === "v" && e.ctrlKey && Input.getInputById("Username").focused) {
             Input.getInputById("Username").value += clipboard.readText();
             Input.getInputById("Username").value = Input.getInputById("Username").value.slice(0, Input.getInputById("Username").maxLength);
         } else if (key === "backspace" && e.ctrlKey && Input.getInputById("Username").focused) {
             Input.getInputById("Username").value = "";
         } else if (key === config.controls.gameMenu.toLowerCase() && !gameMenu.holdingKey && isInGame) {
+            if (!gameMenu.visible) audio._play(audio.gamemenu);
             gameMenu.holdingKey = true;
             gameMenu.toggle();
         }
@@ -1526,6 +1527,7 @@ addEventListener("DOMContentLoaded", () => {
             if (button.active && button.hovering && !button.disabled) {
                 button.active = false;
                 button.onclick();
+                audio._play(button.text.startsWith("◂") ? audio.click_back : audio.click);
                 break;
             } else if (button.active) button.active = false;
         }
@@ -1570,12 +1572,19 @@ addEventListener("DOMContentLoaded", () => {
                 isInGame = true;
                 water.flood.disable();
             } else if (lgame.startState === 2 && game.startState === 3) {
+                audio._play(audio.countdown);
                 bigNotification.show("3", theme.colors.bigNotification.r);
                 parallellogram.show();
-            } else if (lgame.startState === 3 && game.startState === 4) bigNotification.show("2", theme.colors.bigNotification.o);
-            else if (lgame.startState === 4 && game.startState === 5) bigNotification.show("1", theme.colors.bigNotification.y);
-            else if (lgame.startState === 5 && game.startState === 6) bigNotification.show("GO!", theme.colors.bigNotification.g);
-            else if (lgame.startState === 6 && game.startState === 7) {
+            } else if (lgame.startState === 3 && game.startState === 4) {
+                audio._play(audio.countdown);
+                bigNotification.show("2", theme.colors.bigNotification.o);
+            } else if (lgame.startState === 4 && game.startState === 5) {
+                audio._play(audio.countdown);
+                bigNotification.show("1", theme.colors.bigNotification.y);
+            } else if (lgame.startState === 5 && game.startState === 6) {
+                audio._play(audio.countdown_go);
+                bigNotification.show("GO!", theme.colors.bigNotification.g);
+            } else if (lgame.startState === 6 && game.startState === 7) {
                 const message = {text: "", color: "", size: 0};
                 if (state.current === state.PLAYING_LAN) {
                     message.text = (game.winner === playerIndex) ? "YOU WIN!" : "YOU LOSE";
@@ -1593,6 +1602,7 @@ addEventListener("DOMContentLoaded", () => {
                 if (!lgame.players[playerIndex].powerup.available && game.players[playerIndex].powerup.available) {
                     const powerupName = Game.powerups[game.players[playerIndex].powerup.selected].name.toUpperCase();
                     bigNotification.show(`${powerupName} READY`, theme.colors.bigNotification.g, 120, 0.003);
+                    audio._play(audio.powerup);
                 }
                 if (lgame.players[playerIndex].lives > 0 && game.players[playerIndex].lives === 0)
                     bigNotification.show("GAME OVER", theme.colors.bigNotification.r, 200, 0.008);
@@ -1662,7 +1672,7 @@ addEventListener("DOMContentLoaded", () => {
         else water.flood.level = (water.flood.enabled) ? 0 : c.height();
         if (frames === introLogo.duration) {
             water.flood.disable();
-            audio._play(audio.music);
+            audio.music.play();
         }
 
         if (frames - errorAlert.shownAt >= errorAlert.duration && errorAlert.visible) errorAlert.visible = false;
@@ -1673,7 +1683,31 @@ addEventListener("DOMContentLoaded", () => {
         if (gamepadAlert.visible) gamepadAlert.x = Math.min(-20, gamepadAlert.x + gamepadAlert.vx);
         else gamepadAlert.x = Math.max(-gamepadAlert.width, gamepadAlert.x - gamepadAlert.vx);
 
-        if (!isInGame) parallellogram.hide();
+        if (isInGame) {
+            // everything audio
+            const explosions = {
+                now: game.rockets.filter(r => r.explosion.active && r.x > -r.explosion.size / 2 && r.x < c.width() + r.explosion.size / 2).length,
+                then: lgame.rockets.filter(r => r.explosion.active && r.x > -r.explosion.size / 2 && r.x < c.width() + r.explosion.size / 2).length
+            };
+            const exclusives = {
+                now: game.players.filter(p => p && p.exclusivePlatform).length,
+                then: lgame.players.filter(p => p && p.exclusivePlatform).length
+            };
+            const squashes = {
+                now: game.circles.filter(c => c.color === theme.colors.squash).length,
+                then: lgame.circles.filter(c => c.color === theme.colors.squash).length
+            };
+
+            if (game.attacks.length > lgame.attacks.length) audio._play(audio.attack);
+            if (game.rockets.length > lgame.rockets.length) audio._play(audio.rocket);
+            if (game.poopBombs.length > lgame.poopBombs.length) audio._play(audio.poopbomb);
+            if (game.geysers.length > lgame.geysers.length) audio._play(audio.geyser);
+            if (game.splashes.length > lgame.splashes.length) audio._play((theme.current === "lava") ? audio.splash_lava : audio.splash);
+            if (explosions.now > explosions.then) audio._play(audio.explosion);
+            if (exclusives.now > exclusives.then) audio._play(audio.exclusive);
+            if (squashes.now > squashes.then) audio._play(audio.squash);
+            if (game.fish.item && game.fish.item.y < 550 && lgame.fish.item && lgame.fish.item.y >= 550) audio._play(audio.fish);
+        } else parallellogram.hide();
         if (parallellogram.visible && parallellogram.moving) {
             parallellogram.y = Math.max(c.height() + 20 - parallellogram.offset, parallellogram.y - parallellogram.vy);
             if (parallellogram.y === c.height() + 20 - parallellogram.offset) parallellogram.moving = false;

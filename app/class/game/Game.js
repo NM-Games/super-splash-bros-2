@@ -327,6 +327,7 @@ class Game {
                 }
             }
 
+            if (p1.lives === 0) continue;
             if (p1.keys.attack && this.ping - p1.attacks.melee.lastPerformed >= p1.attacks.melee.cooldown) {
                 p1.attacks.melee.lastPerformed = this.ping;
                 this.attacks.push(new Attack(p1.index, p1.x + p1.size / 2, p1.y + p1.size / 2));

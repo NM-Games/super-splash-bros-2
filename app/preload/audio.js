@@ -1,6 +1,6 @@
 /**
  * @callback PlayAudioCallback
- * @param {HTMLAudioElement} audio
+ * @param {HTMLAudioElement} file
  * 
  * @callback UpdateCallback
  * @param {import("../configfile").Settings["audio"]} config
@@ -9,21 +9,51 @@
 const { join } = require("path");
 const { readdirSync } = require("fs");
 
+const muted = {music: false, sfx: false};
+
 /**
  * @type {{
+ *  attack: HTMLAudioElement,
+ *  click: HTMLAudioElement,
+ *  click_back: HTMLAudioElement,
+ *  countdown: HTMLAudioElement,
+ *  countdown_go: HTMLAudioElement,
+ *  exclusive: HTMLAudioElement,
+ *  explosion: HTMLAudioElement,
+ *  fish: HTMLAudioElement,
+ *  flood: HTMLAudioElement,
+ *  gamemenu: HTMLAudioElement,
+ *  geyser: HTMLAudioElement,
+ *  poopbomb: HTMLAudioElement,
+ *  powerup: HTMLAudioElement,
+ *  rocket: HTMLAudioElement,
+ *  splash_lava: HTMLAudioElement,
+ *  splash: HTMLAudioElement,
+ *  squash: HTMLAudioElement,
  *  music: HTMLAudioElement,
+ *  _running: HTMLAudioElement[],
  *  _play: PlayAudioCallback,
  *  _update: UpdateCallback
  * }}
  */
 const audio = {
-    _play: (audio) => {
-        audio.currentTime = 0;
-        audio.play();
+    _running: [],
+    _play: (file) => {
+        /** @type {HTMLAudioElement} */
+        const item = file.cloneNode(true);
+        const index = audio._running.push(item) - 1;
+
+        audio._running[index].muted = muted.sfx;
+        audio._running[index].playbackRate = Math.random() * 0.5 + 0.75;
+        audio._running[index].addEventListener("ended", () => audio._running.splice(index, 1));
+        audio._running[index].play();
     },
     _update: (config) => {
-        const keys = Object.keys(audio).filter(x => !x.startsWith("_"));
-        for (const i of keys) audio[i].muted = (i === "music") ? !config.music : !config.sfx;
+        muted.music = !config.music;
+        muted.sfx = !config.sfx;
+
+        audio.music.muted = muted.music;
+        for (const item of audio._running) item.muted = muted.sfx;
     }
 };
 
