@@ -1924,9 +1924,10 @@ addEventListener("DOMContentLoaded", () => {
 
             const m = Math.max(0, Math.floor(game.remaining / 60));
             const s = ("0" + Math.max(0, game.remaining % 60)).slice(-2);
+            const liquid = (theme.current === "lava") ? "Lava" : "Water";
             const text = (game.winner !== null) ? `Returning to menu in ${m}:${s}`
-             : (game.remaining >= 0) ? `Water starts rising in ${m}:${s}`
-             : (!game.flooded) ? "Water is rising!"
+             : (game.remaining >= 0) ? `${liquid} starts rising in ${m}:${s}`
+             : (!game.flooded) ? `${liquid} is rising!`
              : (state.is(state.PLAYING_FREEPLAY) && game.players.filter(p => p && p.lives > 0).length === 1 && game.players[playerIndex].lives > 0) ? "Congratulations!"
              : "Fight to the victory!";
             const color = (game.remaining < 0 && game.winner === null && !game.flooded && frames % 60 < 30) ? theme.colors.error.foreground : theme.getTextColor();
