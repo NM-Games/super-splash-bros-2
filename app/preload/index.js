@@ -1534,6 +1534,7 @@ addEventListener("DOMContentLoaded", () => {
         if (banButton.hoverIndex > -1 && banButton.active) {
             if (state.current === state.WAITING_LAN_HOST) ipcRenderer.send("lan-ban", banButton.hoverIndex);
             else if (state.current === state.WAITING_FREEPLAY) instance.ban(banButton.hoverIndex);
+            audio._play(audio.click);
         }
         banButton.hoverIndex = -1;
         banButton.active = false;
