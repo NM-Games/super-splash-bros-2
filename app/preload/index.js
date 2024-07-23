@@ -120,12 +120,16 @@ const connect = (asHost) => {
         onopen: (index) => {
             playerIndex = index;
             connectionMessage.show("");
-            state.change.to(asHost ? state.WAITING_LAN_HOST : state.WAITING_LAN_GUEST, false, () => setConnectElementsState(false));
+            state.change.to(asHost ? state.WAITING_LAN_HOST : state.WAITING_LAN_GUEST, false, () => {
+                setConnectElementsState(false);
+                if (water.flood.enabled) water.flood.disable();
+            });
         },
         onclose: (e) => {
             if (state.current === state.LAN_GAME_MENU && e.reason) {
                 connectionMessage.show(e.reason, theme.colors.error.foreground, 3);
                 setConnectElementsState(false);
+                if (water.flood.enabled) water.flood.disable();
             } else {
                 if (state.current === state.PLAYING_LAN && !errorAlert.suppressed) water.flood.enable(true);
                 isInGame = false;
@@ -142,32 +146,40 @@ const connect = (asHost) => {
         onerror: () => {
             connectionMessage.show("Failed to connect!", theme.colors.error.foreground, 3);
             setConnectElementsState(false);
+            if (water.flood.enabled) water.flood.disable();
         },
         ontimeout: () => {
             connectionMessage.show("Connection timed out!", theme.colors.error.foreground, 3);
             setConnectElementsState(false);
+            if (water.flood.enabled) water.flood.disable();
         }
     });
 };
 
-const leave = () => {
+/**
+ * Leave the game.
+ * @param {boolean} playAgain For LAN mode only; tells whether to create/join a new game immediately.
+ */
+const leave = (playAgain = false) => {
     dialog.close();
     isInGame = false;
     gameMenu.set(false);
     water.flood.enable(false, false, () => {
         if (state.current === state.PLAYING_LAN) {
-            if (playerIndex === game.host) ipcRenderer.send("stop-gameserver"); else {
+            if (playerIndex === game.host) ipcRenderer.send("stop-gameserver", playAgain); else {
                 socket.close();
                 errorAlert.suppress();
                 state.current = state.LAN_GAME_MENU;
+                if (playAgain) setTimeout(() => Button.getButtonById("Connect").onclick(), 1000);
                 stop();
             }
         } else if (state.is(state.PLAYING_LOCAL, state.PLAYING_FREEPLAY)) {
             state.current = state.MAIN_MENU;
+            water.flood.disable();
             stop();
         }
         konamiEasterEgg.deactivate();
-        water.flood.disable();
+        if (!playAgain && !water.flood.disabling) water.flood.disable();
     });
 };
 
@@ -1368,11 +1380,14 @@ addEventListener("DOMContentLoaded", () => {
         errorAlert.show(`${err.name}: ${err.message}`);
         setConnectElementsState(false);
     });
-    ipcRenderer.on("gameserver-stopped", () => {
+    ipcRenderer.on("gameserver-stopped", (_e, playAgain) => {
         errorAlert.suppress();
         if (state.current === state.WAITING_LAN_HOST) state.change.to(state.LAN_GAME_MENU, true, stop); else {
             state.current = state.LAN_GAME_MENU;
-            setTimeout(stop, 50);
+            setTimeout(() => {
+                stop();
+                if (playAgain) Button.getButtonById("CreateGame").onclick();
+            }, 50);
         }
     });
     setInterval(() => {
@@ -1597,7 +1612,7 @@ addEventListener("DOMContentLoaded", () => {
                     message.size = 180;
                 }
                 bigNotification.show(message.text, theme.colors.bigNotification[message.color], message.size, 0.01);
-            } else if (lgame.startState === 7 && game.startState === 8) leave();
+            } else if (lgame.startState === 7 && game.startState === 8) leave(state.is(state.PLAYING_LAN));
 
             if (!state.is(state.WAITING_LOCAL, state.PLAYING_LOCAL, state.LAN_GAME_MENU)) {
                 if (!lgame.players[playerIndex].powerup.available && game.players[playerIndex].powerup.available) {

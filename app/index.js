@@ -103,8 +103,8 @@ app.whenReady().then(() => {
             window.webContents.send("gameserver-error", err);
         });
     });
-    ipcMain.on("stop-gameserver", () => {
-        if (gameserver.kill()) window.webContents.send("gameserver-stopped");
+    ipcMain.on("stop-gameserver", (_e, playAgain) => {
+        if (gameserver.kill()) window.webContents.send("gameserver-stopped", playAgain);
     });
 
     ipcMain.on("update-config", (_e, config) => configfile.set(config));
