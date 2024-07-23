@@ -47,6 +47,7 @@ const audio = {
         audio._running[index].playbackRate = Math.random() * 0.5 + 0.75;
         audio._running[index].addEventListener("ended", () => audio._running.splice(index, 1));
         audio._running[index].play();
+        if (audio._running.length > 100) audio._running.splice(0, 50); // prevent overloading the array
     },
     _update: (config) => {
         muted.music = !config.music;

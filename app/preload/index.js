@@ -328,6 +328,7 @@ const gameMenu = {
             || (game && game.startState < 6)
         ) return;
         gameMenu.visible = !gameMenu.visible;
+        if (gameMenu.visible) audio._play(audio.gamemenu);
     },
     /**
      * Set the game menu visibility state.
@@ -340,6 +341,7 @@ const gameMenu = {
             || (game && game.startState < 6)
         ) return;
         gameMenu.visible = to;
+        if (gameMenu.visible) audio._play(audio.gamemenu);
     }
 };
 const dialog = {
@@ -1432,7 +1434,6 @@ addEventListener("DOMContentLoaded", () => {
         } else if (key === "backspace" && e.ctrlKey && Input.getInputById("Username").focused) {
             Input.getInputById("Username").value = "";
         } else if (key === config.controls.gameMenu.toLowerCase() && !gameMenu.holdingKey && isInGame) {
-            if (!gameMenu.visible) audio._play(audio.gamemenu);
             gameMenu.holdingKey = true;
             gameMenu.toggle();
         }
