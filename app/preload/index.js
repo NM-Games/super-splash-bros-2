@@ -1734,6 +1734,8 @@ addEventListener("DOMContentLoaded", () => {
                 c.draw.image(image.water, water.x + water.imageX, water.flood.level - image.water.height);
                 water.imageX += image.water.width;
             }
+            if (state.is(state.MAIN_MENU)) c.draw.text({text: `v${versions.game}`, x: 8 + state.change.x, y: water.flood.level - 15, color: theme.colors.ui.primary, font: {size: 26}, alignment: "left"});
+
             c.options.filter.remove("hue-rotate", "brightness", "saturate");
         };
 
