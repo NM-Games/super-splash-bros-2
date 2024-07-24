@@ -63,6 +63,37 @@ const state = {
     }
 };
 
+const checkForUpdates = () => {
+    versions.status = "Checking for updates...";
+    fetch("https://api.github.com/repos/NM-Games/super-splash-bros-2/releases/latest").then(res => {
+        res.json().then(json => {
+            const tag = json.tag_name;
+            if (res.ok && tag > versions.game) {
+                dialog.show(
+                    `Version ${tag} is available!`,
+                    "Do you want to download it?",
+                    new Button({
+                        text: "Yes",
+                        x: () => c.width(0.35),
+                        y: () => c.height(0.75),
+                        onclick: () => {
+                            dialog.close();
+                            shell.openExternal("https://github.com/NM-Games/super-splash-bros-2/releases");
+                        }
+                    }), new Button({
+                        text: "Later",
+                        x: () => c.width(0.65),
+                        y: () => c.height(0.75),
+                        onclick: () => dialog.close()
+                    })
+                );
+                versions.status = `${tag} is available`;
+            } else if (res.ok) versions.status = "Latest version";
+            else versions.status = "Failed to check for updates";
+        }).catch(() => versions.status = "Failed to check for updates");
+    }).catch(() => versions.status = "Failed to check for updates");
+};
+
 /**
  * Enable or disable the connect elements in the LAN mode menu.
  * @param {boolean} disabled
@@ -206,7 +237,7 @@ const updateKeybinds = () => {
 
 /** @type {import("../configfile").Settings} */
 const config = {appearance: {}, graphics: {}, controls: {}, audio: {}};
-const versions = {game: "", electron: "", chromium: ""};
+const versions = {game: "", electron: "", chromium: "", status: ""};
 /** @type {{moveLeft: boolean, moveRight: boolean, jump: boolean, attack: boolean, launchRocket: boolean, activatePowerup: boolean, gameMenu: boolean}} */
 const keys = {};
 for (const k of keybindIDs) keys[k] = false;
@@ -1358,8 +1389,8 @@ addEventListener("DOMContentLoaded", () => {
         ipcRenderer.send("update-config", config);
     });
     ipcRenderer.on("start", (_e, conf, ver, maxWidth) => {
-        for (let i in config) config[i] = conf[i];
-        for (let i in versions) versions[i] = ver[i];
+        for (let i in conf) config[i] = conf[i];
+        for (let i in ver) versions[i] = ver[i];
         MenuSprite.generate(maxWidth);
 
         Input.getInputById("Username").value = config.appearance.playerName;
@@ -1690,6 +1721,7 @@ addEventListener("DOMContentLoaded", () => {
         if (frames === introLogo.duration) {
             water.flood.disable();
             audio.music.play();
+            checkForUpdates();
         }
 
         if (frames - errorAlert.shownAt >= errorAlert.duration && errorAlert.visible) errorAlert.visible = false;
@@ -2058,10 +2090,11 @@ addEventListener("DOMContentLoaded", () => {
             c.options.filter.remove("brightness");
             c.options.setShadow();
 
-            c.draw.text({text: "by", x: c.width(0.5) + state.change.x, y: c.height(0.4) - 10, font: {size: 24, style: "bold", shadow: true}, alignment: "bottom"});
-            c.draw.image(image.logo_nmgames, c.width(0.5) - image.logo_nmgames.width / 4 + state.change.x, c.height(0.4), image.logo_nmgames.width / 2, image.logo_nmgames.height / 2);
-            c.draw.text({text: `Version ${versions.game}`, x: c.width(0.5) + state.change.x, y: c.height(0.5) + 70, font: {size: 36, style: "bold", shadow: true}, baseline: "bottom"});
-            c.draw.text({text: `(Electron: ${versions.electron}, Chromium: ${versions.chromium})`, x: c.width(0.5) + state.change.x, y: c.height(0.5) + 100, font: {size: 24, shadow: true}, baseline: "bottom"});
+            c.draw.text({text: "by", x: c.width(0.5) + state.change.x, y: c.height(0.37) - 10, font: {size: 24, style: "bold", shadow: true}, baseline: "bottom"});
+            c.draw.image(image.logo_nmgames, c.width(0.5) - image.logo_nmgames.width / 4 + state.change.x, c.height(0.37), image.logo_nmgames.width / 2, image.logo_nmgames.height / 2);
+            c.draw.text({text: `Version ${versions.game}`, x: c.width(0.5) + state.change.x, y: c.height(0.5) + 50, font: {size: 36, style: "bold", shadow: true}, baseline: "bottom"});
+            c.draw.text({text: versions.status, x: c.width(0.5) + state.change.x, y: c.height(0.5) + 70, font: {size: 18, shadow: true}, baseline: "bottom"});
+            c.draw.text({text: `Powered by Electron ${versions.electron} and Chromium ${versions.chromium}`, x: c.width(0.5) + state.change.x, y: c.height(0.5) + 110, font: {size: 18, shadow: true}, baseline: "bottom"});
             c.draw.text({text: `This program is free and open-source software: you are free to modify and/or redistribute it.`, x: c.width(0.5) + state.change.x, y: c.height(0.7), font: {size: 20, shadow: true}, baseline: "bottom"});
             c.draw.text({text: `There is NO WARRANTY, to the extent permitted by law.`, x: c.width(0.5) + state.change.x, y: c.height(0.7) + 25, font: {size: 20, shadow: true}, baseline: "bottom"});
             c.draw.text({text: `Read the GNU General Public License version 3 for further details.`, x: c.width(0.5) + state.change.x, y: c.height(0.7) + 50, font: {size: 20, shadow: true}, baseline: "bottom"});
