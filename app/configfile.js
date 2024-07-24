@@ -8,14 +8,15 @@
  */
 
 const { app } = require("electron");
-const { readFileSync, writeFileSync, existsSync } = require("fs");
+const { readFileSync, writeFileSync, existsSync, mkdirSync } = require("fs");
 const { EOL } = require("os");
 const { join } = require("path");
 
 const { generateName } = require("./class/game/Player");
 
 
-const filePath = join(app.getPath("appData"), app.name, "settings.json");
+let folderPath;
+let filePath;
 
 /** @type {Settings} */
 const template = {
@@ -74,6 +75,11 @@ const set = (settings) => {
  * Verify the settings file, recommended on game start.
  */
 const init = () => {
+    folderPath = join(app.getPath("appData"), app.name);
+    filePath = join(folderPath, "settings.json");
+
+    if (!existsSync(folderPath)) mkdirSync(folderPath);
+
     if (!existsSync(filePath)) set(template); else {
         const fileKeys = Object.keys(get()).sort();
         const originalKeys = Object.keys(template).sort();
@@ -82,4 +88,4 @@ const init = () => {
     }
 };
 
-module.exports = {init, get, set, filePath, template};
+module.exports = {init, get, set};

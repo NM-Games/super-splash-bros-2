@@ -1,5 +1,6 @@
 {
   "name": "supersplashbros2",
+  "displayName": "Super Splash Bros 2",
   "version": "1.0.0",
   "description": "Be the last player standing above the water!",
   "main": "app/index.js",

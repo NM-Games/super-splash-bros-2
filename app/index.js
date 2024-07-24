@@ -1,8 +1,8 @@
 const { app, BrowserWindow, Menu, ipcMain, screen, dialog, utilityProcess } = require("electron");
 const { join } = require("path");
 
+const { displayName, version } = require("../package.json");
 const network = require("./network");
-const { version } = require("../package.json");
 const configfile = require("./configfile");
 const discord = require("./discord");
 
@@ -12,7 +12,7 @@ let window;
 /** @type {Electron.UtilityProcess} */
 let gameserver;
 
-app.setName("Super Splash Bros 2");
+app.setName(displayName);
 if (process.platform === "darwin") {
     Menu.setApplicationMenu(Menu.buildFromTemplate([{
         label: app.name,
