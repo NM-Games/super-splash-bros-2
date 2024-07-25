@@ -1,6 +1,6 @@
 /**
  * @typedef {import("../gameserver").SocketData} SocketData
- * 
+ *
  * @callback EmptyCallback
  */
 
@@ -13,7 +13,7 @@ const { version } = require("../../package.json");
 let ws;
 let game;
 
-/** 
+/**
  * Get the game as a client.
  * @type {import("../class/game/Game")["export"]}
  */
@@ -37,7 +37,7 @@ const send = (data) => {
 };
 /**
  * Update the pressed keys.
- * @param {import("../configfile").Settings["controls"]} keys 
+ * @param {import("../configfile").Settings["controls"]} keys
  */
 const sendKeys = (keys) => {
     if (!ws || ws.readyState !== ws.OPEN) return;

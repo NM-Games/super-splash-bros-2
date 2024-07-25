@@ -82,7 +82,7 @@ app.whenReady().then(() => {
         app.quit();
     });
     window.on("close", beforeClose);
-    
+
     ipcMain.on("toggle-fullscreen", toggleFullScreen);
     ipcMain.on("toggle-devtools", () => window.webContents.openDevTools());
     window.on("enter-full-screen", () => {

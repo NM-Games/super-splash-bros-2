@@ -258,13 +258,13 @@ const water = {
         onfinisheddisabling: () => {},
         /**
          * Enable flooding.
-         * @param {boolean} boost 
+         * @param {boolean} boost
          * @param {boolean} message
-         * @param {EmptyCallback} onfinished 
+         * @param {EmptyCallback} onfinished
          */
         enable: function(boost = false, message = false, onfinished = () => {}) {
             if (this.enabling) return;
-            
+
             this.enabled = true;
             this.disabling = false;
             this.enabling = true;
@@ -279,7 +279,7 @@ const water = {
          */
         disable: function(onfinished = () => {}) {
             if (this.disabling) return;
-            
+
             this.enabled = false;
             this.disabling = true;
             this.onfinisheddisabling = onfinished;
@@ -383,7 +383,7 @@ const dialog = {
      * Show a dialog.
      * @param {string} header
      * @param {string} text
-     * @param  {...Button} buttons 
+     * @param  {...Button} buttons
      */
     show: (header, text, ...buttons) => {
         dialog.visible = true;
@@ -403,7 +403,7 @@ const errorAlert = {
     text: "",
     duration: 0,
     shownAt: -6e9,
-    /** 
+    /**
      * Show an error in the top of the screen.
      * @param {string} text
      * @param {number} duration
@@ -511,7 +511,7 @@ Button.items = [
                     instance.join({playerName: "", preferredColor: i, powerup: 0}, `10.0.0.${i}`);
                     instance.players[i].connected = false;
                 }
-                Button.getButtonById("LocalGameTheme").text = `Theme: ${instance.theme}`;    
+                Button.getButtonById("LocalGameTheme").text = `Theme: ${instance.theme}`;
             });
         }
     }),
@@ -1397,11 +1397,11 @@ addEventListener("DOMContentLoaded", () => {
 
         theme.current = config.graphics.theme;
         Button.getButtonById("Theme").text = `Theme: ${theme.current}`;
-    
+
         if (config.graphics.fullScreen) ipcRenderer.send("toggle-fullscreen");
         Button.getButtonById("WaterFlow").text = `Water flow: ${config.graphics.waterFlow ? "ON":"OFF"}`;
         Button.getButtonById("MenuSprites").text = `Menu sprites: ${config.graphics.menuSprites ? "ON":"OFF"}`;
-    
+
         for (const k of keybindIDs) {
             Input.getInputById(`Keybind-${k}`).keybind = config.controls[k];
             Input.getInputById(`Keybind-${k}`).value = Input.displayKeybind(config.controls[k]);
@@ -1468,7 +1468,7 @@ addEventListener("DOMContentLoaded", () => {
             gameMenu.holdingKey = true;
             gameMenu.toggle();
         }
-        
+
         if (key === "f11") ipcRenderer.send("toggle-fullscreen");
         else if (key === "f12") ipcRenderer.send("toggle-devtools");
 
@@ -1507,7 +1507,7 @@ addEventListener("DOMContentLoaded", () => {
             lastKeys = JSON.parse(JSON.stringify(keys));
         }
 
-        if (key === config.controls.gameMenu.toLowerCase()) gameMenu.holdingKey = false; 
+        if (key === config.controls.gameMenu.toLowerCase()) gameMenu.holdingKey = false;
     });
 
     addEventListener("mousemove", (e) => {
@@ -1522,7 +1522,7 @@ addEventListener("DOMContentLoaded", () => {
                     button.hovering = false;
                     continue;
                 }
-    
+
                 button.hovering = (e.clientX > button.x() - button.width / 2 && e.clientX < button.x() + button.width / 2 && !water.flood.enabled
                  && e.clientY > button.y() - button.height / 2 && e.clientY < button.y() + button.height / 2 && !button.disabled && !state.change.active);
             }
@@ -1607,7 +1607,7 @@ addEventListener("DOMContentLoaded", () => {
         if (game) {
             if (state.is(state.WAITING_LOCAL, state.PLAYING_LOCAL)) gamepad.update(instance);
             if (!lgame) lgame = JSON.parse(JSON.stringify(game));
-            
+
             Button.getButtonById("StartLANGame").disabled = (game.connected <= 1);
             Button.getButtonById("LANUnban").disabled = (game.banCount === 0);
             Button.getButtonById(`Back-${state.WAITING_LAN_HOST}`).danger = (game.connected > 1);
@@ -1681,7 +1681,7 @@ addEventListener("DOMContentLoaded", () => {
 
         introLogo.update();
         MenuSprite.update(frames, config.graphics.menuSprites, konamiEasterEgg.isActive());
-        
+
         bigNotification.size = Math.max(bigNotification.defaultSize, bigNotification.size - bigNotification.v);
         if (bigNotification.size > bigNotification.defaultSize) bigNotification.a = Math.min(2, bigNotification.a + 0.2);
         else bigNotification.a = Math.max(0, bigNotification.a - bigNotification.va);
@@ -1696,7 +1696,7 @@ addEventListener("DOMContentLoaded", () => {
 
         if (frames - connectionMessage.shownAt >= connectionMessage.duration) connectionMessage.a = Math.max(connectionMessage.a - 0.05, 0);
         screenShake.update();
-        
+
         water.x += Number(config.graphics.waterFlow ?? 0) * water.vx;
         if (water.x < -image.water.width) water.x = 0;
         if (water.flood.enabling) {
@@ -1836,7 +1836,7 @@ addEventListener("DOMContentLoaded", () => {
 
             for (const p of game.players) {
                 if (p === null) continue;
-                
+
                 if (p.exclusivePlatform) {
                     c.options.setOpacity(0.5);
                     c.options.setShadow(theme.colors.text.light, 18);
@@ -1878,7 +1878,7 @@ addEventListener("DOMContentLoaded", () => {
                 if (p.powerup.active && p.powerup.selected === Player.powerup.FORCE_FIELD) {
                     c.options.setShadow(theme.colors.shadow, 7);
                     c.draw.stroke.arc(theme.colors.text.light, p.x + offset.x + p.size / 2, p.y + offset.y + p.size / 2, Math.sqrt(p.size ** 2 * 2) / 2);
-                    c.options.setShadow();   
+                    c.options.setShadow();
                 }
                 if (p.powerup.active && p.powerup.selected === Player.powerup.INVISIBILITY) c.options.setOpacity((playerIndex === p.index) ? 0.2 : 0);
                 c.draw.text({text: p.name, x: p.x + p.size / 2 + offset.x, y: p.y + offset.y - (playerIndex === p.index ? 42 : 10), font: {size: 20}});
@@ -1922,7 +1922,7 @@ addEventListener("DOMContentLoaded", () => {
             for (const pb of game.poopBombs) {
                 c.draw.image(image.poopbomb, pb.x - image.poopbomb.width / 2 + offset.x, pb.y - image.poopbomb.height / 2 + offset.y);
             }
-            
+
             if (game.fish.item) {
                 c.options.setOpacity(game.fish.item.takeable ? 1 : 0.35);
                 c.options.setShadow(theme.colors.text.light, 15);
@@ -1976,7 +1976,7 @@ addEventListener("DOMContentLoaded", () => {
                 c.draw.fill.parallellogram(theme.colors.players[p.index], x, y, parallellogramWidth, 95);
                 c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.sprite, y - 10, 72, 72);
                 c.options.filter.remove("brightness");
-                
+
                 c.options.setShadow(theme.colors.shadow, 2);
                 for (let l=0; l<p.lives; l++) c.draw.croppedImage(image.sprites, p.index * 128, 0, 128, 128, x + offsets.lives + l * 20, y - 19, 16, 16);
                 c.options.setShadow(theme.colors.shadow, 3, 1, 1);
@@ -1984,7 +1984,7 @@ addEventListener("DOMContentLoaded", () => {
                 if (p.lives >= 1 && p.connected) {
                     c.draw.text({text: Math.floor(p.hit.percentage), x: x + offsets.percentage + shake.x, y: y + shake.y + 64, color, font: {size: 54, style: "bold"}, alignment: "left", baseline: "bottom"});
                     c.draw.text({text: decimalText, x: x + decimalOffset + offsets.percentage + shake.x + 4, y: y + shake.y + 57, color, font: {size: 20, style: "bold"}, alignment: "left", baseline: "bottom"});
-                    
+
                     c.options.setShadow();
                     c.draw.image(image.explosion, x + parallellogramWidth - offsets.rockets - 12, y + 5, 24, 24);
                     c.options.setShadow(theme.colors.shadow, 2);
@@ -2035,7 +2035,7 @@ addEventListener("DOMContentLoaded", () => {
                 const x = c.width(0.5) - 400;
                 const y = c.height(0.2) + i * 100;
                 const j = gamepad.playerIndexes[i];
-                
+
                 if (!game.players[j].connected) c.options.setOpacity(0.5);
                 c.draw.fill.rect(theme.colors.players[j], x + state.change.x, y, 500, 80, 8);
                 c.draw.croppedImage(image.sprites, j * 128, Number(game.players[j].facing === "l") * 128, 128, 128, x + 8 + state.change.x, y + 8, 64, 64);
@@ -2068,12 +2068,12 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text({text: "Player name:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 250, font: {size: 24, shadow: true}, alignment: "left"});
             c.draw.text({text: "Preferred color:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 345, font: {size: 24, shadow: true}, alignment: "left"});
             c.draw.text({text: "Power-up:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 525, font: {size: 24, shadow: true}, alignment: "left"});
-            
+
             const colors = ["Yellow", "Green", "Red", "Blue", "Orange", "Cyan", "Purple", "Gray"];
             const powerups = Game.powerups.map(p => p.name);
             c.draw.croppedImage(image.sprites, config.appearance.preferredColor * 128, 0, 128, 128, c.width(0.2) - 35 + state.change.x, 370, 70, 70);
             c.draw.croppedImage(image.powerups, 0, config.appearance.powerup * 70, 140, 70, c.width(0.2) - 70 + state.change.x, 550, 140, 70);
-            c.draw.text({text: colors[config.appearance.preferredColor], x: c.width(0.2) + state.change.x, y: 470, font: {size: 30, style: "bold", shadow: true}, baseline: "middle"}); 
+            c.draw.text({text: colors[config.appearance.preferredColor], x: c.width(0.2) + state.change.x, y: 470, font: {size: 30, style: "bold", shadow: true}, baseline: "middle"});
             c.draw.text({text: powerups[config.appearance.powerup], x: c.width(0.2) + state.change.x, y: 650, font: {size: 30, style: "bold", shadow: true}, baseline: "middle", maxWidth: Button.width - 90});
             if (Game.powerups[config.appearance.powerup].conditionText)
                 c.draw.text({text: Game.powerups[config.appearance.powerup].conditionText, x: c.width(0.2) + state.change.x, y: 690, font: {size: 16, shadow: true}, baseline: "middle"});
@@ -2118,7 +2118,7 @@ addEventListener("DOMContentLoaded", () => {
             for (let i=0; i<8; i++) {
                 const x = (i % 2 === 0) ? c.width(0.5) - 510 : c.width(0.5) + 10;
                 const y = c.height(0.2) + Math.floor(i / 2) * 100;
-                
+
                 if (game.players[i] === null) c.options.setOpacity(0.5);
                 c.draw.fill.rect(theme.colors.players[i], x + state.change.x, y, 500, 80, 8);
                 c.draw.croppedImage(image.sprites, i * 128, 0, 128, 128, x + 8 + state.change.x, y + 8, 64, 64);
@@ -2212,7 +2212,7 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.croppedImage(image.sprites, gamepad.playerIndexes[i] * 128, 0, 128, 128, gamepadAlert.x + i * 50 + gamepadAlert.offset, gamepadAlert.y + gamepadAlert.height - 65, 36, 36);
         }
         c.options.setOpacity();
-        
+
         if (dialog.visible) {
             c.draw.fill.rect(theme.colors.overlay, 0, 0, c.width(), c.height());
             c.draw.text({text: dialog.header, x: c.width(0.5), y: c.height(0.42), color: theme.colors.text.light, font: {size: 64, style: "bold"}});
@@ -2221,7 +2221,7 @@ addEventListener("DOMContentLoaded", () => {
             for (const button of Button.dialogItems) c.draw.button(button, 0);
         }
     };
-    
+
     const loop = () => {
         update();
         draw();

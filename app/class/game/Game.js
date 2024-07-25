@@ -59,7 +59,7 @@ class Game {
          * @param {Game} g
          */
         action: (p, g) => g.poopBombs.push(new PoopBomb(p))
-   }, { 
+   }, {
         name: "Exclusive Platform",
         /** @param {Player} p */
         condition: (p) => Math.abs(p.vy) >= 1,
@@ -391,7 +391,7 @@ class Game {
                 p1.attacks.rocket.lastRegenerated = this.ping;
                 p1.attacks.rocket.count++;
             } else if (p1.attacks.rocket.count === Player.maxRockets) p1.attacks.rocket.lastRegenerated = this.ping;
-            
+
             if (this.fish.item) {
                 if (p1.x < this.fish.item.x + Fish.width && p1.x + p1.size > this.fish.item.x && this.fish.item.takeable &&
                  p1.y < this.fish.item.y + Fish.height && p1.y + p1.size > this.fish.item.y && !p1.powerup.available && !p1.powerup.active) {

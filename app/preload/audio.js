@@ -1,7 +1,7 @@
 /**
  * @callback PlayAudioCallback
  * @param {HTMLAudioElement} file
- * 
+ *
  * @callback UpdateCallback
  * @param {import("../configfile").Settings["audio"]} config
  */
@@ -64,7 +64,7 @@ const audio = {
 
 readdirSync(join(__dirname, "..", "audio")).forEach((file) => {
     const name = file.replace(/\.[^/.]+$/, "");
-   
+
     if (!name.startsWith("_")) audio[name] = new Audio(join(__dirname, "..", "audio", file));
 });
 

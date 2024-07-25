@@ -41,7 +41,7 @@ wss.on("listening", () => {
     process.parentPort.postMessage("listening");
     setInterval(() => {
         frames++;
-    
+
         connectedClients = [...wss.clients].length;
         wss.clients.forEach((client) => {
             client.ping("", false, (error) => {
@@ -53,7 +53,7 @@ wss.on("listening", () => {
             });
         });
         game.update();
-    }, 17);    
+    }, 17);
 });
 
 wss.on("connection", (socket, request) => {
@@ -71,7 +71,7 @@ wss.on("connection", (socket, request) => {
     socket.ip = request.socket.remoteAddress;
     socket.on("message", (data) => {
         const payload = Buffer.isBuffer(data) ? new TextDecoder().decode(data) : data;
-        
+
         /** @type {SocketData} */
         let json;
         try {

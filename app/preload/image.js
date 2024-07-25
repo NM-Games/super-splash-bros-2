@@ -32,7 +32,7 @@ const image = {
 
 readdirSync(join(__dirname, "..", "img", "game")).forEach((file) => {
     const name = file.replace(/\.[^/.]+$/, "");
-   
+
     if (!name.startsWith("_")) {
         image[name] = new Image();
         image[name].src = join(__dirname, "..", "img", "game", file);

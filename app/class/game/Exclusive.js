@@ -1,7 +1,7 @@
 class Exclusive {
     static width = 120;
     static height = 20;
-    
+
     x;
     y;
 

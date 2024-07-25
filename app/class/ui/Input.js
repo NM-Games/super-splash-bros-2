@@ -1,15 +1,15 @@
 /**
  * @callback EmptyCallback
- * 
+ *
  * @callback CoordinateCallback
  * @returns {number}
- * 
+ *
  * @callback KeybindCallback
  * @param {string} key
- * 
+ *
  * @callback TabCallback
  * @param {boolean} shift
- * 
+ *
  * @callback TypeCallback
  * @param {boolean} blurred
  */
@@ -41,7 +41,7 @@ class Input {
     onemptybackspace;
     onkeybindselected;
     onmaxlengthreached;
-    
+
     /**
      * Get an input based on its ID, given in the constructor.
      * @param {string} id
@@ -130,11 +130,11 @@ class Input {
             if (this.keybind) {
                 this.keybind = e.key;
                 this.value = Input.displayKeybind(e.key);
-                
+
                 const inputs = Input.items.map((item) => item.keybind ? item.value : null);
                 while (inputs.indexOf(null) > -1) inputs.splice(inputs.indexOf(null), 1);
                 const uniques = inputs.filter((item, index, array) => array.indexOf(item) === index);
-                
+
                 if (uniques.length !== inputs.length) Input.keybindsInvalid = true; else {
                     Input.keybindsInvalid = (uniques.length !== inputs.length);
                     this.onkeybindselected(this.keybind);

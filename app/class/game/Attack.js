@@ -36,7 +36,7 @@ class Attack {
                 const px = p.x + p.size / 2;
                 const py = p.y + p.size / 2;
                 const distance = Math.sqrt(Math.abs(px - this.x) ** 2 + Math.abs(py - this.y) ** 2);
-                
+
                 if (distance <= p.size / 2 + this.size) {
                     let impact = (this.x - (p.x + p.size / 2) < 0 ? Attack.impact : -Attack.impact);
                     if (instance.players[this.player].hasPowerup(powerup.KNOCKBACK)) impact *= 3;
@@ -47,7 +47,7 @@ class Attack {
             }
             return false;
         }
-        
+
         return true;
     }
 }

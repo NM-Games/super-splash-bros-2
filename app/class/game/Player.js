@@ -154,7 +154,7 @@ class Player {
             this.x += this.vx;
             this.y += this.vy;
             this.vy += Player.g;
-    
+
             if (this.keys.left && !this.keys.right) {
                 this.facing = "l";
                 this.vx -= Player.acceleration;
@@ -167,7 +167,7 @@ class Player {
                 this.vx /= Player.deceleration;
                 this.vy += Player.g / 2;
             }
-    
+
             if (this.keys.jump && !this.jump.heldKey && this.jump.used < Player.maxJumps && !this.hasPowerup(Player.powerup.SQUASH)) {
                 this.jump.active = true;
                 this.jump.used++;

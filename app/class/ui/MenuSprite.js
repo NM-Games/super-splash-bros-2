@@ -16,7 +16,7 @@ class MenuSprite {
         }
     }
 
-    /** 
+    /**
      * @param {number} frames
      * @param {boolean} enabled
      * @param {boolean} alwaysChange
@@ -43,7 +43,7 @@ class MenuSprite {
 
     /**
      * @constructor
-     * @param {number} x 
+     * @param {number} x
      */
     constructor(x) {
         this.x = x;

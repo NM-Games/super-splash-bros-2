@@ -36,7 +36,7 @@ const width = (factor = 1) => {
 
 /**
  * Get the canvas height.
- * @param {number} factor 
+ * @param {number} factor
  * @returns {number}
  */
 const height = (factor = 1) => {
@@ -94,10 +94,10 @@ const options = {
     },
     /**
      * Generate a gradient, which can be applied as a color.
-     * @param {number} x1 
-     * @param {number} y1 
-     * @param {number} x2 
-     * @param {number} y2 
+     * @param {number} x1
+     * @param {number} y1
+     * @param {number} x2
+     * @param {number} y2
      * @param  {...{pos: number, color: string}} colors
      * @returns {CanvasGradient}
      */
@@ -145,9 +145,9 @@ const draw = {
         /**
          * Fill a circle on the screen.
          * @param {string | CanvasGradient | CanvasPattern} color
-         * @param {number} x 
-         * @param {number} y 
-         * @param {number} r 
+         * @param {number} x
+         * @param {number} y
+         * @param {number} r
          */
         circle: (color, x, y, r) => {
             c.fillStyle = color;
@@ -395,7 +395,7 @@ const draw = {
             y: y + 4,
             color: (invalid && input.keybind) ? theme.colors.error.foreground : "white",
             font: {size: input.size},
-            alignment: (input.keybind) ? "center":"left", 
+            alignment: (input.keybind) ? "center":"left",
             baseline: "middle"
         });
         options.filter.remove("grayscale");

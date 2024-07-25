@@ -35,7 +35,7 @@ module.exports = {
     /** @type {Themes} */
     current: "daylight",
 
-    /** 
+    /**
      * Get the next theme in the cycle. This does NOT actually change it!
      * @param {Themes} from
      * @returns {Themes}

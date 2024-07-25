@@ -1,9 +1,9 @@
 /**
  * @callback EmptyCallback
- * 
+ *
  * @callback IconCallback
  * @returns {number[]}
- * 
+ *
  * @callback CoordinateCallback
  * @returns {number}
  */
