@@ -54,8 +54,19 @@ Super Splash Bros 2 can be played in three different modes:
   - **Easy** will let the dummies randomly fire rockets, if they have at least one.
   - **Normal** increases the rocket fire probability, but only if the dummy is near the same Y level as the player. Dummies will also jump if they are in danger of falling into water, and move away from the outer platforms.
   - **Hard** increases the rocket fire probability even more if the dummy is near the same Y level as the player. Furthermore, dummies will always face the player, jump if they are in danger of getting hit by a rocket, and move further away from the outer platforms.
-  - **CHAOS**: Starting from Easy difficulty, dummies will use their melee attack when *you* come close to them. Depending on the difficulty, the closer you get, the earlier they start attacking. But; the CHAOS difficulty does the same when dummies approach *each other*. Dummies will also jump and fire rockets at random, but still tend to stay away from the outer platforms. And, the finishing touch: everybody (including the player) receives a power-up at the start of the match, and every 30 seconds after!
+  - **CHAOS**: Starting from Easy difficulty, dummies will use their melee attack when *you* come close to them. Depending on the difficulty, the closer you get, the earlier they start attacking. But; the CHAOS difficulty does the same when dummies approach *each other*. Dummies will also jump and fire rockets at random, but still tend to stay away from the outer platforms. And, the finishing touch: instead of spawning fish, everybody (including the player) receives their power-up at the start of the match, and every 30 seconds after!
     > **Note:** A beefy computer is recommended when playing on CHAOS difficulty, because of the many attacks, rockets and power-ups.
+
+## Themes
+Super Splash Bros 2 can be played in 6 various themes:
+- Daylight (the original Splash theme);
+- Sunset;
+- Night;
+- Synthwave (new!);
+- Foggy (new!);
+- Lava (new!).
+
+Note that the default theme should be changed in the Settings menu. When you are about to start a game, you can also change the theme, but it will only apply to that game and will switch back to the default theme when the game has ended. 
 
 ## Attack methods
 Your goal is to be the last player standing. But all other players will not voluntarily take a dip. So, how are you going to take everyone else out?

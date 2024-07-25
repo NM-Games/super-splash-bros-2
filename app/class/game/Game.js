@@ -510,7 +510,7 @@ class Game {
             else this.geysers.splice(i, 1);
         }
 
-        if ((this.elapsed + Fish.start) % Fish.frequency < 1000 && !this.fish.spawned && this.startState <= 6) {
+        if ((this.elapsed + Fish.start) % Fish.frequency < 1000 && !this.fish.spawned && this.startState <= 6 && this.dummyDifficulty !== 4) {
             this.fish.spawned = true;
             this.fish.item = new Fish(this.elapsed);
         } else this.fish.spawned = false;
