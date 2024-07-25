@@ -7,14 +7,14 @@ Compared to Super Splash Bros, the following has been changed/improved:
 - Super Splash Bros 2 is only playable as an app, while Super Splash Bros has to be played in a browser.
 - Up to **8 players** are now able to join a single match! For this upgrade, the colors orange, cyan, purple and gray have been added.
 - Collision detection has been changed: players now only feel a little bit of resistance when colliding, but can pass each other now at the same height.
-- Added a local mode where players can connect up to 4 gamepads (e.g. PlayStation or XBox controllers) and fight on a single device.
+- Added a local mode where players can connect up to 4 PlayStation or XBox controllers and fight on a single device.
 - Percentages will **no longer kill players**: instead, a higher percentage means a player is easier pushed away by attacks. Percentages cannot exceed 500%.
 - Added several power-ups in addition to shields (now known as *force fields*) and squashes. Power-ups can now be achieved from item boxes which look like fish.
 - Player appearance is now customizable! Players can determine their own name, color and power-up.
 - Added the option to remove dummies in Freeplay mode.
 - Added synthwave, foggy and lava themes!
 - Added music and sound effects! If you want, you can turn these off in the Settings menu and in the in-game menu.
-- Keybinds can be remapped! Only for keyboards, not for gamepads, maybe later :)
+- Keybinds can be remapped! Only for keyboards, not for controllers, maybe later :)
 - If you press the right buttons in the right order, something festive might happen on menu screens...
 - And **MUCH more**! So read on!
 
@@ -28,7 +28,7 @@ Mac users have to sign the app themselves by running `sudo codesign --force --de
 If that does not work, try building the app yourself by running `npm install && npm run build-mac`, assuming that npm is installed.
 
 ## Known issues
-- There is a chance that the game will not load on startup and show a white screen instead. Restarting the game solves that.
+- There might be a chance that the game will not load on startup and show a white screen instead. Restarting the game solves that.
 - Trying to access a LAN game by another method than typing in the usual host IP address, such as SSH tunneling, might result in crashing the game.
 
 ## Controls
@@ -45,9 +45,10 @@ If that does not work, try building the app yourself by running `npm install && 
 ## Game modes
 Super Splash Bros 2 can be played in three different modes:
 - **Local mode**  
-  In Local mode, up to 4 players can compete against each other on a single device. This is done by using PlayStation or XBox controllers. The controls are mentioned above. The player colors are determined by the light bar color: blue, red, green and magenta. When (dis)connecting controllers, this can be messed up a bit, so move your left thumbstick to see which player you actually are.
+  In Local mode, up to 4 players can compete against each other on a single device. This is done by using PlayStation or XBox controllers. The controls are mentioned [here](#controls). The player colors are determined by the light bar color: blue, red, green and magenta. When (dis)connecting controllers, this can be messed up a bit, so move your left thumbstick to see which player you actually are.
+    > Other controllers than PlayStation/XBox are not blocked by the game, but may not work optimally because the controller keybinds are hard-coded.
 - **LAN mode**  
-  In LAN mode, up to 8 players can compete against each other on several devices connected to the same LAN (Local Area Network). If your device does not have any network connections, this mode is disabled. One player creates the game and becomes host of it, while other players join the game by using the local IP address of the host. The host has the ability to ban players, based on their local own IP address. The host also determines the theme and when the game starts.
+  In LAN mode, up to 8 players can compete against each other on several devices connected to the same LAN (Local Area Network). If your device does not have any network connections, this mode is disabled. One player creates the game and becomes host of it, while other players join the game by using the local IP address of the host. The host has the ability to ban players, based on their own local IP address. The host also determines the theme and when the game starts.
 - **Freeplay mode**  
   In Freeplay mode, one player competes against up to 7 dummies, although it is possible to play with less dummies or even alone. Freeplay mode is a great game mode to practice your skills in. The dummies can even show some behavior, based on the selected difficulty:
   - **None** means that the dummies will not do anything at all.

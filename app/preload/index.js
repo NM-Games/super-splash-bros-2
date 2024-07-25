@@ -2030,7 +2030,7 @@ addEventListener("DOMContentLoaded", () => {
             c.options.setShadow();
         } else if (state.current === state.WAITING_LOCAL && game) {
             c.draw.text({text: "LOCAL MODE", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}});
-            c.draw.text({text: "Connect up to 4 gamepads to play!", x: c.width(0.5) + state.change.x, y: c.height(0.125) + 30, font: {size: 18, shadow: true}});
+            c.draw.text({text: "Connect up to 4 controllers to play!", x: c.width(0.5) + state.change.x, y: c.height(0.125) + 30, font: {size: 18, shadow: true}});
             for (let i=0; i<gamepad.playerIndexes.length; i++) {
                 const x = c.width(0.5) - 400;
                 const y = c.height(0.2) + i * 100;
@@ -2206,7 +2206,7 @@ addEventListener("DOMContentLoaded", () => {
         c.options.filter.add("brightness(0.8)");
         c.draw.croppedImage(image.buttons, 0, 0, Button.initial.width, Button.initial.height, gamepadAlert.x, gamepadAlert.y, gamepadAlert.width, gamepadAlert.height);
         c.options.filter.remove("brightness");
-        c.draw.text({text: "Connected gamepads:", x: gamepadAlert.x + gamepadAlert.offset, y: gamepadAlert.y + 45, color: theme.colors.text.light, font: {size: 20}, alignment: "left"})
+        c.draw.text({text: "Connected controllers:", x: gamepadAlert.x + gamepadAlert.offset, y: gamepadAlert.y + 42, color: theme.colors.text.light, font: {size: 17}, alignment: "left"})
         for (let i=0; i<gamepad.playerIndexes.length; i++) {
             if (gamepad.get()[i] === null) c.options.setOpacity(0.25);
             c.draw.croppedImage(image.sprites, gamepad.playerIndexes[i] * 128, 0, 128, 128, gamepadAlert.x + i * 50 + gamepadAlert.offset, gamepadAlert.y + gamepadAlert.height - 65, 36, 36);
