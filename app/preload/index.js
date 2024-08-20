@@ -1434,11 +1434,8 @@ addEventListener("DOMContentLoaded", () => {
         let partyMax;
         let startTimestamp;
         if (game && game.players) {
-            partySize = partyMax = 0;
-            for (let i=0; i<game.players.length; i++) {
-                if (game.players[i] !== null) partySize++;
-                partyMax++;
-            }
+            partySize = game.players.filter(p => p && p.connected).length;
+            partyMax = (state.is(state.WAITING_LOCAL, state.PLAYING_LOCAL)) ? 4 : game.players.length;
             if (game.startedOn > 0) startTimestamp = game.startedOn;
         }
 

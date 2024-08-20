@@ -1,7 +1,7 @@
 # TODO
 
 ## Definitely in next version
-- [ ] Fix Discord script throwing errors in terminal all the time
+- [x] Fix Discord script throwing errors in terminal all the time
 - [ ] Clarify power-up availability and duration
 - Power-up changes:
     - [ ] Increase Knockback hit radius
