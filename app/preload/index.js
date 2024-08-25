@@ -20,16 +20,20 @@ const Fish = require("../class/game/Fish");
 
 const state = {
     MAIN_MENU: 0,
-    WAITING_LOCAL: 1,
-    LAN_GAME_MENU: 2,
-    WAITING_LAN_HOST: 3,
-    WAITING_LAN_GUEST: 4,
-    WAITING_FREEPLAY: 5,
-    PLAYING_LOCAL: 6,
-    PLAYING_LAN: 7,
-    PLAYING_FREEPLAY: 8,
-    SETTINGS: 9,
-    ABOUT: 10,
+    PLAY_MENU: 1,
+    WAITING_LOCAL: 2,
+    LAN_GAME_MENU: 3,
+    WAITING_LAN_HOST: 4,
+    WAITING_LAN_GUEST: 5,
+    WAITING_FREEPLAY: 6,
+    PLAYING_LOCAL: 7,
+    PLAYING_LAN: 8,
+    PLAYING_FREEPLAY: 9,
+    SETTINGS: 10,
+    ABOUT: 11,
+    STATISTICS: 12,
+    ACHIEVEMENTS: 13,
+    REPLAYS: 14,
 
     current: 0,
     change: {
@@ -60,6 +64,13 @@ const state = {
      */
     is: (...states) => {
         return states.includes(state.current);
+    },
+    /**
+     * Check whether the current state belongs to a menu.
+     * @returns {boolean}
+     */
+    isMenu: () => {
+        return state.is(state.MAIN_MENU, state.PLAY_MENU, state.SETTINGS, state.ABOUT, state.STATISTICS, state.ACHIEVEMENTS, state.REPLAYS, state.WAITING_LOCAL, state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY);
     }
 };
 
@@ -314,7 +325,7 @@ const gamepadAlert = {
     shownAt: -6e9,
     duration: 300,
     show: () => {
-        if (!state.is(state.MAIN_MENU, state.SETTINGS, state.ABOUT, state.WAITING_LOCAL)) return;
+        if (!state.isMenu()) return;
 
         gamepadAlert.visible = true;
         gamepadAlert.shownAt = frames;
@@ -498,8 +509,88 @@ let parallellogram = {
 Button.items = [
     // Main menu
     new Button({
-        text: "Local mode",
+        text: "Play game",
         state: state.MAIN_MENU,
+        x: () => c.width(1/2),
+        y: () => c.height(1/2) - 100,
+        onclick: function() {
+            this.hovering = false;
+            state.change.to(state.PLAY_MENU, false);
+        }
+    }),
+    new Button({
+        text: "Settings",
+        state: state.MAIN_MENU,
+        x: () => c.width(1/3),
+        y: () => c.height(3/4) - 150,
+        onclick: function() {
+            this.hovering = false;
+            state.change.to(state.SETTINGS, false);
+        }
+    }),
+    new Button({
+        text: "About",
+        state: state.MAIN_MENU,
+        x: () => c.width(2/3),
+        y: () => c.height(3/4) - 150,
+        onclick: function() {
+            this.hovering = false;
+            state.change.to(state.ABOUT, false);
+        }
+    }),
+    new Button({
+        text: "Statistics",
+        state: state.MAIN_MENU,
+        x: () => c.width(1/4) + Button.width / 3,
+        y: () => c.height(4/5),
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        onclick: function() {
+            this.hovering = false;
+            state.change.to(state.STATISTICS, false);
+        }
+    }),
+    new Button({
+        text: "Achievements",
+        state: state.MAIN_MENU,
+        x: () => c.width(1/2),
+        y: () => c.height(4/5),
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        onclick: function() {
+            this.hovering = false;
+            state.change.to(state.ACHIEVEMENTS, false);
+        }
+    }),
+    new Button({
+        text: "Replays",
+        state: state.MAIN_MENU,
+        x: () => c.width(3/4) - Button.width / 3,
+        y: () => c.height(4/5),
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        onclick: function() {
+            this.hovering = false;
+            state.change.to(state.REPLAYS, false);
+        }
+    }),
+    new Button({
+        text: "Quit game",
+        state: state.MAIN_MENU,
+        x: () => Button.width / 3 + 20,
+        y: () => Button.height / 3 + 20,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        danger: true,
+        onclick: function() {
+            this.hovering = false;
+            ipcRenderer.send("quit");
+        }
+    }),
+    // Play menu
+    new Button({
+        text: "Local mode",
+        state: state.PLAY_MENU,
         x: () => c.width(1/4),
         y: () => c.height(1/2) - 50,
         onclick: function() {
@@ -518,7 +609,7 @@ Button.items = [
     new Button({
         id: "LANMode",
         text: "LAN mode",
-        state: state.MAIN_MENU,
+        state: state.PLAY_MENU,
         x: () => c.width(1/2),
         y: () => c.height(1/2) - 50,
         onclick: function() {
@@ -528,7 +619,7 @@ Button.items = [
     }),
     new Button({
         text: "Freeplay mode",
-        state: state.MAIN_MENU,
+        state: state.PLAY_MENU,
         x: () => c.width(3/4),
         y: () => c.height(1/2) - 50,
         onclick: function() {
@@ -549,23 +640,16 @@ Button.items = [
         }
     }),
     new Button({
-        text: "Settings",
-        state: state.MAIN_MENU,
-        x: () => c.width(1/3),
-        y: () => c.height(3/4) - 100,
+        id: `Back-${state.PLAY_MENU}`,
+        text: "◂ Back",
+        state: state.PLAY_MENU,
+        x: () => Button.width / 3 + 20,
+        y: () => Button.height / 3 + 20,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
-            state.change.to(state.SETTINGS, false);
-        }
-    }),
-    new Button({
-        text: "Quit game",
-        state: state.MAIN_MENU,
-        x: () => c.width(2/3),
-        y: () => c.height(3/4) - 100,
-        onclick: function() {
-            this.hovering = false;
-            ipcRenderer.send("quit");
+            state.change.to(state.MAIN_MENU, true);
         }
     }),
     // Local mode waiting menu
@@ -579,7 +663,7 @@ Button.items = [
         height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
-            state.change.to(state.MAIN_MENU, true, stop);
+            state.change.to(state.PLAY_MENU, true, stop);
             theme.current = config.graphics.theme;
         }
     }),
@@ -732,7 +816,7 @@ Button.items = [
         height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
-            state.change.to(state.MAIN_MENU, true);
+            state.change.to(state.PLAY_MENU, true);
         }
     }),
     new Button({
@@ -781,7 +865,7 @@ Button.items = [
     new Button({
         icon: () => [Number(!config.audio.music), 0],
         state: state.SETTINGS,
-        x: () => c.width(0.75) - 40,
+        x: () => c.width() - 60,
         y: () => Button.height / 3 + 20,
         onclick: function() {
             config.audio.music = !config.audio.music;
@@ -792,24 +876,12 @@ Button.items = [
     new Button({
         icon: () => [Number(!config.audio.sfx), 1],
         state: state.SETTINGS,
-        x: () => c.width(0.75) + 40,
+        x: () => c.width() - 150,
         y: () => Button.height / 3 + 20,
         onclick: function() {
             config.audio.sfx = !config.audio.sfx;
             audio._update(config.audio);
             ipcRenderer.send("update-config", config);
-        }
-    }),
-    new Button({
-        text: "About...",
-        state: state.SETTINGS,
-        x: () => c.width() - Button.width / 3 - 20,
-        y: () => Button.height / 3 + 20,
-        width: Button.width / 1.5,
-        height: Button.height / 1.5,
-        onclick: function() {
-            this.hovering = false;
-            state.change.to(state.ABOUT, false);
         }
     }),
     // for the sprite color switch:
@@ -922,7 +994,7 @@ Button.items = [
         height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
-            state.change.to(state.SETTINGS, true);
+            state.change.to(state.MAIN_MENU, true);
         }
     }),
     new Button({
@@ -945,6 +1017,48 @@ Button.items = [
         x: () => c.width(1/2) + Button.width + 50,
         y: () => c.height(9/10) - 25,
         onclick: () => shell.openExternal("https://discord.gg/CaMaGRXDqB")
+    }),
+    // Statistics menu
+    new Button({
+        id: `Back-${state.STATISTICS}`,
+        text: "◂ Back",
+        state: state.STATISTICS,
+        x: () => Button.width / 3 + 20,
+        y: () => Button.height / 3 + 20,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        onclick: function() {
+            this.hovering = false;
+            state.change.to(state.MAIN_MENU, true);
+        }
+    }),
+    // Achievements menu
+    new Button({
+        id: `Back-${state.ACHIEVEMENTS}`,
+        text: "◂ Back",
+        state: state.ACHIEVEMENTS,
+        x: () => Button.width / 3 + 20,
+        y: () => Button.height / 3 + 20,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        onclick: function() {
+            this.hovering = false;
+            state.change.to(state.MAIN_MENU, true);
+        }
+    }),
+    // Replays menu
+    new Button({
+        id: `Back-${state.REPLAYS}`,
+        text: "◂ Back",
+        state: state.REPLAYS,
+        x: () => Button.width / 3 + 20,
+        y: () => Button.height / 3 + 20,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        onclick: function() {
+            this.hovering = false;
+            state.change.to(state.MAIN_MENU, true);
+        }
     }),
     // LAN game waiting menu (host)
     new Button({
@@ -1040,7 +1154,7 @@ Button.items = [
         height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
-            state.change.to(state.MAIN_MENU, true, stop);
+            state.change.to(state.PLAY_MENU, true, stop);
             theme.current = config.graphics.theme;
         }
     }),
@@ -1819,7 +1933,7 @@ addEventListener("DOMContentLoaded", () => {
             c.options.filter.remove("hue-rotate", "brightness", "saturate");
         };
 
-        if (state.is(state.MAIN_MENU, state.SETTINGS, state.ABOUT, state.WAITING_LOCAL, state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY)) {
+        if (state.isMenu()) {
             for (const sprite of MenuSprite.items) {
                 if (sprite.visible) c.draw.croppedImage(image.sprites, sprite.color * 128, sprite.facing * 128, 128, 128, sprite.x, sprite.y, 96, 96);
             }
@@ -2041,6 +2155,8 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.change.x, 25, image.logo.width, image.logo.height);
             c.options.filter.remove("brightness");
             c.options.setShadow();
+        } else if (state.current === state.PLAY_MENU) {
+            c.draw.text({text: "PLAY GAME", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}});
         } else if (state.current === state.WAITING_LOCAL && game) {
             c.draw.text({text: "LOCAL MODE", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}});
             c.draw.text({text: "Connect up to 4 controllers to play!", x: c.width(0.5) + state.change.x, y: c.height(0.125) + 30, font: {size: 18, shadow: true}});
@@ -2111,6 +2227,12 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text({text: `This program is free and open-source software: you are free to modify and/or redistribute it.`, x: c.width(0.5) + state.change.x, y: c.height(0.7), font: {size: 20, shadow: true}, baseline: "bottom"});
             c.draw.text({text: `There is NO WARRANTY, to the extent permitted by law.`, x: c.width(0.5) + state.change.x, y: c.height(0.7) + 25, font: {size: 20, shadow: true}, baseline: "bottom"});
             c.draw.text({text: `Read the GNU General Public License version 3 for further details.`, x: c.width(0.5) + state.change.x, y: c.height(0.7) + 50, font: {size: 20, shadow: true}, baseline: "bottom"});
+        } else if (state.current === state.STATISTICS) {
+            c.draw.text({text: "STATISTICS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}}); 
+        } else if (state.current === state.ACHIEVEMENTS) {
+            c.draw.text({text: "ACHIEVEMENTS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}}); 
+        } else if (state.current === state.REPLAYS) {
+            c.draw.text({text: "REPLAYS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}}); 
         } else if (state.is(state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY) && game) {
             const ips = network.getIPs();
             const mainIP = ips.shift();
