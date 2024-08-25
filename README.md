@@ -105,7 +105,7 @@ The fish is the new item box in Super Splash Bros 2. However, fish only give you
 More power-ups have been added in Super Splash Bros 2. Below are all currently available power-ups:
 - **Squash**  
   Performing a squash will cause the player to move to the ground very fast. Once the player hits the ground, it will create a shockwave, moving other players out of the way. All players, including the performer, will take damage as well.
-  - This power-up requires the player to be in the air, otherwise it will not activate.
+  - This power-up requires the player to move up, otherwise it will not activate.
   - [+] Other players get seriously damaged and pushed away from the performer.
   - [+] There is a 15% chance for the bonus of two geysers left and right, which will launch everyone in the air as well.
   - [-] The performer will even get more damage from the fall.
@@ -116,16 +116,16 @@ More power-ups have been added in Super Splash Bros 2. Below are all currently a
   - [+] Rockets bounce on force fields, and melee attack damage will be dealt to the attacker.
   - [-] Force fields do not protect players against falling into water, unlike spawn protection.
   - [-] Force fields significantly slow down players.
-  - [-] Rockets fired by enemies inside your force field stay inside your force field, so do not let anyone come near you.
+  - [-] Rockets fired by enemies near your force field bounce over and over again inside your force field, so do not let anyone come near you.
 - **Invisibility**  
   Makes the performer invisible for all players! The performer itself will remain slightly visible on their own device. This power-up also lasts for 10 seconds.
   > In Local mode, the performer will become completely invisible because everyone plays on the same device. Be extra careful with your movements!
   - [+] No one can see you (coming), allowing you to greatly surprise your enemies.
-  - [-] Off-screen indicators and projectiles fired by you will not become invisible.
+  - [-] Your melee attacks, rockets and off-screen indicators will not become invisible.
 - **Knockback**  
   When using regular attacks, the knockback will be tripled for 20 seconds.
-  - [+] Significantly improves the basic attack, which is always available and has the shortest cooldown.
-  - [-] Does not apply to rockets and other attacks.
+  - [+] In addition to more knockback, the damage/knockback area is also multiplied by 2,5.
+  - [-] Does not apply to rockets.
 - **Power Jump**  
   Power Jumps will multiply jump forces of the performer by 1,5 for 20 seconds.
   - [+] It makes dodging rockets easier.
@@ -144,11 +144,12 @@ More power-ups have been added in Super Splash Bros 2. Below are all currently a
 - **Exclusive Platform**  
   This power-up creates a special platform underneath the performer for 10 seconds. And only the performer can collide with it! Other players will fall right through it.
   - This power-up requires the player to be in the air, otherwise it will not activate.
+  - [+] When activating this power-up, the player immediately stops moving, making it a great way to escape water.
   - [+] Enjoy the enemies trying to get you off, since the friction on exclusive platforms is higher.
   - [-] Exclusive platforms give no warning before they disappear.
 - **Infinite Rockets**  
-  This power-up does exactly what it says: it grants the performer an infinite amount of rockets for 5 seconds! Also, the rocket fire cooldown is reduced from 5 seconds to 0,25 seconds.
-  - [+] Enemies have to be very cautious when someone is firing 20 times faster.
+  This power-up does exactly what it says: the performer will automatically fire an infinite amount of rockets for 5 seconds! Also, the rocket fire cooldown is reduced from 5 seconds to 0,2 seconds.
+  - [+] Enemies have to be very cautious when someone is firing 25 times faster.
   - [-] You have to be careful around fish and force fields, because that is very dangerous for you.
   - [-] When the power-up ends, you have to regenerate your rockets from zero.
 

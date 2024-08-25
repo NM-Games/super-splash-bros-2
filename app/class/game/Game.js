@@ -24,7 +24,7 @@ class Game {
         name: "Squash",
         /** @param {Player} p */
         condition: (p) => p.vy < -0.5,
-        conditionText: "Requires player to be in the air",
+        conditionText: "Requires player to move up",
         /** @param {Player} p */
         action: (p) => p.vy = 100
     }, {
@@ -68,7 +68,7 @@ class Game {
         /** @param {Player} p */
         action: (p) => {
             p.exclusivePlatform = new Exclusive(p.x, p.y, p.size);
-            p.vy = 0;
+            p.vx = p.vy = 0;
         }
     }, {
         name: "Infinite Rockets",
@@ -381,8 +381,9 @@ class Game {
                 }
             }
 
-            const rocketCooldown = p1.hasPowerup(Player.powerup.INFINITE_ROCKETS) ? 250 : p1.attacks.rocket.cooldown;
-            if (p1.keys.rocket && p1.attacks.rocket.count > 0 && this.ping - p1.attacks.rocket.lastPerformed >= rocketCooldown) {
+            const wantsToFireRocket = (p1.keys.rocket || p1.hasPowerup(Player.powerup.INFINITE_ROCKETS));
+            const rocketCooldown = p1.hasPowerup(Player.powerup.INFINITE_ROCKETS) ? 200 : p1.attacks.rocket.cooldown;
+            if (wantsToFireRocket && p1.attacks.rocket.count > 0 && this.ping - p1.attacks.rocket.lastPerformed >= rocketCooldown) {
                 p1.attacks.rocket.lastPerformed = this.ping;
                 p1.attacks.rocket.count--;
                 this.rockets.push(new Rocket(p1.index, p1.x + Number(p1.facing === "r") * p1.size, p1.y, p1.facing));
@@ -502,7 +503,7 @@ class Game {
             for (const p of this.getPlayers()) {
                 if (p.x < geyser.x + Geyser.width && p.x + p.size > geyser.x && p.y + p.size > geyser.y && !p.hasPowerup(Player.powerup.FORCE_FIELD)) {
                     p.y -= Geyser.speed;
-                    p.damage(this.ping, 0.5, 1.2);
+                    p.damage(this.ping, 1.2, 2.5);
                 }
             }
 

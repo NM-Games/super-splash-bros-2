@@ -5,10 +5,10 @@
 - [x] Clarify power-up availability and duration
 - Power-up changes:
     - [x] Allow Squash only when moving up
-    - [ ] Increase Knockback hit radius
-    - [ ] Make Infinite Rockets automatic
-    - [ ] Double Poop Bomb damage
-    - [ ] Remove knockback/increase friction on Exclusive Platforms
+    - [x] Increase Knockback hit radius
+    - [x] Make Infinite Rockets automatic
+    - [x] Double Poop Bomb damage
+    - [x] ~~Remove knockback/increase friction on~~ Remove movements when activating Exclusive Platforms
     - [ ] New ones?
 
 ## Possibly in next version, if it works out well
