@@ -23,7 +23,7 @@ class Game {
     static powerups = [{
         name: "Squash",
         /** @param {Player} p */
-        condition: (p) => Math.abs(p.vy) >= 1,
+        condition: (p) => p.vy < -0.5,
         conditionText: "Requires player to be in the air",
         /** @param {Player} p */
         action: (p) => p.vy = 100

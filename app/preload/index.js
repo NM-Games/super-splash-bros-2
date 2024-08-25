@@ -1964,10 +1964,12 @@ addEventListener("DOMContentLoaded", () => {
                 const decimalOffset = c.draw.text({text: Math.floor(p.hit.percentage), font: {size: 48, style: "bold"}, measure: true});
                 const decimalText = (parallellogramWidth > 250) ? p.hit.percentage.toFixed(1).slice(-2) + "%" : "%";
 
-                if (frames % 30 < 20 && p.powerup.available && p.powerup.meetsCondition) c.options.setShadow(theme.colors.text.light, 12);
-                else if (frames % 30 < 20 && p.powerup.available) c.options.setShadow(theme.colors.error.foreground, 12);
-                else if (frames % 30 < 20 && p.powerup.active) c.options.setShadow(theme.colors.ui.highlight, 12);
-                else c.options.setShadow(theme.colors.shadow, 4);
+                const shadowColor = (frames % 30 < 20 && p.powerup.available && p.powerup.meetsCondition) ? theme.colors.text.light
+                 : (frames % 30 < 20 && p.powerup.available) ? theme.colors.error.foreground
+                 : (frames % 30 < 20 && p.powerup.active) ? theme.colors.ui.highlight
+                 : theme.colors.shadow;
+                const shadowBlur = (shadowColor === theme.colors.shadow) ? 4 : 12;
+                c.options.setShadow(shadowColor, shadowBlur);
 
                 if (p.lives < 1 || !p.connected) c.options.setOpacity(0.3);
                 c.draw.fill.parallellogram(theme.colors.players[p.index], x, y, parallellogramWidth, 95);
@@ -2000,7 +2002,21 @@ addEventListener("DOMContentLoaded", () => {
                 c.options.setOpacity();
                 if (!p.connected) c.draw.image(image.disconnected, x + (parallellogramWidth - 115) / 2, y - 10, 115, 115);
                 else if (p.lives < 1) c.draw.image(image.eliminated, x + (parallellogramWidth - 115) / 2, y - 10, 115, 115);
-
+                else if (shadowColor === theme.colors.text.light) {
+                    c.options.setOpacity(0.8);
+                    c.draw.text({text: "POWER-UP", x: x + parallellogramWidth / 2, y: y + 40, color: theme.colors.text.light, font: {size: 30, style: "bold"}, maxWidth: parallellogramWidth - 35});
+                    c.draw.text({text: "AVAILABLE", x: x + parallellogramWidth / 2, y: y + 70, color: theme.colors.text.light, font: {size: 30, style: "bold"}, maxWidth: parallellogramWidth - 35});
+                } else if (shadowColor === theme.colors.error.foreground) {
+                    c.options.setOpacity(0.8);
+                    c.draw.text({text: "CONDITION", x: x + parallellogramWidth / 2, y: y + 40, color: theme.colors.error.foreground, font: {size: 30, style: "bold"}, maxWidth: parallellogramWidth - 35});
+                    c.draw.text({text: "NOT MET", x: x + parallellogramWidth / 2, y: y + 70, color: theme.colors.error.foreground, font: {size: 30, style: "bold"}, maxWidth: parallellogramWidth - 35});
+                } else if (shadowColor === theme.colors.ui.highlight) {
+                    c.options.setOpacity(0.8);
+                    const remaining = ((p.powerup.lastActivated + Game.powerups[p.powerup.selected].duration - game.ping) / 1000).toFixed(1);
+                    if (!isNaN(remaining)) c.draw.text({text: remaining, x: x + parallellogramWidth / 2, y: y + 65, color: theme.colors.ui.highlight, font: {size: 58, style: "bold"}, maxWidth: parallellogramWidth - 35});
+                }
+                c.options.setOpacity();
+                
                 i++;
             }
 
