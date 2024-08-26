@@ -12,6 +12,7 @@ const network = require("../network");
 const Button = require("../class/ui/Button");
 const Input = require("../class/ui/Input");
 const MenuSprite = require("../class/ui/MenuSprite");
+const Replay = require("../class/game/Replay");
 const Game = require("../class/game/Game");
 const Player = require("../class/game/Player");
 const Exclusive = require("../class/game/Exclusive");
@@ -33,7 +34,8 @@ const state = {
     ABOUT: 11,
     STATISTICS: 12,
     ACHIEVEMENTS: 13,
-    REPLAYS: 14,
+    REPLAYS_MENU: 14,
+    WATCHING_REPLAY: 15,
 
     current: 0,
     change: {
@@ -70,7 +72,7 @@ const state = {
      * @returns {boolean}
      */
     isMenu: () => {
-        return state.is(state.MAIN_MENU, state.PLAY_MENU, state.SETTINGS, state.ABOUT, state.STATISTICS, state.ACHIEVEMENTS, state.REPLAYS, state.WAITING_LOCAL, state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY);
+        return state.is(state.MAIN_MENU, state.PLAY_MENU, state.SETTINGS, state.ABOUT, state.STATISTICS, state.ACHIEVEMENTS, state.REPLAYS_MENU, state.WAITING_LOCAL, state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY);
     }
 };
 
@@ -207,6 +209,8 @@ const leave = (playAgain = false) => {
     isInGame = false;
     gameMenu.set(false);
     water.flood.enable(false, false, () => {
+        if (replay && config.misc.recordReplays) replay.save();
+
         if (state.current === state.PLAYING_LAN) {
             if (playerIndex === game.host) ipcRenderer.send("stop-gameserver", playAgain); else {
                 socket.close();
@@ -216,7 +220,7 @@ const leave = (playAgain = false) => {
                 stop();
             }
         } else if (state.is(state.PLAYING_LOCAL, state.PLAYING_FREEPLAY)) {
-            state.current = state.MAIN_MENU;
+            state.current = state.PLAY_MENU;
             water.flood.disable();
             stop();
         }
@@ -227,7 +231,7 @@ const leave = (playAgain = false) => {
 
 const stop = () => {
     theme.current = config.graphics.theme;
-    instance = game = undefined;
+    instance = game = replay = undefined;
     playerIndex = -1;
 };
 
@@ -236,7 +240,7 @@ const checkLANAvailability = () => {
     const LANavailable = (network.getIPs().length > 0);
     Button.getButtonById("LANMode").disabled = !LANavailable;
     if (state.is(state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.PLAYING_LAN) && !LANavailable)
-        state.change.to(state.MAIN_MENU, true);
+        state.change.to(state.PLAY_MENU, true);
 };
 
 const keyChange = () => (JSON.stringify(keys) !== JSON.stringify(lastKeys));
@@ -246,7 +250,7 @@ const updateKeybinds = () => {
     ipcRenderer.send("update-config", config);
 };
 
-/** @type {import("../configfile").Settings} */
+/** @type {import("../file").Settings} */
 const config = {appearance: {}, graphics: {}, controls: {}, audio: {}};
 const versions = {game: "", electron: "", chromium: "", status: ""};
 /** @type {{moveLeft: boolean, moveRight: boolean, jump: boolean, attack: boolean, launchRocket: boolean, activatePowerup: boolean, gameMenu: boolean}} */
@@ -480,6 +484,8 @@ let game = socket.getGame();
 let lgame;
 /** @type {Game} */
 let instance;
+/** @type {Replay} */
+let replay;
 let ping = 0;
 let isInGame = false;
 let playerIndex = -1;
@@ -571,7 +577,8 @@ Button.items = [
         height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
-            state.change.to(state.REPLAYS, false);
+            ipcRenderer.send("get-replays");
+            state.change.to(state.REPLAYS_MENU, false);
         }
     }),
     new Button({
@@ -1048,9 +1055,9 @@ Button.items = [
     }),
     // Replays menu
     new Button({
-        id: `Back-${state.REPLAYS}`,
+        id: `Back-${state.REPLAYS_MENU}`,
         text: "◂ Back",
-        state: state.REPLAYS,
+        state: state.REPLAYS_MENU,
         x: () => Button.width / 3 + 20,
         y: () => Button.height / 3 + 20,
         width: Button.width / 1.5,
@@ -1058,6 +1065,19 @@ Button.items = [
         onclick: function() {
             this.hovering = false;
             state.change.to(state.MAIN_MENU, true);
+        }
+    }),
+    new Button({
+        id: "DoReplayRecording",
+        text: "Record replays",
+        state: state.REPLAYS_MENU,
+        width: Button.width + 50,
+        x: () => c.width(1/2),
+        y: () => 200,
+        onclick: function() {
+            config.misc.recordReplays = !config.misc.recordReplays;
+            this.text = `Record replays: ${config.misc.recordReplays ? "ON":"OFF"}`;
+            ipcRenderer.send("update-config", config);
         }
     }),
     // LAN game waiting menu (host)
@@ -1515,6 +1535,8 @@ addEventListener("DOMContentLoaded", () => {
         if (config.graphics.fullScreen) ipcRenderer.send("toggle-fullscreen");
         Button.getButtonById("WaterFlow").text = `Water flow: ${config.graphics.waterFlow ? "ON":"OFF"}`;
         Button.getButtonById("MenuSprites").text = `Menu sprites: ${config.graphics.menuSprites ? "ON":"OFF"}`;
+        
+        Button.getButtonById("DoReplayRecording").text = `Record replays: ${config.misc.recordReplays ? "ON":"OFF"}`;
 
         for (const k of keybindIDs) {
             Input.getInputById(`Keybind-${k}`).keybind = config.controls[k];
@@ -1537,6 +1559,11 @@ addEventListener("DOMContentLoaded", () => {
             }, 50);
         }
     });
+
+    ipcRenderer.on("replay-list", (_e, replays) => {
+        console.log(replays);
+    });
+
     setInterval(() => {
         const discordState = (state.current === state.PLAYING_LOCAL) ? "Local mode"
         : (state.current === state.PLAYING_LAN) ? "LAN mode"
@@ -1709,10 +1736,13 @@ addEventListener("DOMContentLoaded", () => {
 
     const update = () => {
         frames++;
-        if (socket.isOpen()) game = socket.getGame();
-        else if (state.is(state.WAITING_LOCAL, state.PLAYING_LOCAL, state.WAITING_FREEPLAY, state.PLAYING_FREEPLAY)) {
+        if (socket.isOpen()) {
+            game = socket.getGame();
+            if (replay && config.misc.recordReplays) replay.recordFrame(game);
+        } else if (state.is(state.WAITING_LOCAL, state.PLAYING_LOCAL, state.WAITING_FREEPLAY, state.PLAYING_FREEPLAY)) {
             instance.update();
             game = instance.export();
+            if (replay && config.misc.recordReplays) replay.recordFrame(game);
         }
 
         if (game) {
@@ -1723,8 +1753,10 @@ addEventListener("DOMContentLoaded", () => {
             Button.getButtonById("LANUnban").disabled = (game.banCount === 0);
             Button.getButtonById(`Back-${state.WAITING_LAN_HOST}`).danger = (game.connected > 1);
 
-            if (lgame.startState === 0 && game.startState === 1) water.flood.enable(false, true);
-            else if (lgame.startState === 1 && game.startState === 2) {
+            if (lgame.startState === 0 && game.startState === 1) {
+                water.flood.enable(false, true);
+                replay = new Replay();
+            } else if (lgame.startState === 1 && game.startState === 2) {
                 state.current = (state.current === state.WAITING_LOCAL) ? state.PLAYING_LOCAL
                 : (state.current === state.WAITING_FREEPLAY) ? state.PLAYING_FREEPLAY
                 : state.PLAYING_LAN;
@@ -2231,7 +2263,7 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text({text: "STATISTICS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}}); 
         } else if (state.current === state.ACHIEVEMENTS) {
             c.draw.text({text: "ACHIEVEMENTS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}}); 
-        } else if (state.current === state.REPLAYS) {
+        } else if (state.current === state.REPLAYS_MENU) {
             c.draw.text({text: "REPLAYS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}}); 
         } else if (state.is(state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY) && game) {
             const ips = network.getIPs();

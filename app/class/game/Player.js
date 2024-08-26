@@ -54,7 +54,7 @@ class Player {
 
     /**
      * @constructor
-     * @param {import("../../configfile").Settings["appearance"]} appearance
+     * @param {import("../../file").Settings["appearance"]} appearance
      * @param {number | undefined} index
      * @param {{x: number, y: number}[]} coordinates
      * @param {import("./Game").Modes} gamemode
@@ -111,7 +111,7 @@ class Player {
 
     /**
      * Set the keys of a player.
-     * @param {import("../../configfile").Settings["controls"]} keys
+     * @param {import("../../file").Settings["controls"]} keys
      */
     setKeys(keys) {
         this.keys.left = keys.moveLeft;

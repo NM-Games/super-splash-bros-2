@@ -10,8 +10,8 @@
  *  act: SocketActions,
  *  version: string,
  *  index?: number,
- *  appearance?: import("./configfile").Settings["appearance"],
- *  keys?: import("./configfile").Settings["controls"],
+ *  appearance?: import("./file").Settings["appearance"],
+ *  keys?: import("./file").Settings["controls"],
  * }} SocketData
  */
 

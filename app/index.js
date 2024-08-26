@@ -3,7 +3,7 @@ const { join } = require("path");
 
 const { displayName, version } = require("../package.json");
 const network = require("./network");
-const configfile = require("./configfile");
+const file = require("./file");
 const discord = require("./discord");
 
 
@@ -34,7 +34,7 @@ app.whenReady().then(() => {
         app.exit(1);
         return;
     }
-    configfile.init();
+    file.init();
 
     const toggleFullScreen = () => {
         window.setFullScreen(!window.isFullScreen());
@@ -63,7 +63,7 @@ app.whenReady().then(() => {
         let totalWidth = 0;
         for (const scr of screen.getAllDisplays()) totalWidth += scr.bounds.width;
         window.webContents.send("start",
-            configfile.get(),
+            file.settings.get(),
             {game: version, electron: process.versions.electron, chromium: process.versions.chrome},
             totalWidth
         );
@@ -107,12 +107,22 @@ app.whenReady().then(() => {
         if (gameserver.kill()) window.webContents.send("gameserver-stopped", playAgain);
     });
 
-    ipcMain.on("update-config", (_e, config) => configfile.set(config));
+    ipcMain.on("update-config", (_e, config) => file.settings.set(config));
 
     ipcMain.on("lan-cycle-theme", () => gameserver.postMessage("theme"));
     ipcMain.on("lan-unban", () => gameserver.postMessage("unban"));
     ipcMain.on("lan-ban", (_e, index) => gameserver.postMessage(`ban:${index}`));
     ipcMain.on("lan-start", () => gameserver.postMessage("start"));
+
+    ipcMain.on("get-replays", () => {
+        window.webContents.send("replay-list", file.replays.list());
+    });
+    ipcMain.on("load-replay", (_e, name) => {
+        window.webContents.send("replay-loaded", file.replays.read(name));
+    });
+    ipcMain.on("save-replay", (_e, name, data) => {
+        file.replays.write(`${name}.json`, data);
+    });
 
     ipcMain.on("discord-activity-update", (_e, state, playerIndex, playerName, partySize, partyMax, startTimestamp) => {
         discord({

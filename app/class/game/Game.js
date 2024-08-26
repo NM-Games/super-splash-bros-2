@@ -1,7 +1,7 @@
 /**
  * @typedef {"local" | "lan" | "freeplay"} Modes
  * @typedef {import("../../preload/theme").Themes} Themes
- * @typedef {import("../../configfile").Settings["appearance"]} Appearance
+ * @typedef {import("../../file").Settings["appearance"]} Appearance
  */
 
 const Player = require("./Player");
