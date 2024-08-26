@@ -114,15 +114,17 @@ app.whenReady().then(() => {
     ipcMain.on("lan-ban", (_e, index) => gameserver.postMessage(`ban:${index}`));
     ipcMain.on("lan-start", () => gameserver.postMessage("start"));
 
-    ipcMain.on("get-replays", () => {
-        window.webContents.send("replay-list", file.replays.list());
+    ipcMain.on("get-replays", () => window.webContents.send("replay-list", file.replays.list()));
+    ipcMain.on("load-replay", (_e, name) => window.webContents.send("replay-loaded", file.replays.read(name)));
+    ipcMain.on("save-replay", (_e, name, data) => file.replays.write(`${name}.ssb2replay`, data));
+    ipcMain.on("export-replay", (_e, name) => {
+        dialog.showSaveDialog(window, {
+            title: "Export replay",
+            defaultPath: join(app.getPath("downloads"), name),
+            filters: [{name: "Super Splash Bros 2 Replay", extensions: ["*.ssb2replay"]}]
+        });
     });
-    ipcMain.on("load-replay", (_e, name) => {
-        window.webContents.send("replay-loaded", file.replays.read(name));
-    });
-    ipcMain.on("save-replay", (_e, name, data) => {
-        file.replays.write(`${name}.json`, data);
-    });
+    ipcMain.on("delete-replay", (_e, name) => file.replays.delete(name));
 
     ipcMain.on("discord-activity-update", (_e, state, playerIndex, playerName, partySize, partyMax, startTimestamp) => {
         discord({

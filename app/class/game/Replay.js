@@ -1,15 +1,23 @@
 /**
  * @typedef {{
- *  name: string,
  *  version: string,
  *  theme: import("../../preload/theme").Themes,
  *  frames: object[]
  * }} ReplayContent
+ * 
+ * @typedef {{
+ *  name: string,
+ *  size: number,
+ *  time: number
+ * }} ReplayList
  */
 
 const { ipcRenderer } = require("electron");
 
 class Replay {
+    /** @type {ReplayList[]} */
+    static list = [];
+
     theme;
     version;
 
@@ -25,9 +33,13 @@ class Replay {
             this.#isRecording = false;
             this.name = name;
             this.playingFrame = 0;
+            this.playbackRate = 1;
+            this.paused = false;
             ipcRenderer.send("load-replay", name);
-            ipcRenderer.once("replay-loaded", (_e, frames) => {
-                this.frames = frames;
+            ipcRenderer.once("replay-loaded", (_e, data) => {
+                this.version = data.version;
+                this.theme = data.theme;
+                this.frames = data.frames;
                 if (onloaded) onloaded();
             });
         } else {
@@ -35,6 +47,32 @@ class Replay {
             this.name = new Intl.DateTimeFormat("nl", {dateStyle: "short", timeStyle: "medium"}).format().replace(/(,\s+|:)/g, "-");
             this.frames = [];
         }
+    }
+
+    update() {
+        if (this.#isRecording || this.paused) return;
+
+        this.playingFrame += Math.round(this.playbackRate);
+        if (this.playingFrame <= 0) {
+            this.playingFrame = 0;
+            if (this.playbackRate < 0) this.playbackRate = 1;
+        } else if (this.playingFrame >= this.frames.length - 1) {
+            this.playingFrame = this.frames.length - 1;
+            this.paused = true;
+        }
+    }
+
+    togglePause() {
+        if (this.#isRecording) return;
+        this.paused = !this.paused;
+    }
+    previousFrame() {
+        if (this.#isRecording) return;
+        this.playingFrame = Math.max(0, this.playingFrame - 1);
+    }
+    nextFrame() {
+        if (this.#isRecording) return;
+        this.playingFrame = Math.min(this.frames.length - 1, this.playingFrame + 1);
     }
 
     recordFrame(frame) {
@@ -54,9 +92,11 @@ class Replay {
             delete data.theme;
         }
         if (data.players) {
-            for (const p of data.players) delete p.keys;
+            for (const p of data.players) {
+                if (p) delete p.keys;
+            }
         }
-        
+
         this.frames.push(data);
     }
     

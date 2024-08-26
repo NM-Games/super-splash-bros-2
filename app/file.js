@@ -9,7 +9,7 @@
  */
 
 const { app } = require("electron");
-const { readdirSync, readFileSync, writeFileSync, existsSync, mkdirSync, statSync } = require("fs");
+const { readdirSync, readFileSync, writeFileSync, existsSync, rmSync, mkdirSync, statSync } = require("fs");
 const { EOL } = require("os");
 const { join } = require("path");
 
@@ -97,11 +97,12 @@ const replays = {
                 time: stats.birthtimeMs
             });
         }
-        return payload;
+        return payload.sort((a, b) => a.time < b.time).slice(0, 5);
     },
     /** @returns {import("./class/game/Replay").ReplayContent} */
     read: (name) => read(join(paths.replayFolder, name)),
-    write: (name, data) => write(join(paths.replayFolder, name), data, 0)
+    write: (name, data) => write(join(paths.replayFolder, name), data, 0),
+    delete: (name) => rmSync(join(paths.replayFolder, name), {force: true})
 };
 
 /**

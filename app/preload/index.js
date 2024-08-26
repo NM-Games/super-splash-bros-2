@@ -223,6 +223,10 @@ const leave = (playAgain = false) => {
             state.current = state.PLAY_MENU;
             water.flood.disable();
             stop();
+        } else if (state.current === state.WATCHING_REPLAY) {
+            state.current = state.REPLAYS_MENU;
+            water.flood.disable();
+            stop();
         }
         konamiEasterEgg.deactivate();
         if (!playAgain && !water.flood.disabling) water.flood.disable();
@@ -369,7 +373,7 @@ const gameMenu = {
     /** Toggle the game menu visibility state. */
     toggle: () => {
         if (
-            !state.is(state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL)
+            !state.is(state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL, state.WATCHING_REPLAY)
             || water.flood.enabling
             || (game && game.startState < 6)
         ) return;
@@ -382,7 +386,7 @@ const gameMenu = {
      */
     set: (to) => {
         if (
-            !state.is(state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL)
+            !state.is(state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL, state.WATCHING_REPLAY)
             || water.flood.enabling
             || (game && game.startState < 6)
         ) return;
@@ -509,6 +513,56 @@ let parallellogram = {
         if (!parallellogram.visible) return;
         parallellogram.visible = false;
         parallellogram.moving = true;
+    }
+};
+const replayActions = {
+    /**
+     * Watch a replay.
+     * @param {number} index
+     */
+    watch: (index) => {
+        water.flood.enable(false, false, () => {
+            replay = new Replay(Replay.list[index].name, () => {
+                state.current = state.WATCHING_REPLAY;
+                water.flood.disable();
+                isInGame = true;
+            });
+        });
+    },
+    /**
+     * Export a replay.
+     * @param {number} index
+     */
+    export: (index) => {
+        ipcRenderer.send("export-replay", Replay.list[index].name);
+    },
+    /**
+     * Delete a replay.
+     * @param {number} index
+     */
+    delete: (index) => {
+        dialog.show(
+            "Do you want to delete this replay?",
+            "This action is irreversible!",
+            new Button({
+                text: "Yes",
+                x: () => c.width(0.35),
+                y: () => c.height(0.75),
+                danger: true,
+                onclick: () => {
+                    dialog.close();
+                    ipcRenderer.send("delete-replay", Replay.list[index].name);
+                    Button.getButtonById(`Replay-${index}-Watch`).disabled =
+                    Button.getButtonById(`Replay-${index}-Export`).disabled =
+                    Button.getButtonById(`Replay-${index}-Delete`).disabled = delete Replay.list[index];
+                }
+            }), new Button({
+                text: "No",
+                x: () => c.width(0.65),
+                y: () => c.height(0.75),
+                onclick: () => dialog.close()
+            })
+        );
     }
 };
 
@@ -1080,6 +1134,266 @@ Button.items = [
             ipcRenderer.send("update-config", config);
         }
     }),
+    new Button({
+        id: "Replay-0-Watch",
+        text: "Watch",
+        state: state.REPLAYS_MENU,
+        x: () => c.width(1/2) + 50,
+        y: () => c.height(1/2) - 40,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        disabled: true,
+        onclick: function() {
+            this.hovering = false;
+            replayActions.watch(0);
+        }
+    }),
+    new Button({
+        id: "Replay-0-Export",
+        text: "Export",
+        state: state.REPLAYS_MENU,
+        x: () => c.width(1/2) + 270,
+        y: () => c.height(1/2) - 40,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        disabled: true,
+        onclick: () => replayActions.export(0)
+    }),
+    new Button({
+        id: "Replay-0-Delete",
+        text: "Delete",
+        state: state.REPLAYS_MENU,
+        x: () => c.width(1/2) + 490,
+        y: () => c.height(1/2) - 40,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        danger: true,
+        disabled: true,
+        onclick: function() {
+            this.hovering = false;
+            replayActions.delete(0);
+        }
+    }),
+    new Button({
+        id: "Replay-1-Watch",
+        text: "Watch",
+        state: state.REPLAYS_MENU,
+        x: () => c.width(1/2) + 50,
+        y: () => c.height(1/2) + 40,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        disabled: true,
+        onclick: function() {
+            this.hovering = false;
+            replayActions.watch(1);
+        }
+    }),
+    new Button({
+        id: "Replay-1-Export",
+        text: "Export",
+        state: state.REPLAYS_MENU,
+        x: () => c.width(1/2) + 270,
+        y: () => c.height(1/2) + 40,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        disabled: true,
+        onclick: () => replayActions.export(1)
+    }),
+    new Button({
+        id: "Replay-1-Delete",
+        text: "Delete",
+        state: state.REPLAYS_MENU,
+        x: () => c.width(1/2) + 490,
+        y: () => c.height(1/2) + 40,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        danger: true,
+        disabled: true,
+        onclick: function() {
+            this.hovering = false;
+            replayActions.delete(1);
+        }
+    }),
+    new Button({
+        id: "Replay-2-Watch",
+        text: "Watch",
+        state: state.REPLAYS_MENU,
+        x: () => c.width(1/2) + 50,
+        y: () => c.height(1/2) + 120,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        disabled: true,
+        onclick: function() {
+            this.hovering = false;
+            replayActions.watch(2);
+        }
+    }),
+    new Button({
+        id: "Replay-2-Export",
+        text: "Export",
+        state: state.REPLAYS_MENU,
+        x: () => c.width(1/2) + 270,
+        y: () => c.height(1/2) + 120,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        disabled: true,
+        onclick: () => replayActions.export(2)
+    }),
+    new Button({
+        id: "Replay-2-Delete",
+        text: "Delete",
+        state: state.REPLAYS_MENU,
+        x: () => c.width(1/2) + 490,
+        y: () => c.height(1/2) + 120,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        danger: true,
+        disabled: true,
+        onclick: function() {
+            this.hovering = false;
+            replayActions.delete(2);
+        }
+    }),
+    new Button({
+        id: "Replay-3-Watch",
+        text: "Watch",
+        state: state.REPLAYS_MENU,
+        x: () => c.width(1/2) + 50,
+        y: () => c.height(1/2) + 200,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        disabled: true,
+        onclick: function() {
+            this.hovering = false;
+            replayActions.watch(3);
+        }
+    }),
+    new Button({
+        id: "Replay-3-Export",
+        text: "Export",
+        state: state.REPLAYS_MENU,
+        x: () => c.width(1/2) + 270,
+        y: () => c.height(1/2) + 200,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        disabled: true,
+        onclick: () => replayActions.export(3)
+    }),
+    new Button({
+        id: "Replay-3-Delete",
+        text: "Delete",
+        state: state.REPLAYS_MENU,
+        x: () => c.width(1/2) + 490,
+        y: () => c.height(1/2) + 200,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        danger: true,
+        disabled: true,
+        onclick: function() {
+            this.hovering = false;
+            replayActions.delete(3);
+        }
+    }),
+    new Button({
+        id: "Replay-4-Watch",
+        text: "Watch",
+        state: state.REPLAYS_MENU,
+        x: () => c.width(1/2) + 50,
+        y: () => c.height(1/2) + 280,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        disabled: true,
+        onclick: function() {
+            this.hovering = false;
+            replayActions.watch(4);
+        }
+    }),
+    new Button({
+        id: "Replay-4-Export",
+        text: "Export",
+        state: state.REPLAYS_MENU,
+        x: () => c.width(1/2) + 270,
+        y: () => c.height(1/2) + 280,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        disabled: true,
+        onclick: () => replayActions.export(4)
+    }),
+    new Button({
+        id: "Replay-4-Delete",
+        text: "Delete",
+        state: state.REPLAYS_MENU,
+        x: () => c.width(1/2) + 490,
+        y: () => c.height(1/2) + 280,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        danger: true,
+        disabled: true,
+        onclick: function() {
+            this.hovering = false;
+            replayActions.delete(4);
+        }
+    }),
+    // Replay screen
+    new Button({
+        id: "Replay-ToggleHUD",
+        icon: () => [1, 4],
+        state: state.WATCHING_REPLAY,
+        x: () => c.width() - 50,
+        y: () => 50,
+        onclick: () => {
+            if (parallellogram.visible) parallellogram.hide();
+            else parallellogram.show();
+        }
+    }),
+    new Button({
+        id: "Replay-NextFrame",
+        icon: () => [1, 4],
+        state: state.WATCHING_REPLAY,
+        x: () => c.width() - 150,
+        y: () => 50,
+        onclick: () => replay.nextFrame()
+    }),
+    new Button({
+        id: "Replay-PlayPause",
+        icon: () => [Number(!replay.paused), 3],
+        state: state.WATCHING_REPLAY,
+        x: () => c.width() - 230,
+        y: () => 50,
+        onclick: () => replay.togglePause()
+    }),
+    new Button({
+        id: "Replay-PrevFrame",
+        icon: () => [0, 4],
+        state: state.WATCHING_REPLAY,
+        x: () => c.width() - 310,
+        y: () => 50,
+        onclick: () => replay.previousFrame()
+    }),
+    new Button({
+        id: "Replay-FasterRate",
+        icon: () => [1, 2],
+        state: state.WATCHING_REPLAY,
+        x: () => c.width() - 500,
+        y: () => 50,
+        onclick: () => {
+            replay.playbackRate++;
+            if (replay.playbackRate === 0) replay.playbackRate++;
+            if (replay.playbackRate >= 3) replay.playbackRate = 3;
+        }
+    }),
+    new Button({
+        id: "Replay-SlowerRate",
+        icon: () => [0, 2],
+        state: state.WATCHING_REPLAY,
+        x: () => c.width() - 650,
+        y: () => 50,
+        onclick: () => {
+            replay.playbackRate--;
+            if (replay.playbackRate === 0) replay.playbackRate--;
+            if (replay.playbackRate <= -3) replay.playbackRate = -3;
+        }
+    }),
     // LAN game waiting menu (host)
     new Button({
         id: `Back-${state.WAITING_LAN_HOST}`,
@@ -1095,7 +1409,7 @@ Button.items = [
                 dialog.show(
                     "Are you sure you want to quit?",
                     "Quitting will kick out everyone in your game.",
-                        new Button({
+                    new Button({
                         text: "Yes",
                         x: () => c.width(0.35),
                         y: () => c.height(0.75),
@@ -1235,7 +1549,8 @@ Button.gameMenuItems = [
         danger: true,
         onclick: function() {
             this.hovering = false;
-            dialog.show(
+            if (state.current === state.WATCHING_REPLAY) leave();
+            else dialog.show(
                 "Are you sure you want to leave?",
                 (state.current === state.PLAYING_FREEPLAY) ? ""
                 : (playerIndex === game.host) ? "Because you are the host, you will kick everyone out!"
@@ -1561,13 +1876,21 @@ addEventListener("DOMContentLoaded", () => {
     });
 
     ipcRenderer.on("replay-list", (_e, replays) => {
-        console.log(replays);
+        Replay.list = replays;
+        for (let i=0; i<5; i++) {
+            if (!Button.getButtonById(`Replay-${i}-Watch`)) continue;
+
+            Button.getButtonById(`Replay-${i}-Watch`).disabled =
+            Button.getButtonById(`Replay-${i}-Export`).disabled =
+            Button.getButtonById(`Replay-${i}-Delete`).disabled = !Replay.list[i];
+        }
     });
 
     setInterval(() => {
         const discordState = (state.current === state.PLAYING_LOCAL) ? "Local mode"
         : (state.current === state.PLAYING_LAN) ? "LAN mode"
         : (state.current === state.PLAYING_FREEPLAY) ? "Freeplay mode"
+        : (state.current === state.WATCHING_REPLAY) ? "Watching a replay"
         : (state.is(state.WAITING_FREEPLAY, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_LOCAL)) ? "Waiting for start"
         : undefined;
 
@@ -1743,6 +2066,9 @@ addEventListener("DOMContentLoaded", () => {
             instance.update();
             game = instance.export();
             if (replay && config.misc.recordReplays) replay.recordFrame(game);
+        } else if (state.is(state.WATCHING_REPLAY)) {
+            replay.update();
+            game = replay.frames[replay.playingFrame];
         }
 
         if (game) {
@@ -1759,7 +2085,8 @@ addEventListener("DOMContentLoaded", () => {
             } else if (lgame.startState === 1 && game.startState === 2) {
                 state.current = (state.current === state.WAITING_LOCAL) ? state.PLAYING_LOCAL
                 : (state.current === state.WAITING_FREEPLAY) ? state.PLAYING_FREEPLAY
-                : state.PLAYING_LAN;
+                : (state.is(state.WAITING_LAN_HOST, state.WAITING_LAN_GUEST)) ? state.PLAYING_LAN
+                : state.current;
                 isInGame = true;
                 water.flood.disable();
             } else if (lgame.startState === 2 && game.startState === 3) {
@@ -1787,9 +2114,9 @@ addEventListener("DOMContentLoaded", () => {
                     message.size = 180;
                 }
                 bigNotification.show(message.text, theme.colors.bigNotification[message.color], message.size, 0.01);
-            } else if (lgame.startState === 7 && game.startState === 8) leave(state.is(state.PLAYING_LAN));
+            } else if (lgame.startState === 7 && game.startState === 8 && state.current !== state.WATCHING_REPLAY) leave(state.is(state.PLAYING_LAN));
 
-            if (!state.is(state.WAITING_LOCAL, state.PLAYING_LOCAL, state.LAN_GAME_MENU)) {
+            if (!state.is(state.WAITING_LOCAL, state.PLAYING_LOCAL, state.LAN_GAME_MENU, state.WATCHING_REPLAY)) {
                 if (!lgame.players[playerIndex].powerup.available && game.players[playerIndex].powerup.available) {
                     const powerupName = Game.powerups[game.players[playerIndex].powerup.selected].name.toUpperCase();
                     bigNotification.show(`${powerupName} READY`, theme.colors.bigNotification.g, 120, 0.003);
@@ -1970,7 +2297,7 @@ addEventListener("DOMContentLoaded", () => {
                 if (sprite.visible) c.draw.croppedImage(image.sprites, sprite.color * 128, sprite.facing * 128, 128, 128, sprite.x, sprite.y, 96, 96);
             }
             drawWater();
-        } else if (state.is(state.PLAYING_LOCAL, state.PLAYING_LAN, state.PLAYING_FREEPLAY) && game) {
+        } else if (state.is(state.PLAYING_LOCAL, state.PLAYING_LAN, state.PLAYING_FREEPLAY, state.WATCHING_REPLAY) && game) {
             const offset = {x: (c.width() - image.platforms.width) / 2 + screenShake.x, y: c.height() - image.platforms.height + screenShake.y};
 
             if (theme.current === "foggy") c.options.filter.add("sepia(1)", "hue-rotate(150deg)", "brightness(1.5)");
@@ -1988,7 +2315,7 @@ addEventListener("DOMContentLoaded", () => {
                     c.options.setShadow();
                 }
 
-                if (p.powerup.active && p.powerup.selected === Player.powerup.INVISIBILITY) c.options.setOpacity((playerIndex === p.index) ? 0.2 : 0);
+                if (p.powerup.active && p.powerup.selected === Player.powerup.INVISIBILITY) c.options.setOpacity((playerIndex === p.index || state.current === state.WATCHING_REPLAY) ? 0.2 : 0);
                 if (frames % 4 < 2 || game.ping - p.respawn >= p.spawnProtection) c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, p.x + offset.x, p.y + offset.y, p.size, p.size);
                 c.options.setOpacity();
 
@@ -2169,7 +2496,8 @@ addEventListener("DOMContentLoaded", () => {
             const m = Math.max(0, Math.floor(game.remaining / 60));
             const s = ("0" + Math.max(0, game.remaining % 60)).slice(-2);
             const liquid = (theme.current === "lava") ? "Lava" : "Water";
-            const text = (game.winner !== null) ? `Returning to menu in ${m}:${s}`
+            const text = (state.current === state.WATCHING_REPLAY && replay) ? `${replay.playingFrame} / ${replay.frames.length} (${(replay.playingFrame / replay.frames.length * 100).toFixed(0)}%)`
+             : (game.winner !== null) ? `Returning to menu in ${m}:${s}`
              : (game.remaining >= 0) ? `${liquid} starts rising in ${m}:${s}`
              : (!game.flooded) ? `${liquid} is rising!`
              : (state.is(state.PLAYING_FREEPLAY) && game.players.filter(p => p && p.lives > 0).length === 1 && game.players[playerIndex].lives > 0) ? "Congratulations!"
@@ -2177,6 +2505,7 @@ addEventListener("DOMContentLoaded", () => {
             const color = (game.remaining < 0 && game.winner === null && !game.flooded && frames % 60 < 30) ? theme.colors.error.foreground : theme.getTextColor();
             c.draw.text({text, x: 15 + screenShake.x, y: 35 + screenShake.y, color, font: {size: 28}, alignment: "left"});
             if (state.current === state.PLAYING_LAN) c.draw.text({text: `Ping: ${Math.max(0, ping)} ms`, x: c.width() - 15, y: 25, font: {size: 12}, alignment: "right"});
+            else if (state.current === state.WATCHING_REPLAY && replay) c.draw.text({text: `${replay.playbackRate}x`, x: c.width() - 575, y: 60, font: {size: 32, style: "bold"}});
         } else drawWater();
 
         if (state.current === state.MAIN_MENU) {
@@ -2264,7 +2593,15 @@ addEventListener("DOMContentLoaded", () => {
         } else if (state.current === state.ACHIEVEMENTS) {
             c.draw.text({text: "ACHIEVEMENTS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}}); 
         } else if (state.current === state.REPLAYS_MENU) {
-            c.draw.text({text: "REPLAYS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}}); 
+            c.draw.text({text: "REPLAYS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}});
+            for (let i=0; i<5; i++) {
+                if (Replay.list[i]) {
+                    const title = Replay.list[i].name.slice(0, Replay.list[i].name.indexOf("."));
+                    const subtitle = `Size: ${(Replay.list[i].size / 1e6).toFixed(1)} MB`;
+                    c.draw.text({text: title, x: c.width(1/2) - 580 + state.change.x, y: c.height(1/2) - 40 + i * 80, alignment: "left", font: {size: 36, style: "bold"}});
+                    c.draw.text({text: subtitle, x: c.width(1/2) - 580 + state.change.x, y: c.height(1/2) - 15 + i * 80, alignment: "left", font: {size: 18}});
+                } else c.draw.text({text: "Empty", x: c.width(1/2) - 580 + state.change.x, y: c.height(1/2) - 30 + i * 80, alignment: "left", font: {size: 36, style: "italic"}});
+            } 
         } else if (state.is(state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY) && game) {
             const ips = network.getIPs();
             const mainIP = ips.shift();
