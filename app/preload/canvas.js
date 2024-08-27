@@ -43,6 +43,17 @@ const height = (factor = 1) => {
     return canvas.height * factor;
 };
 
+/** Generate and export a screenshot of the canvas. */
+const screenshot = (filename) => canvas.toBlob(img => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(img);
+    a.download = filename;
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+});
+
 /** Clears the entire canvas. */
 const clear = () => {
     c.clearRect(0, 0, width(), height());
@@ -406,6 +417,7 @@ module.exports = {
     init,
     width,
     height,
+    screenshot,
     clear,
     options,
     draw

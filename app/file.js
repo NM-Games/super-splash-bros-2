@@ -9,7 +9,7 @@
  */
 
 const { app } = require("electron");
-const { readdirSync, readFileSync, writeFileSync, existsSync, rmSync, mkdirSync, statSync } = require("fs");
+const { readdirSync, readFileSync, writeFileSync, existsSync, rmSync, copyFile, mkdirSync, statSync } = require("fs");
 const { EOL } = require("os");
 const { join } = require("path");
 
@@ -102,7 +102,15 @@ const replays = {
     /** @returns {import("./class/game/Replay").ReplayContent} */
     read: (name) => read(join(paths.replayFolder, name)),
     write: (name, data) => write(join(paths.replayFolder, name), data, 0),
-    delete: (name) => rmSync(join(paths.replayFolder, name), {force: true})
+    delete: (name) => rmSync(join(paths.replayFolder, name), {force: true}),
+    export: async (name, destination) => {
+        return new Promise((resolve, reject) => {
+            copyFile(join(paths.replayFolder, name), destination, (err) => {
+                if (err) reject(err.message);
+                else resolve(destination);
+            });
+        });
+    }
 };
 
 /**

@@ -120,8 +120,15 @@ app.whenReady().then(() => {
     ipcMain.on("export-replay", (_e, name) => {
         dialog.showSaveDialog(window, {
             title: "Export replay",
-            defaultPath: join(app.getPath("downloads"), name),
+            defaultPath: join(app.getPath("home"), name),
             filters: [{name: "Super Splash Bros 2 Replay", extensions: ["*.ssb2replay"]}]
+        }).then((res) => {
+            if (res.canceled) return;
+
+            window.webContents.send("replay-export-started");
+            file.replays.export(name, res.filePath)
+             .then((path) => window.webContents.send("replay-export-finished", path))
+             .catch((err) => window.webContents.send("replay-export-error", err));
         });
     });
     ipcMain.on("delete-replay", (_e, name) => file.replays.delete(name));

@@ -14,6 +14,9 @@
 
 const { ipcRenderer } = require("electron");
 
+const { getButtonById } = require("../ui/Button");
+
+
 class Replay {
     /** @type {ReplayList[]} */
     static list = [];
@@ -42,6 +45,16 @@ class Replay {
                 this.frames = data.frames;
                 if (onloaded) onloaded();
             });
+
+            addEventListener("keydown", (e) => {
+                const key = e.key.toLowerCase();
+
+                if (key === " ") this.togglePause();
+                else if (key === "arrowleft") this.previousFrame();
+                else if (key === "arrowright") this.nextFrame();
+                else if (key === "arrowup") this.increasePlaybackRate();
+                else if (key === "arrowdown") this.decreasePlaybackRate();
+            });
         } else {
             this.#isRecording = true;
             this.name = new Intl.DateTimeFormat("nl", {dateStyle: "short", timeStyle: "medium"}).format().replace(/(,\s+|:)/g, "-");
@@ -50,10 +63,19 @@ class Replay {
     }
 
     update() {
-        if (this.#isRecording || this.paused) return;
+        if (this.#isRecording) return;
+
+        getButtonById("Replay-SaveScreenshot").disabled = !this.paused;
+        getButtonById("Replay-SlowerRate").disabled = (this.playbackRate <= -3);
+        getButtonById("Replay-FasterRate").disabled = (this.playbackRate >= 3);
+        getButtonById("Replay-PrevFrame").disabled = (this.playingFrame <= 0 || !this.paused);
+        getButtonById("Replay-NextFrame").disabled = (this.playingFrame >= this.frames.length - 1 || !this.paused);
+
+        if (this.paused) return;
 
         this.playingFrame += Math.round(this.playbackRate);
         if (this.playingFrame <= 0) {
+            this.paused = true;
             this.playingFrame = 0;
             if (this.playbackRate < 0) this.playbackRate = 1;
         } else if (this.playingFrame >= this.frames.length - 1) {
@@ -64,15 +86,28 @@ class Replay {
 
     togglePause() {
         if (this.#isRecording) return;
+
+        if (this.playingFrame === this.frames.length - 1) this.playingFrame = 0;
         this.paused = !this.paused;
     }
     previousFrame() {
-        if (this.#isRecording) return;
+        if (this.#isRecording || !this.paused) return;
         this.playingFrame = Math.max(0, this.playingFrame - 1);
     }
     nextFrame() {
-        if (this.#isRecording) return;
+        if (this.#isRecording || !this.paused) return;
         this.playingFrame = Math.min(this.frames.length - 1, this.playingFrame + 1);
+    }
+
+    increasePlaybackRate() {
+        this.playbackRate++;
+        if (this.playbackRate === 0) this.playbackRate++;
+        if (this.playbackRate >= 3) this.playbackRate = 3;
+    }
+    decreasePlaybackRate() {
+        this.playbackRate--;
+        if (this.playbackRate === 0) this.playbackRate--;
+        if (this.playbackRate <= -3) this.playbackRate = -3;
     }
 
     recordFrame(frame) {
