@@ -373,7 +373,7 @@ const gameMenu = {
     /** Toggle the game menu visibility state. */
     toggle: () => {
         if (
-            !state.is(state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL, state.WATCHING_REPLAY)
+            !state.is(state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL)
             || water.flood.enabling
             || (game && game.startState < 6)
         ) return;
@@ -386,7 +386,7 @@ const gameMenu = {
      */
     set: (to) => {
         if (
-            !state.is(state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL, state.WATCHING_REPLAY)
+            !state.is(state.PLAYING_FREEPLAY, state.PLAYING_LAN, state.PLAYING_LOCAL)
             || water.flood.enabling
             || (game && game.startState < 6)
         ) return;
@@ -524,6 +524,7 @@ const replayActions = {
         water.flood.enable(false, false, () => {
             replay = new Replay(Replay.list[index].name, () => {
                 state.current = state.WATCHING_REPLAY;
+                theme.current = replay.theme;
                 water.flood.disable();
                 parallellogram.show();
                 isInGame = true;
@@ -1356,6 +1357,14 @@ Button.items = [
     }),
     // Replay screen
     new Button({
+        icon: () => [0, 2],
+        state: state.WATCHING_REPLAY,
+        x: () => 50,
+        y: () => 50,
+        danger: true,
+        onclick: leave
+    }),
+    new Button({
         id: "Replay-ToggleHUD",
         icon: () => [Number(!parallellogram.visible), 5],
         state: state.WATCHING_REPLAY,
@@ -1372,10 +1381,7 @@ Button.items = [
         state: state.WATCHING_REPLAY,
         x: () => c.width() - 170,
         y: () => 50,
-        onclick: function() {
-            this.hovering = false;
-            replay.nextFrame();
-        }
+        onclick: () => replay.nextFrame()
     }),
     new Button({
         id: "Replay-PlayPause",
@@ -1383,10 +1389,7 @@ Button.items = [
         state: state.WATCHING_REPLAY,
         x: () => c.width() - 250,
         y: () => 50,
-        onclick: function() {
-            this.hovering = false;
-            replay.togglePause();
-        }
+        onclick: () => replay.togglePause()
     }),
     new Button({
         id: "Replay-PrevFrame",
@@ -1394,10 +1397,7 @@ Button.items = [
         state: state.WATCHING_REPLAY,
         x: () => c.width() - 330,
         y: () => 50,
-        onclick: function() {
-            this.hovering = false;
-            replay.previousFrame();
-        }
+        onclick: () => replay.previousFrame()
     }),
     new Button({
         id: "Replay-FasterRate",
@@ -1405,10 +1405,7 @@ Button.items = [
         state: state.WATCHING_REPLAY,
         x: () => c.width() - 450,
         y: () => 50,
-        onclick: function() {
-            this.hovering = false;
-            replay.increasePlaybackRate();
-        }
+        onclick: () => replay.increasePlaybackRate()
     }),
     new Button({
         id: "Replay-SlowerRate",
@@ -1416,10 +1413,7 @@ Button.items = [
         state: state.WATCHING_REPLAY,
         x: () => c.width() - 600,
         y: () => 50,
-        onclick: function() {
-            this.hovering = false;
-            replay.decreasePlaybackRate();
-        }
+        onclick: () => replay.decreasePlaybackRate()
     }),
     new Button({
         id: "Replay-SaveScreenshot",
@@ -1429,7 +1423,7 @@ Button.items = [
         y: () => 50,
         onclick: function() {
             this.hovering = false;
-            c.screenshot(`${replay.name.slice(0, replay.name.lastIndexOf("."))}-frame-${replay.playingFrame}.png`)
+            c.screenshot(`${replay.name.slice(0, replay.name.lastIndexOf("."))}-frame-${replay.frameIndex}.png`)
         }
     }),
     // LAN game waiting menu (host)
@@ -2106,7 +2100,7 @@ addEventListener("DOMContentLoaded", () => {
             if (replay && config.misc.recordReplays && game.ping - game.startedOn >= 3000) replay.recordFrame(game);
         } else if (state.is(state.WATCHING_REPLAY)) {
             replay.update();
-            game = replay.frames[replay.playingFrame];
+            game = replay.frames[replay.frameIndex];
         }
 
         if (game) {
@@ -2542,9 +2536,9 @@ addEventListener("DOMContentLoaded", () => {
             const color = (game.remaining < 0 && game.winner === null && !game.flooded && frames % 60 < 30) ? theme.colors.error.foreground : theme.getTextColor();
 
             if (state.current === state.WATCHING_REPLAY && replay) {
-                const replayInformation = `Frame ${replay.playingFrame} / ${replay.frames.length - 1} (${(replay.playingFrame / (replay.frames.length - 1) * 100).toFixed(0)}%)`;
-                c.draw.text({text: replayInformation, x: 15 + screenShake.x, y: 35 + screenShake.y, font: {size: 28}, alignment: "left"});
-                c.draw.text({text, x: 15 + screenShake.x, y: 65 + screenShake.y, color, font: {size: 20, style: "italic"}, alignment: "left"});
+                const replayInformation = `Frame ${replay.frameIndex} / ${replay.frames.length - 1} (${(replay.frameIndex / (replay.frames.length - 1) * 100).toFixed(0)}%)`;
+                c.draw.text({text: replayInformation, x: 100, y: 45, font: {size: 28}, alignment: "left"});
+                c.draw.text({text, x: 100, y: 75, color, font: {size: 20, style: "italic"}, alignment: "left"});
             } else c.draw.text({text, x: 15 + screenShake.x, y: 35 + screenShake.y, color, font: {size: 28}, alignment: "left"});
 
             if (state.current === state.PLAYING_LAN) c.draw.text({text: `Ping: ${Math.max(0, ping)} ms`, x: c.width() - 15, y: 25, font: {size: 12}, alignment: "right"});

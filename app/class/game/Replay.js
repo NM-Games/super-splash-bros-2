@@ -35,7 +35,7 @@ class Replay {
         if (name) {
             this.#isRecording = false;
             this.name = name;
-            this.playingFrame = 0;
+            this.frameIndex = 0;
             this.playbackRate = 1;
             this.paused = false;
             ipcRenderer.send("load-replay", name);
@@ -68,18 +68,23 @@ class Replay {
         getButtonById("Replay-SaveScreenshot").disabled = !this.paused;
         getButtonById("Replay-SlowerRate").disabled = (this.playbackRate <= -3);
         getButtonById("Replay-FasterRate").disabled = (this.playbackRate >= 3);
-        getButtonById("Replay-PrevFrame").disabled = (this.playingFrame <= 0 || !this.paused);
-        getButtonById("Replay-NextFrame").disabled = (this.playingFrame >= this.frames.length - 1 || !this.paused);
+        getButtonById("Replay-PrevFrame").disabled = (this.frameIndex <= 0 || !this.paused);
+        getButtonById("Replay-NextFrame").disabled = (this.frameIndex >= this.frames.length - 1 || !this.paused);
+        if (getButtonById("Replay-SaveScreenshot").disabled) getButtonById("Replay-SaveScreenshot").hovering = false;
+        if (getButtonById("Replay-SlowerRate").disabled) getButtonById("Replay-SlowerRate").hovering = false;
+        if (getButtonById("Replay-FasterRate").disabled) getButtonById("Replay-FasterRate").hovering = false;
+        if (getButtonById("Replay-PrevFrame").disabled) getButtonById("Replay-PrevFrame").hovering = false;
+        if (getButtonById("Replay-NextFrame").disabled) getButtonById("Replay-NextFrame").hovering = false;
 
         if (this.paused) return;
 
-        this.playingFrame += Math.round(this.playbackRate);
-        if (this.playingFrame <= 0) {
+        this.frameIndex += Math.round(this.playbackRate);
+        if (this.frameIndex <= 0) {
             this.paused = true;
-            this.playingFrame = 0;
+            this.frameIndex = 0;
             if (this.playbackRate < 0) this.playbackRate = 1;
-        } else if (this.playingFrame >= this.frames.length - 1) {
-            this.playingFrame = this.frames.length - 1;
+        } else if (this.frameIndex >= this.frames.length - 1) {
+            this.frameIndex = this.frames.length - 1;
             this.paused = true;
         }
     }
@@ -87,16 +92,16 @@ class Replay {
     togglePause() {
         if (this.#isRecording) return;
 
-        if (this.playingFrame === this.frames.length - 1) this.playingFrame = 0;
+        if (this.frameIndex === this.frames.length - 1) this.frameIndex = 0;
         this.paused = !this.paused;
     }
     previousFrame() {
         if (this.#isRecording || !this.paused) return;
-        this.playingFrame = Math.max(0, this.playingFrame - 1);
+        this.frameIndex = Math.max(0, this.frameIndex - 1);
     }
     nextFrame() {
         if (this.#isRecording || !this.paused) return;
-        this.playingFrame = Math.min(this.frames.length - 1, this.playingFrame + 1);
+        this.frameIndex = Math.min(this.frames.length - 1, this.frameIndex + 1);
     }
 
     increasePlaybackRate() {

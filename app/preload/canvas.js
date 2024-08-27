@@ -371,6 +371,8 @@ const draw = {
         if (button.icon) {
             const iconSize = button.width / 1.5;
             if (!button.active) options.filter.add("brightness(100)");
+            else if (button.danger) options.filter.add("hue-rotate(180deg)", "saturate(7)");
+
             draw.croppedImage(
                 image.buttons,
                 initial.width + initial.iconButton + button.icon()[0] * 120,
@@ -382,7 +384,7 @@ const draw = {
                 iconSize,
                 iconSize
             );
-            options.filter.remove("brightness");
+            options.filter.remove("brightness", "hue-rotate", "saturate");
         } else draw.text({text: button.text, x: button.x() + offsetX, y: button.y(), color, font: {size: 32 * button.scale}, baseline: "middle"});
     },
     /**
