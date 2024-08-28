@@ -272,6 +272,12 @@ const updateKeybinds = () => {
     ipcRenderer.send("update-config", config);
 };
 
+/**
+ * Check if the Infinite rockets superpower applies to the rocket counter.
+ * @param {number} x
+ */
+const infiniteRocketCount = (x) => [null, Infinity].includes(x);
+
 /** @type {import("../file").Settings} */
 const config = {appearance: {}, graphics: {}, controls: {}, audio: {}};
 const versions = {game: "", electron: "", chromium: "", status: ""};
@@ -2537,15 +2543,15 @@ addEventListener("DOMContentLoaded", () => {
                     c.draw.image(image.explosion, x + parallellogramWidth - offsets.rockets - 12, y + 5, 24, 24);
                     c.options.setShadow(theme.colors.shadow, 2);
 
-                    if (frames % 4 < 2 || [0, Infinity].includes(p.attacks.rocket.count) || game.ping - p.attacks.rocket.lastPerformed >= p.attacks.rocket.cooldown) c.draw.text({
-                        text: isFinite(p.attacks.rocket.count) ? p.attacks.rocket.count : "∞",
+                    if (frames % 4 < 2 || [0, null, Infinity].includes(p.attacks.rocket.count) || game.ping - p.attacks.rocket.lastPerformed >= p.attacks.rocket.cooldown) c.draw.text({
+                        text: infiniteRocketCount(p.attacks.rocket.count) ? "∞" : p.attacks.rocket.count,
                         x: x + parallellogramWidth - offsets.rockets,
                         y: y + 18,
                         color: (p.attacks.rocket.count === 0) ? theme.colors.error.foreground : theme.colors.text.light,
                         font: {size: 18},
                         baseline: "middle"
                     });
-                    if (game.startState >= 6 && p.attacks.rocket.count < Player.maxRockets && isFinite(p.attacks.rocket.count)) c.draw.stroke.arc(theme.colors.text.light, x + parallellogramWidth - offsets.rockets, y + 17, 13, 2, (game.ping - p.attacks.rocket.lastRegenerated) / p.attacks.rocket.regenerationInterval);
+                    if (game.startState >= 6 && p.attacks.rocket.count < Player.maxRockets && !infiniteRocketCount(p.attacks.rocket.count)) c.draw.stroke.arc(theme.colors.text.light, x + parallellogramWidth - offsets.rockets, y + 17, 13, 2, (game.ping - p.attacks.rocket.lastRegenerated) / p.attacks.rocket.regenerationInterval);
                 }
                 c.options.setShadow();
                 c.options.setOpacity();
