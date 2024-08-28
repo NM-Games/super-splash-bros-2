@@ -9,9 +9,19 @@
  */
 
 const { app } = require("electron");
-const { readdirSync, readFileSync, writeFileSync, existsSync, rmSync, copyFile, mkdirSync, statSync } = require("fs");
+const {
+    readdirSync,
+    readFileSync,
+    writeFileSync,
+    existsSync,
+    rmSync,
+    copyFile,
+    mkdirSync,
+    statfsSync,
+    statSync
+} = require("fs");
 const { EOL } = require("os");
-const { join } = require("path");
+const { join, parse } = require("path");
 
 const { generateName } = require("./class/game/Player");
 
@@ -91,13 +101,15 @@ const replays = {
         const items = readdirSync(paths.replayFolder);
         for (const i of items) {
             const stats = statSync(join(paths.replayFolder, i));
-            payload.push({
-                name: i,
-                size: stats.size,
-                time: stats.birthtimeMs
-            });
+            payload.push({name: i, size: stats.size});
         }
-        return payload.sort((a, b) => a.time < b.time).slice(0, 5);
+
+        payload.reverse();
+        const listable = payload.slice(0, 5);
+        const toRemove = payload.slice(5).map(r => r.name);
+        for (const i of toRemove) rmSync(join(paths.replayFolder, i));
+
+        return listable;
     },
     /** @returns {import("./class/game/Replay").ReplayContent} */
     read: (name) => read(join(paths.replayFolder, name)),
@@ -105,12 +117,24 @@ const replays = {
     delete: (name) => rmSync(join(paths.replayFolder, name), {force: true}),
     export: async (name, destination) => {
         return new Promise((resolve, reject) => {
-            copyFile(join(paths.replayFolder, name), destination, (err) => {
-                if (err) reject(err.message);
-                else resolve(destination);
+            if (parse(destination).dir === paths.replayFolder) reject("Cannot export into replay directory!");
+            else copyFile(join(paths.replayFolder, name), destination, (err) => {
+                if (err) reject(err.message); else {
+                    replays.list(); // remove the older replays
+                    resolve(destination);
+                }
             });
         });
     }
+};
+
+/**
+ * Get the amount of free space. Useful for replay record checking.
+ * @returns {number} - The amount of gigabytes free on the disk of the app data folder.
+ */
+const space = () => {
+    const stats = statfsSync(app.getPath("appData"));
+    return stats.bsize * stats.bfree / 1e9;
 };
 
 /**
@@ -137,4 +161,4 @@ const init = () => {
     }
 };
 
-module.exports = {init, settings, replays};
+module.exports = {init, space, settings, replays};

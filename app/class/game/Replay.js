@@ -8,7 +8,6 @@
  * @typedef {{
  *  name: string,
  *  size: number,
- *  time: number
  * }} ReplayList
  */
 

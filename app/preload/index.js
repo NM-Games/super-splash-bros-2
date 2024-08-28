@@ -107,6 +107,24 @@ const checkForUpdates = () => {
     }).catch(() => versions.status = "Failed to check for updates");
 };
 
+const cannotSaveReplayAlert = () => {
+    if (config.misc.recordReplays) Button.getButtonById("DoReplayRecording").onclick();
+    Button.getButtonById("DoReplayRecording").disabled = true;
+    dialog.show(
+        "You are running low on disk space!",
+        "Replay recording is disabled to prevent more chonky files.",
+        new Button({
+            text: "Close",
+            x: () => c.width(0.5),
+            y: () => c.height(0.75),
+            onclick: () => {
+                dialog.close();
+                checkForUpdates();
+            }
+        })
+    );
+};
+
 /**
  * Enable or disable the connect elements in the LAN mode menu.
  * @param {boolean} disabled
@@ -481,24 +499,7 @@ const konamiEasterEgg = {
     isActive: () => konamiEasterEgg.index >= konamiEasterEgg.keys.length,
     deactivate: () => konamiEasterEgg.index = 0
 };
-
-let frames = 0;
-let game = socket.getGame();
-/** @type {game} */
-let lgame;
-/** @type {Game} */
-let instance;
-/** @type {Replay} */
-let replay;
-let ping = 0;
-let isInGame = false;
-let playerIndex = -1;
-let banButton = {
-    hoverIndex: -1,
-    active: false
-};
-let lastKeys = JSON.parse(JSON.stringify(keys));
-let parallellogram = {
+const parallellogram = {
     visible: false,
     moving: false,
     offset: 119,
@@ -586,6 +587,24 @@ const replayActions = {
         );
     }
 };
+
+let frames = 0;
+let game = socket.getGame();
+/** @type {game} */
+let lgame;
+/** @type {Game} */
+let instance;
+/** @type {Replay} */
+let replay;
+let ping = 0;
+let isInGame = false;
+let playerIndex = -1;
+let banButton = {
+    hoverIndex: -1,
+    active: false
+};
+let freeDiskSpace = Infinity;
+let lastKeys = JSON.parse(JSON.stringify(keys));
 
 Button.items = [
     // Main menu
@@ -1362,10 +1381,13 @@ Button.items = [
         x: () => 50,
         y: () => 50,
         danger: true,
-        onclick: leave
+        onclick: function() {
+            this.hovering = false;
+            replay.paused = true;
+            leave();
+        }
     }),
     new Button({
-        id: "Replay-ToggleHUD",
         icon: () => [Number(!parallellogram.visible), 5],
         state: state.WATCHING_REPLAY,
         x: () => c.width() - 50,
@@ -1384,7 +1406,6 @@ Button.items = [
         onclick: () => replay.nextFrame()
     }),
     new Button({
-        id: "Replay-PlayPause",
         icon: () => [Number(!replay.paused), 3],
         state: state.WATCHING_REPLAY,
         x: () => c.width() - 250,
@@ -1869,9 +1890,10 @@ addEventListener("DOMContentLoaded", () => {
         Button.getButtonById("Fullscreen").text = `Full screen: ${enabled ? "ON":"OFF"}`;
         ipcRenderer.send("update-config", config);
     });
-    ipcRenderer.on("start", (_e, conf, ver, maxWidth) => {
+    ipcRenderer.on("start", (_e, conf, ver, diskSpace, maxWidth) => {
         for (let i in conf) config[i] = conf[i];
         for (let i in ver) versions[i] = ver[i];
+        freeDiskSpace = diskSpace;
         MenuSprite.generate(maxWidth);
 
         Input.getInputById("Username").value = config.appearance.playerName;
@@ -2093,11 +2115,11 @@ addEventListener("DOMContentLoaded", () => {
         frames++;
         if (socket.isOpen()) {
             game = socket.getGame();
-            if (replay && config.misc.recordReplays && game.ping - game.startedOn >= 3000) replay.recordFrame(game);
+            if (replay && config.misc.recordReplays) replay.recordFrame(game);
         } else if (state.is(state.WAITING_LOCAL, state.PLAYING_LOCAL, state.WAITING_FREEPLAY, state.PLAYING_FREEPLAY)) {
             instance.update();
             game = instance.export();
-            if (replay && config.misc.recordReplays && game.ping - game.startedOn >= 3000) replay.recordFrame(game);
+            if (replay && config.misc.recordReplays) replay.recordFrame(game);
         } else if (state.is(state.WATCHING_REPLAY)) {
             replay.update();
             game = replay.frames[replay.frameIndex];
@@ -2113,7 +2135,6 @@ addEventListener("DOMContentLoaded", () => {
 
             if (lgame.startState === 0 && game.startState === 1) {
                 water.flood.enable(false, true);
-                replay = new Replay();
             } else if (lgame.startState === 1 && game.startState === 2) {
                 state.current = (state.current === state.WAITING_LOCAL) ? state.PLAYING_LOCAL
                 : (state.current === state.WAITING_FREEPLAY) ? state.PLAYING_FREEPLAY
@@ -2121,6 +2142,7 @@ addEventListener("DOMContentLoaded", () => {
                 : state.current;
                 isInGame = true;
                 water.flood.disable();
+                replay = new Replay();
             } else if (lgame.startState === 2 && game.startState === 3) {
                 audio._play(audio.countdown);
                 bigNotification.show("3", theme.colors.bigNotification.r);
@@ -2223,7 +2245,9 @@ addEventListener("DOMContentLoaded", () => {
         if (frames === introLogo.duration) {
             water.flood.disable();
             audio.music.play();
-            checkForUpdates();
+
+            if (freeDiskSpace > 2) checkForUpdates();
+            else cannotSaveReplayAlert();
         }
 
         if (frames - errorAlert.shownAt >= errorAlert.duration && errorAlert.visible) errorAlert.visible = false;

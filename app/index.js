@@ -65,9 +65,10 @@ app.whenReady().then(() => {
         window.webContents.send("start",
             file.settings.get(),
             {game: version, electron: process.versions.electron, chromium: process.versions.chrome},
+            file.space(),
             totalWidth
         );
-
+        
         window.webContents.send("fullscreen-status", window.isFullScreen());
         window.show();
     });
@@ -121,7 +122,7 @@ app.whenReady().then(() => {
         dialog.showSaveDialog(window, {
             title: "Export replay",
             defaultPath: join(app.getPath("home"), name),
-            filters: [{name: "Super Splash Bros 2 Replay", extensions: ["*.ssb2replay"]}]
+            filters: [{name: "Super Splash Bros 2 Replay", extensions: ["ssb2replay"]}]
         }).then((res) => {
             if (res.canceled) return;
 
