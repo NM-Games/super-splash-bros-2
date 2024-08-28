@@ -157,4 +157,10 @@ Be careful though:
 - You will lose your power-up if you fall into water!
 - After three minutes, the water level will start to rise, making it very difficult to reach the fish in the late game.
 
+## Replays
+Did something cool? Or are you wondering what actually happened in the midst of that chaotic moment? No worries. Since version 1.1.0, Super Splash Bros 2 has a replay system, where you can look back at the games you have played.
+> **DISCLAIMER:** The Replay system is just a wild experiment. Even though the system is tested thoroughly on the developer's devices, it may not work (well) on yours. We also do not recommend this feature for arm64 devices.  
+> Furthermore, replay files can take hundreds of megabytes of disk space. Therefore, replay recording is disabled by default, and only 5 replays will be kept. Older replays will be deleted if a new one is saved. There is a possibility to export replays, so they will never get lost.  
+> Replay recording is always disabled when there is less than 2 GB remaining on the disk where replays are saved.
+
 # Have fun!
