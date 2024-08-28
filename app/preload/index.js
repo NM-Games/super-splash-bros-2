@@ -519,11 +519,12 @@ const parallellogram = {
 const replayActions = {
     /**
      * Watch a replay.
-     * @param {number} index
+     * @param {number | string} target - The index of the replay list, or the full path to an imported replay.
      */
-    watch: (index) => {
+    watch: (target) => {
+        const path = (typeof target === "number") ? `%%r/${Replay.list[target].name}` : target;
         water.flood.enable(false, false, () => {
-            replay = new Replay(Replay.list[index].name, () => {
+            replay = new Replay(path, () => {
                 state.current = state.WATCHING_REPLAY;
                 theme.current = replay.theme;
                 water.flood.disable();
@@ -533,16 +534,19 @@ const replayActions = {
         });
     },
     /**
+     * Import and watch a replay.
+     */
+    import: () => {
+        ipcRenderer.send("import-replay");
+        ipcRenderer.once("replay-imported", (_e, path) => replayActions.watch(path));
+    },
+    /**
      * Export a replay.
      * @param {number} index
      */
     export: (index) => {
         ipcRenderer.send("export-replay", Replay.list[index].name);
         ipcRenderer.once("replay-export-started", () => dialog.show("Exporting replay...", "This may take a while."));
-        ipcRenderer.once("replay-export-error", (_e, err) => {
-            dialog.close();
-            errorAlert.show(err)
-        });
         ipcRenderer.once("replay-export-finished", (_e, path) => dialog.show("Replay exported!", "", new Button({
             text: "Close",
             x: () => c.width(0.35),
@@ -1166,12 +1170,23 @@ Button.items = [
         text: "Record replays",
         state: state.REPLAYS_MENU,
         width: Button.width + 50,
-        x: () => c.width(1/2),
+        x: () => c.width(1/3),
         y: () => c.height(0.375) - 70,
         onclick: function() {
             config.misc.recordReplays = !config.misc.recordReplays;
             this.text = `Record replays: ${config.misc.recordReplays ? "ON":"OFF"}`;
             ipcRenderer.send("update-config", config);
+        }
+    }),
+    new Button({
+        text: "Import replay",
+        state: state.REPLAYS_MENU,
+        width: Button.width + 50,
+        x: () => c.width(2/3),
+        y: () => c.height(0.375) - 70,
+        onclick: function() {
+            this.hovering = false;
+            replayActions.import();
         }
     }),
     new Button({
@@ -1913,6 +1928,11 @@ addEventListener("DOMContentLoaded", () => {
         }
 
         audio._update(config.audio);
+    });
+    ipcRenderer.on("replay-error", (_e, err) => {
+        dialog.close();
+        water.flood.disable();
+        errorAlert.show(err);
     });
     ipcRenderer.on("gameserver-error", (_e, err) => {
         errorAlert.show(`${err.name}: ${err.message}`);

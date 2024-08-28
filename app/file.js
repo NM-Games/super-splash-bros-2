@@ -10,8 +10,9 @@
 
 const { app } = require("electron");
 const {
-    readdirSync,
+    readFile,
     readFileSync,
+    readdirSync,
     writeFileSync,
     existsSync,
     rmSync,
@@ -112,9 +113,24 @@ const replays = {
         return listable;
     },
     /** @returns {import("./class/game/Replay").ReplayContent} */
-    read: (name) => read(join(paths.replayFolder, name)),
+    read: (name) => read(name.replace(/^%%r/, paths.replayFolder)),
     write: (name, data) => write(join(paths.replayFolder, name), data, 0),
     delete: (name) => rmSync(join(paths.replayFolder, name), {force: true}),
+    validate: async (path) => {
+        return new Promise((resolve, reject) => {
+            readFile(path.replace(/^%%r/, paths.replayFolder), (err, res) => {
+                if (err) reject(err.message); else {
+                    const data = new TextDecoder().decode(res);
+                    let json;
+                    try { 
+                        json = JSON.parse(data);
+                        if (json.version && json.theme && json.frames) resolve();
+                        else reject("That does not look like a replay!");
+                    } catch { reject("That does not look like a replay!") }
+                }
+            });
+        });
+    },
     export: async (name, destination) => {
         return new Promise((resolve, reject) => {
             if (parse(destination).dir === paths.replayFolder) reject("Cannot export into replay directory!");

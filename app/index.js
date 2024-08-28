@@ -116,7 +116,11 @@ app.whenReady().then(() => {
     ipcMain.on("lan-start", () => gameserver.postMessage("start"));
 
     ipcMain.on("get-replays", () => window.webContents.send("replay-list", file.replays.list()));
-    ipcMain.on("load-replay", (_e, name) => window.webContents.send("replay-loaded", file.replays.read(name)));
+    ipcMain.on("load-replay", (_e, name) => {
+        file.replays.validate(name)
+         .then(() => window.webContents.send("replay-loaded", file.replays.read(name)))
+         .catch((err) => window.webContents.send("replay-error", err));
+    });
     ipcMain.on("save-replay", (_e, name, data) => file.replays.write(`${name}.ssb2replay`, data));
     ipcMain.on("export-replay", (_e, name) => {
         dialog.showSaveDialog(window, {
@@ -129,9 +133,21 @@ app.whenReady().then(() => {
             window.webContents.send("replay-export-started");
             file.replays.export(name, res.filePath)
              .then((path) => window.webContents.send("replay-export-finished", path))
-             .catch((err) => window.webContents.send("replay-export-error", err));
+             .catch((err) => window.webContents.send("replay-error", err));
         });
     });
+    ipcMain.on("import-replay", () => {
+        dialog.showOpenDialog(window, {
+            title: "Import and watch replay",
+            defaultPath: app.getPath("home"),
+            filters: [{name: "Super Splash Bros 2 Replay", extensions: ["ssb2replay"]}],
+            properties: ["openFile"]
+        }).then((res) => {
+            if (res.canceled) return;
+
+            window.webContents.send("replay-imported", res.filePaths[0]);
+        });
+    })
     ipcMain.on("delete-replay", (_e, name) => file.replays.delete(name));
 
     ipcMain.on("discord-activity-update", (_e, state, playerIndex, playerName, partySize, partyMax, startTimestamp) => {
