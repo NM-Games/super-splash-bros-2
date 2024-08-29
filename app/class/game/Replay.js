@@ -19,6 +19,7 @@ const { getButtonById } = require("../ui/Button");
 class Replay {
     /** @type {ReplayList[]} */
     static list = [];
+    static isSaving = false;
 
     theme;
     version;
@@ -141,11 +142,14 @@ class Replay {
     
     save() {
         if (!this.#isRecording) return;
+
+        Replay.isSaving = true;
         ipcRenderer.send("save-replay", this.name, {
             version: this.version,
             theme: this.theme,
             frames: this.frames
         });
+        ipcRenderer.once("replay-saved", () => Replay.isSaving = false);
     }
 }
 

@@ -121,7 +121,9 @@ app.whenReady().then(() => {
          .then(() => window.webContents.send("replay-loaded", file.replays.read(name)))
          .catch((err) => window.webContents.send("replay-error", err));
     });
-    ipcMain.on("save-replay", (_e, name, data) => file.replays.write(`${name}.ssb2replay`, data));
+    ipcMain.on("save-replay", (_e, name, data) => {
+        file.replays.write(`${name}.ssb2replay`, data, () => window.webContents.send("replay-saved"));
+    });
     ipcMain.on("export-replay", (_e, name) => {
         dialog.showSaveDialog(window, {
             title: "Export replay",

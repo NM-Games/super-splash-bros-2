@@ -2370,6 +2370,7 @@ addEventListener("DOMContentLoaded", () => {
                 water.imageX += image.water.width;
             }
             if (state.is(state.MAIN_MENU)) c.draw.text({text: `v${versions.game}`, x: 8 + state.change.x, y: water.flood.level - 15, color: theme.colors.ui.primary, font: {size: 26}, alignment: "left"});
+            if (Replay.isSaving) c.draw.text({text: `Saving replay...`, x: c.width() - 8 - state.change.x, y: c.height() - 15, color: theme.colors.text.light, font: {size: 26, shadow: true}, alignment: "right"});
 
             c.options.filter.remove("hue-rotate", "brightness", "saturate");
         };

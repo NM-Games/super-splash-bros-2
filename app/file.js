@@ -13,7 +13,7 @@ const {
     readFile,
     readFileSync,
     readdirSync,
-    writeFileSync,
+    writeFile,
     existsSync,
     rmSync,
     copyFile,
@@ -81,10 +81,11 @@ const read = (file) => {
  * @param {string} file
  * @param {object} data
  * @param {number} spaces
+ * @param {import("fs").NoParamCallback} onfinished
  */
-const write = (file, data, spaces = 4) => {
+const write = (file, data, spaces = 4, onfinished = () => {}) => {
     const json = JSON.stringify(data, null, spaces);
-    writeFileSync(file, json.replaceAll("\n", EOL) + EOL);
+    writeFile(file, json.replaceAll("\n", EOL) + EOL, onfinished);
 };
 
 // Settings file
@@ -114,7 +115,7 @@ const replays = {
     },
     /** @returns {import("./class/game/Replay").ReplayContent} */
     read: (name) => read(name.replace(/^%%r/, paths.replayFolder)),
-    write: (name, data) => write(join(paths.replayFolder, name), data, 0),
+    write: (name, data, onfinished) => write(join(paths.replayFolder, name), data, 0, onfinished),
     delete: (name) => rmSync(join(paths.replayFolder, name), {force: true}),
     validate: async (path) => {
         return new Promise((resolve, reject) => {
