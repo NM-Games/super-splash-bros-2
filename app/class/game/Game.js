@@ -102,8 +102,9 @@ class Game {
     startedOn;
     endedOn;
     mode;
-    /** Applies to Freeplay mode only! */
+    /** These two below apply to Freeplay mode only! */
     dummyDifficulty;
+    chaosPowerupsGranted;
     /** @type {string[]} */
     blacklist;
     /** @type {number} */
@@ -136,7 +137,10 @@ class Game {
             spawned: false,
             lastSpawned: false
         };
-        if (mode === "freeplay") this.dummyDifficulty = 0;
+        if (mode === "freeplay") {
+            this.dummyDifficulty = 0;
+            this.chaosPowerupsGranted = false;
+        }
         this.startState = 0;
         this.startedOn = -6e9;
         this.endedOn = -6e9;
@@ -268,9 +272,10 @@ class Game {
 
         this.elapsed = this.ping - this.startedOn - 8900;
         if (this.elapsed >= Game.floodDelay * 1000) this.floodLevel = Math.max(Game.floodMaxLevel, this.floodLevel - 0.1);
-        if (this.elapsed % 30000 < 150 && this.dummyDifficulty === 4) {
+        if (this.elapsed % 30000 < 15000 && this.dummyDifficulty === 4 && !this.chaosPowerupsGranted) {
+            this.chaosPowerupsGranted = true;
             for (const p of this.getPlayers()) p.powerup.available = (p.lives > 0);
-        }
+        } else if (this.elapsed % 30000 > 15000 && this.dummyDifficulty === 4) this.chaosPowerupsGranted = false;
 
         const alive = [];
         for (let i=0; i<this.players.length; i++) {

@@ -12,8 +12,9 @@
     - [ ] New ones?
 
 ## Also in next version, but it came to mind while working on it
-- [ ] Fix freeplay CHAOS mode power-up issue
+- [x] Fix freeplay CHAOS mode power-up issue
 - [x] Make appearance settings easier findable when navigating to the games
+- [ ] More sound effects
 
 ## Possibly in next version, if it works out well
 - [ ] Steam Deck support (feat. @mmvanheusden)
