@@ -702,8 +702,8 @@ Button.items = [
     new Button({
         text: "Local mode",
         state: state.PLAY_MENU,
-        x: () => c.width(1/4),
-        y: () => c.height(1/2) - 50,
+        x: () => c.width(0.7),
+        y: () => 300,
         onclick: function() {
             this.hovering = false;
             state.change.to(state.WAITING_LOCAL, false, () => {
@@ -721,8 +721,8 @@ Button.items = [
         id: "LANMode",
         text: "LAN mode",
         state: state.PLAY_MENU,
-        x: () => c.width(1/2),
-        y: () => c.height(1/2) - 50,
+        x: () => c.width(0.7),
+        y: () => 420,
         onclick: function() {
             this.hovering = false;
             state.change.to(state.LAN_GAME_MENU, false);
@@ -731,8 +731,8 @@ Button.items = [
     new Button({
         text: "Freeplay mode",
         state: state.PLAY_MENU,
-        x: () => c.width(3/4),
-        y: () => c.height(1/2) - 50,
+        x: () => c.width(0.7),
+        y: () => 540,
         onclick: function() {
             this.hovering = false;
             state.change.to(state.WAITING_FREEPLAY, false, () => {
@@ -998,8 +998,8 @@ Button.items = [
     // for the sprite color switch:
     new Button({
         icon: () => [0, 2],
-        state: state.SETTINGS,
-        x: () => c.width(0.2) - Button.width / 2 + state.change.x,
+        state: state.PLAY_MENU,
+        x: () => c.width(0.3) - Button.width / 2 + state.change.x,
         y: () => 470,
         width: Button.height / 2,
         height: Button.height / 2,
@@ -1010,8 +1010,8 @@ Button.items = [
     }),
     new Button({
         icon: () => [1, 2],
-        state: state.SETTINGS,
-        x: () => c.width(0.2) + Button.width / 2 + state.change.x,
+        state: state.PLAY_MENU,
+        x: () => c.width(0.3) + Button.width / 2 + state.change.x,
         y: () => 470,
         width: Button.height / 2,
         height: Button.height / 2,
@@ -1023,8 +1023,8 @@ Button.items = [
     // for the powerup switch:
     new Button({
         icon: () => [0, 2],
-        state: state.SETTINGS,
-        x: () => c.width(0.2) - Button.width / 2 + state.change.x,
+        state: state.PLAY_MENU,
+        x: () => c.width(0.3) - Button.width / 2 + state.change.x,
         y: () => 650,
         width: Button.height / 2,
         height: Button.height / 2,
@@ -1036,8 +1036,8 @@ Button.items = [
     }),
     new Button({
         icon: () => [1, 2],
-        state: state.SETTINGS,
-        x: () => c.width(0.2) + Button.width / 2 + state.change.x,
+        state: state.PLAY_MENU,
+        x: () => c.width(0.3) + Button.width / 2 + state.change.x,
         y: () => 650,
         width: Button.height / 2,
         height: Button.height / 2,
@@ -1051,7 +1051,7 @@ Button.items = [
         id: "Theme",
         text: "Theme",
         state: state.SETTINGS,
-        x: () => c.width(1/2),
+        x: () => c.width(0.3),
         y: () => 280,
         onclick: function() {
             config.graphics.theme = theme.current = theme.cycle();
@@ -1063,7 +1063,7 @@ Button.items = [
         id: "Fullscreen",
         text: "Full screen",
         state: state.SETTINGS,
-        x: () => c.width(1/2),
+        x: () => c.width(0.3),
         y: () => 380,
         onclick: function() {
             ipcRenderer.send("toggle-fullscreen");
@@ -1074,7 +1074,7 @@ Button.items = [
         id: "WaterFlow",
         text: "Water flow",
         state: state.SETTINGS,
-        x: () => c.width(1/2),
+        x: () => c.width(0.3),
         y: () => 480,
         onclick: function() {
             config.graphics.waterFlow = !config.graphics.waterFlow;
@@ -1086,7 +1086,7 @@ Button.items = [
         id: "MenuSprites",
         text: "Menu sprites: ON",
         state: state.SETTINGS,
-        x: () => c.width(1/2),
+        x: () => c.width(0.3),
         y: () => 580,
         onclick: function() {
             config.graphics.menuSprites = !config.graphics.menuSprites;
@@ -1794,8 +1794,8 @@ Input.items = [
     }),
     new Input({
         id: "Username",
-        state: state.SETTINGS,
-        x: () => c.width(1/5),
+        state: state.PLAY_MENU,
+        x: () => c.width(0.3),
         y: () => 285,
         width: Button.width + 50,
         size: 25,
@@ -1808,7 +1808,7 @@ Input.items = [
     new Input({
         id: "Keybind-moveLeft",
         state: state.SETTINGS,
-        x: () => c.width(4/5) + 150,
+        x: () => c.width(0.7) + 150,
         y: () => 240,
         width: 100,
         keybind: true,
@@ -1817,7 +1817,7 @@ Input.items = [
     new Input({
         id: "Keybind-moveRight",
         state: state.SETTINGS,
-        x: () => c.width(4/5) + 150,
+        x: () => c.width(0.7) + 150,
         y: () => 300,
         width: 100,
         keybind: true,
@@ -1826,7 +1826,7 @@ Input.items = [
     new Input({
         id: "Keybind-jump",
         state: state.SETTINGS,
-        x: () => c.width(4/5) + 150,
+        x: () => c.width(0.7) + 150,
         y: () => 360,
         width: 100,
         keybind: true,
@@ -1835,7 +1835,7 @@ Input.items = [
     new Input({
         id: "Keybind-attack",
         state: state.SETTINGS,
-        x: () => c.width(4/5) + 150,
+        x: () => c.width(0.7) + 150,
         y: () => 420,
         width: 100,
         keybind: true,
@@ -1844,7 +1844,7 @@ Input.items = [
     new Input({
         id: "Keybind-launchRocket",
         state: state.SETTINGS,
-        x: () => c.width(4/5) + 150,
+        x: () => c.width(0.7) + 150,
         y: () => 480,
         width: 100,
         keybind: true,
@@ -1853,7 +1853,7 @@ Input.items = [
     new Input({
         id: "Keybind-activatePowerup",
         state: state.SETTINGS,
-        x: () => c.width(4/5) + 150,
+        x: () => c.width(0.7) + 150,
         y: () => 540,
         width: 100,
         keybind: true,
@@ -1862,7 +1862,7 @@ Input.items = [
     new Input({
         id: "Keybind-gameMenu",
         state: state.SETTINGS,
-        x: () => c.width(4/5) + 150,
+        x: () => c.width(0.7) + 150,
         y: () => 600,
         width: 100,
         keybind: true,
@@ -2606,6 +2606,21 @@ addEventListener("DOMContentLoaded", () => {
             c.options.setShadow();
         } else if (state.current === state.PLAY_MENU) {
             c.draw.text({text: "PLAY GAME", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}});
+
+            c.draw.text({text: "APPEARANCE", x: c.width(0.3) + state.change.x, y: 180, font: {size: 32, style: "bold", shadow: true}});
+            c.draw.text({text: "GAME MODES", x: c.width(0.7) + state.change.x, y: 180, font: {size: 32, style: "bold", shadow: true}});
+            c.draw.text({text: "Player name:", x: c.width(0.3) - Button.width / 2 - 25 + state.change.x, y: 250, font: {size: 24, shadow: true}, alignment: "left"});
+            c.draw.text({text: "Preferred color:", x: c.width(0.3) - Button.width / 2 - 25 + state.change.x, y: 345, font: {size: 24, shadow: true}, alignment: "left"});
+            c.draw.text({text: "Power-up:", x: c.width(0.3) - Button.width / 2 - 25 + state.change.x, y: 525, font: {size: 24, shadow: true}, alignment: "left"});
+            
+            const colors = ["Yellow", "Green", "Red", "Blue", "Orange", "Cyan", "Purple", "Gray"];
+            const powerups = Game.powerups.map(p => p.name);
+            c.draw.croppedImage(image.sprites, config.appearance.preferredColor * 128, 0, 128, 128, c.width(0.3) - 35 + state.change.x, 370, 70, 70);
+            c.draw.croppedImage(image.powerups, 0, config.appearance.powerup * 70, 140, 70, c.width(0.3) - 70 + state.change.x, 550, 140, 70);
+            c.draw.text({text: colors[config.appearance.preferredColor], x: c.width(0.3) + state.change.x, y: 470, font: {size: 30, style: "bold", shadow: true}, baseline: "middle"});
+            c.draw.text({text: powerups[config.appearance.powerup], x: c.width(0.3) + state.change.x, y: 650, font: {size: 30, style: "bold", shadow: true}, baseline: "middle", maxWidth: Button.width - 90});
+            if (Game.powerups[config.appearance.powerup].conditionText)
+                c.draw.text({text: Game.powerups[config.appearance.powerup].conditionText, x: c.width(0.3) + state.change.x, y: 690, font: {size: 16, shadow: true}, baseline: "middle"});
         } else if (state.current === state.WAITING_LOCAL && game) {
             c.draw.text({text: "LOCAL MODE", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}});
             c.draw.text({text: "Connect up to 4 controllers to play!", x: c.width(0.5) + state.change.x, y: c.height(0.125) + 30, font: {size: 18, shadow: true}});
@@ -2639,26 +2654,12 @@ addEventListener("DOMContentLoaded", () => {
         } else if (state.current === state.SETTINGS) {
             c.draw.text({text: "SETTINGS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}});
 
-            c.draw.text({text: "APPEARANCE", x: c.width(0.2) + state.change.x, y: 180, font: {size: 32, style: "bold", shadow: true}});
-            c.draw.text({text: "GRAPHICS", x: c.width(0.5) + state.change.x, y: 180, font: {size: 32, style: "bold", shadow: true}});
-            c.draw.text({text: "CONTROLS", x: c.width(0.8) + state.change.x, y: 180, font: {size: 32, style: "bold", shadow: true}});
-
-            c.draw.text({text: "Player name:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 250, font: {size: 24, shadow: true}, alignment: "left"});
-            c.draw.text({text: "Preferred color:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 345, font: {size: 24, shadow: true}, alignment: "left"});
-            c.draw.text({text: "Power-up:", x: c.width(0.2) - Button.width / 2 - 25 + state.change.x, y: 525, font: {size: 24, shadow: true}, alignment: "left"});
-
-            const colors = ["Yellow", "Green", "Red", "Blue", "Orange", "Cyan", "Purple", "Gray"];
-            const powerups = Game.powerups.map(p => p.name);
-            c.draw.croppedImage(image.sprites, config.appearance.preferredColor * 128, 0, 128, 128, c.width(0.2) - 35 + state.change.x, 370, 70, 70);
-            c.draw.croppedImage(image.powerups, 0, config.appearance.powerup * 70, 140, 70, c.width(0.2) - 70 + state.change.x, 550, 140, 70);
-            c.draw.text({text: colors[config.appearance.preferredColor], x: c.width(0.2) + state.change.x, y: 470, font: {size: 30, style: "bold", shadow: true}, baseline: "middle"});
-            c.draw.text({text: powerups[config.appearance.powerup], x: c.width(0.2) + state.change.x, y: 650, font: {size: 30, style: "bold", shadow: true}, baseline: "middle", maxWidth: Button.width - 90});
-            if (Game.powerups[config.appearance.powerup].conditionText)
-                c.draw.text({text: Game.powerups[config.appearance.powerup].conditionText, x: c.width(0.2) + state.change.x, y: 690, font: {size: 16, shadow: true}, baseline: "middle"});
-
+            c.draw.text({text: "GRAPHICS", x: c.width(0.3) + state.change.x, y: 180, font: {size: 32, style: "bold", shadow: true}});
+            c.draw.text({text: "CONTROLS", x: c.width(0.7) + state.change.x, y: 180, font: {size: 32, style: "bold", shadow: true}});
+            
             const keybinds = ["Move left", "Move right", "Jump", "Attack", "Launch rocket", "Activate power-up", "Game menu"];
             for (let i=0; i<keybinds.length; i++)
-                c.draw.text({text: keybinds[i], x: c.width(0.8) - Button.width / 2 - 25 + state.change.x, y: 250 + i * 60, font: {size: 24, shadow: true}, alignment: "left"});
+                c.draw.text({text: keybinds[i], x: c.width(0.7) - Button.width / 2 - 25 + state.change.x, y: 250 + i * 60, font: {size: 24, shadow: true}, alignment: "left"});
         } else if (state.current === state.ABOUT) {
             if (theme.isDark()) {
                 c.options.filter.add("brightness(100)");

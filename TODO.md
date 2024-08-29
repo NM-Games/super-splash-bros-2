@@ -3,7 +3,6 @@
 ## Definitely in next version
 - [x] Fix Discord script throwing errors in terminal all the time
 - [x] Clarify power-up availability and duration
-- [ ] Fix freeplay CHAOS mode power-up issue
 - Power-up changes:
     - [x] Allow Squash only when moving up
     - [x] Increase Knockback hit radius
@@ -11,6 +10,10 @@
     - [x] Double Poop Bomb damage
     - [x] ~~Remove knockback/increase friction on~~ Remove movements when activating Exclusive Platforms
     - [ ] New ones?
+
+## Also in next version, but it came to mind while working on it
+- [ ] Fix freeplay CHAOS mode power-up issue
+- [x] Make appearance settings easier findable when navigating to the games
 
 ## Possibly in next version, if it works out well
 - [ ] Steam Deck support (feat. @mmvanheusden)
