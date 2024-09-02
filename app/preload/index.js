@@ -2010,7 +2010,8 @@ addEventListener("DOMContentLoaded", () => {
             gameMenu.toggle();
         }
 
-        if (key === "f11") ipcRenderer.send("toggle-fullscreen");
+        if (key === "f1") shell.openExternal("https://github.com/NM-Games/super-splash-bros-2/blob/main/README.md");
+        else if (key === "f11") ipcRenderer.send("toggle-fullscreen");
         else if (key === "f12") ipcRenderer.send("toggle-devtools");
 
         if (!konamiEasterEgg.isActive()) {
