@@ -9,6 +9,7 @@ const theme = require("./theme");
 const socket = require("./socket");
 const gamepad = require("./gamepad");
 const network = require("../network");
+const { renderer: achievement } = require("../achievement");
 const Button = require("../class/ui/Button");
 const Input = require("../class/ui/Input");
 const MenuSprite = require("../class/ui/MenuSprite");
@@ -273,7 +274,7 @@ const updateKeybinds = () => {
 };
 
 /**
- * Check if the Infinite rockets superpower applies to the rocket counter.
+ * Check if the Infinite rockets power-up applies to the rocket counter.
  * @param {number} x
  */
 const infiniteRocketCount = (x) => [null, Infinity].includes(x);
@@ -2309,6 +2310,12 @@ addEventListener("DOMContentLoaded", () => {
             if (exclusives.now > exclusives.then) audio._play(audio.exclusive);
             if (squashes.now > squashes.then) audio._play(audio.squash);
             if (game.fish.item && game.fish.item.y < 550 && lgame.fish.item && lgame.fish.item.y >= 550) audio._play(audio.fish);
+
+            for (let i=0; i<game.players.length; i++) {
+                for (let j in game.players[i].achievement) {
+                    if (game.players[i].achievement[j] && !lgame.players[i].achievement[j]) achievement.grant(j);
+                }
+            }
         } else parallellogram.hide();
         if (parallellogram.visible && parallellogram.moving) {
             parallellogram.y = Math.max(c.height() + 20 - parallellogram.offset, parallellogram.y - parallellogram.vy);
@@ -2327,6 +2334,7 @@ addEventListener("DOMContentLoaded", () => {
             gameMenu.darkness = Math.max(0, gameMenu.darkness - 0.01);
         }
 
+        achievement.update();
         lgame = (game) ? JSON.parse(JSON.stringify(game)) : undefined;
         document.body.style.cursor = (hoverings.button > 0 || banButton.hoverIndex > -1) ? "pointer" : (hoverings.input > 0) ? "text" : "default";
     };
@@ -2808,6 +2816,10 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.croppedImage(image.sprites, gamepad.playerIndexes[i] * 128, 0, 128, 128, gamepadAlert.x + i * 50 + gamepadAlert.offset, gamepadAlert.y + gamepadAlert.height - 65, 36, 36);
         }
         c.options.setOpacity();
+
+        if (achievement.shown) {
+            // todo: make an achievement UI
+        }
 
         if (dialog.visible) {
             c.draw.fill.rect(theme.colors.overlay, 0, 0, c.width(), c.height());

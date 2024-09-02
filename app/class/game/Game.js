@@ -464,9 +464,12 @@ class Game {
                         p.y = rocket.y - p.size;
                         p.jump.used = p.vy = 0;
                         p.jump.active = false;
+                        p.achievement.rocketRide = true;
                     } else if (p.hasPowerup(Player.powerup.FORCE_FIELD)) {
                         rocket.bounce();
+                        p.achievement.deflectWithForceField = true;
                     } else {
+                        if (rocket.player === p.index) p.achievement.hitByOwnRocket = true;
                         p.damage(this.ping, 30, 50, (rocket.direction === "r" ? Rocket.impact : -Rocket.impact));
                         rocket.explode();
                     }

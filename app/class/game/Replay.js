@@ -21,10 +21,14 @@ class Replay {
     static list = [];
     static isSaving = false;
 
+    // general properties
     theme;
     version;
-
     #isRecording;
+    // watch properties
+    frameIndex;
+    playbackRate;
+    paused;
 
     /**
      * Load or record a replay.
