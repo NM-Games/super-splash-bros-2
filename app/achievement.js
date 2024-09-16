@@ -15,6 +15,21 @@
  *  exclusiveWaterSave: boolean,
  *  winFreeplayHard: boolean
  * }} Achievements
+ * 
+ * @typedef {"changeName" |
+ *  "remapKeybind" |
+ *  "firstPowerup" |
+ *  "maxDamage" |
+ *  "leaveAfterRespawning" |
+ *  "watchReplay" |
+ *  "exportReplay" |
+ *  "winLocal" |
+ *  "winLAN" |
+ *  "rocketRide" |
+ *  "deflectWithForceField" |
+ *  "hitByOwnRocket" |
+ *  "exclusiveWaterSave" |
+ *  "winFreeplayHard"} AchievementKeys
  */
 
 const list = {
@@ -94,8 +109,11 @@ const renderer = {
     queue: [],
     shown: null,
     shownAt: -6e9,
-    y: 0,
-    /** @param {string} key */
+    duration: 7000,
+    y: -100,
+    vy: 0,
+    sprites: [],
+    /** @param {AchievementKeys} key */
     grant: function(key) {
         this.queue.push(list[key]);
     },
@@ -104,9 +122,28 @@ const renderer = {
         if (!this.shown) {
             this.shown = this.queue.shift();
             this.shownAt = now;
-        } else if (now - this.shownAt >= 5000) this.shown = null;
-        else {
-            // todo: update achievement UI
+            this.vy = 15;
+        } else if (now - this.shownAt >= this.duration && this.y < -100) {
+            this.shown = null;
+            this.sprites.splice(0, this.sprites.length);
+        } else {
+            this.y += this.vy;
+            if (now - this.shownAt >= this.duration) this.vy -= 0.3;
+            else this.vy = Math.max(0, this.vy - 0.5);
+
+            for (let i=0; i<12; i++) {
+                if (now - this.shownAt >= i * 200 && this.sprites.length === i) this.sprites.push({
+                    x: (i % 2 - 0.5) * i * 40 - 24,
+                    y: -100,
+                    vy: 11 + i * 0.5,
+                    color: Math.round(Math.random() * 8)
+                });
+            }
+
+            for (const sprite of this.sprites) {
+                sprite.y += sprite.vy;
+                sprite.vy -= 0.2;
+            }
         }
     }
 };
