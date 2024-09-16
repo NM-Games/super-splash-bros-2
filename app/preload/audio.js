@@ -27,7 +27,7 @@ const muted = {music: false, sfx: false};
  *  poopbomb: HTMLAudioElement,
  *  powerup: HTMLAudioElement,
  *  rocket: HTMLAudioElement,
- *  splash_lava: HTMLAudioElement,
+ *  splash_2: HTMLAudioElement,
  *  splash: HTMLAudioElement,
  *  squash: HTMLAudioElement,
  *  music: HTMLAudioElement,

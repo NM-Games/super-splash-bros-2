@@ -1,5 +1,5 @@
 /**
- * @typedef {"daylight" | "sunset" | "night" | "synthwave" | "foggy" | "lava"} Themes
+ * @typedef {"daylight" | "sunset" | "night" | "synthwave" | "foggy" | "lava" | "slime"} Themes
  */
 
 const colors = {
@@ -9,7 +9,8 @@ const colors = {
         night: "#000000",
         synthwave: "#1b023b",
         foggy: "#769aac",
-        lava: "#410900"
+        lava: "#410900",
+        slime: "#004a0b"
     },
     players: [
         "#ffd900", // yellow
@@ -30,8 +31,14 @@ const colors = {
     shadow: "#000"
 };
 
+const filters = {
+    lava: ["hue-rotate(190deg)", "brightness(0.6)", "saturate(2)"],
+    slime: ["hue-rotate(270deg)", "brightness(1.3)"]
+};
+
 module.exports = {
     colors,
+    filters,
     /** @type {Themes} */
     current: "daylight",
 
@@ -46,14 +53,15 @@ module.exports = {
         else if (from === "night") return "synthwave";
         else if (from === "synthwave") return "foggy";
         else if (from === "foggy") return "lava";
-        else if (from === "lava") return "daylight";
+        else if (from === "lava") return "slime";
+        else if (from === "slime") return "daylight";
     },
     /**
      * Check whether the theme is a dark theme for optimal text colors.
      * @returns {boolean}
      */
     isDark: function() {
-        return ["night", "synthwave", "foggy", "lava"].includes(this.current);
+        return ["night", "synthwave", "foggy", "lava", "slime"].includes(this.current);
     },
     /**
      * Get the background color/gradient.

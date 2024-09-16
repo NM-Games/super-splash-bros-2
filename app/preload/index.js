@@ -2306,7 +2306,7 @@ addEventListener("DOMContentLoaded", () => {
             if (game.rockets.length > lgame.rockets.length) audio._play(audio.rocket);
             if (game.poopBombs.length > lgame.poopBombs.length) audio._play(audio.poopbomb);
             if (game.geysers.length > lgame.geysers.length) audio._play(audio.geyser);
-            if (game.splashes.length > lgame.splashes.length) audio._play((theme.current === "lava") ? audio.splash_lava : audio.splash);
+            if (game.splashes.length > lgame.splashes.length) audio._play((theme.filters[theme.current]) ? audio.splash_2 : audio.splash);
             if (explosions.now > explosions.then) audio._play(audio.explosion);
             if (exclusives.now > exclusives.then) audio._play(audio.exclusive);
             if (squashes.now > squashes.then) audio._play(audio.squash);
@@ -2363,7 +2363,7 @@ addEventListener("DOMContentLoaded", () => {
         }
 
         const drawWater = () => {
-            if (theme.current === "lava") c.options.filter.add("hue-rotate(190deg)", "brightness(0.6)", "saturate(2)");
+            if (theme.filters[theme.current]) c.options.filter.add(...theme.filters[theme.current]);
 
             c.draw.fill.rect(
                 c.options.gradient(0, water.flood.level, 0, water.flood.level + c.height(),
@@ -2383,7 +2383,7 @@ addEventListener("DOMContentLoaded", () => {
             if (state.is(state.MAIN_MENU)) c.draw.text({text: `v${versions.game}`, x: 8 + state.change.x, y: water.flood.level - 15, color: theme.colors.ui.primary, font: {size: 26}, alignment: "left"});
             if (Replay.isSaving) c.draw.text({text: `Saving replay...`, x: c.width() - 8 - state.change.x, y: c.height() - 15, color: theme.colors.text.light, font: {size: 26, shadow: true}, alignment: "right"});
 
-            c.options.filter.remove("hue-rotate", "brightness", "saturate");
+            if (theme.filters[theme.current]) c.options.filter.remove(...theme.filters[theme.current]);
         };
 
         if (state.isMenu()) {
@@ -2454,9 +2454,9 @@ addEventListener("DOMContentLoaded", () => {
                 const grd = c.options.gradient(g.x, 0, g.x + Geyser.width, 0, {pos: 0, color: theme.colors.ui.primary}, {pos: 0.5, color: theme.colors.ui.secondary}, {pos: 1, color: theme.colors.ui.primary});
                 c.options.setOpacity(g.a);
 
-                if (theme.current === "lava") c.options.filter.add("hue-rotate(190deg)", "brightness(0.6)", "saturate(2)");
+                if (theme.filters[theme.current]) c.options.filter.add(...theme.filters[theme.current]);
                 c.draw.fill.rect(grd, g.x + offset.x, g.y, Geyser.width, Math.abs(g.y) + c.height(2), Geyser.width / 4);
-                c.options.filter.remove("hue-rotate", "brightness", "saturate");
+                if (theme.filters[theme.current]) c.options.filter.remove(...theme.filters[theme.current]);
             }
             for (const ci of game.circles) {
                 c.options.setOpacity(ci.a);
@@ -2477,9 +2477,9 @@ addEventListener("DOMContentLoaded", () => {
             for (const s of game.splashes) {
                 c.options.setOpacity(s.a);
 
-                if (theme.current === "lava") c.options.filter.add("hue-rotate(190deg)", "brightness(0.6)", "saturate(2)");
+                if (theme.filters[theme.current]) c.options.filter.add(...theme.filters[theme.current]);
                 c.draw.image(image.splash, s.x - image.splash.width / 2 + offset.x, offset.y + 560 + s.h);
-                c.options.filter.remove("hue-rotate", "brightness", "saturate");
+                if (theme.filters[theme.current]) c.options.filter.remove(...theme.filters[theme.current]);
             }
             c.options.setOpacity();
 
