@@ -6,6 +6,13 @@
  *  audio: {music: boolean, sfx: boolean},
  *  misc: {recordReplays: boolean}
  * }} Settings
+ *
+ * @typedef {{
+ *  mainFolder: string,
+ *  settingsFile: string,
+ *  achievementsFile: string,
+ *  replayFolder: string
+ * }} Paths
  */
 
 const { app } = require("electron");
@@ -26,7 +33,7 @@ const { join, parse } = require("path");
 
 const { generateName } = require("./class/game/Player");
 
-/** @type {{mainFolder: string, settingsFile: string, replayFolder: string}} */
+/** @type {Paths} */
 const paths = {};
 
 /** @type {Settings} */
@@ -93,7 +100,15 @@ const settings = {
     /** @returns {Settings} */
     get: () => read(paths.settingsFile),
     /** @param {Settings} settings */
-    set: (settings) => write(paths.settingsFile, settings)
+    set: (settings = template) => write(paths.settingsFile, settings)
+};
+
+// Achievements file
+const achievements = {
+    /** @returns {import("./achievement").AchievementKeys[]} */
+    get: () => read(paths.achievementsFile),
+    /** @param {import("./achievement").AchievementKeys[]} settings */
+    set: (achievements = []) => write(paths.achievementsFile, achievements, 0)
 };
 
 // Replay files
@@ -160,12 +175,13 @@ const space = () => {
 const init = () => {
     paths.mainFolder = join(app.getPath("appData"), app.name);
     paths.settingsFile = join(paths.mainFolder, "settings.json");
+    paths.achievementsFile = join(paths.mainFolder, "achievements.json");
     paths.replayFolder = join(paths.mainFolder, "replays");
 
     if (!existsSync(paths.mainFolder)) mkdirSync(paths.mainFolder);
     if (!existsSync(paths.replayFolder)) mkdirSync(paths.replayFolder);
 
-    if (!existsSync(paths.settingsFile)) settings.set(template); else {
+    if (!existsSync(paths.settingsFile)) settings.set(); else {
         const config = settings.get();
         const fileKeys = Object.keys(config).sort();
         const originalKeys = Object.keys(template).sort();
@@ -176,6 +192,7 @@ const init = () => {
             settings.set(newConfig);
         }
     }
+    if (!existsSync(paths.achievementsFile)) achievements.set();
 };
 
-module.exports = {init, space, settings, replays};
+module.exports = {init, space, settings, achievements, replays};

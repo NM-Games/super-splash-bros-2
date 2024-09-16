@@ -115,7 +115,9 @@ const renderer = {
     sprites: [],
     /** @param {AchievementKeys} key */
     grant: function(key) {
-        this.queue.push(list[key]);
+        const { ipcRenderer } = require("electron");
+        ipcRenderer.send("can-grant-achievement", key);
+        ipcRenderer.once("achievement-granted", (_e, k) => this.queue.push(list[k]))
     },
     update: function() {
         const now = new Date().getTime();
@@ -153,6 +155,6 @@ const template = {};
 for (let i in list) template[i] = false;
 
 /** @returns {Achievements} */
-const getTemplate = () => JSON.parse(JSON.stringify(template));
+const getAchievementTemplate = () => JSON.parse(JSON.stringify(template));
 
-module.exports = {list, getTemplate, renderer};
+module.exports = {list, getAchievementTemplate, achievement: renderer};

@@ -1,5 +1,5 @@
 const Exclusive = require("./Exclusive");
-const achievement = require("../../achievement");
+const { getAchievementTemplate } = require("../../achievement");
 
 class Player {
     static g = 0.6;
@@ -101,7 +101,7 @@ class Player {
             lastActivated: -6e9
         };
         this.exclusivePlatform = null;
-        this.achievement = achievement.getTemplate();
+        this.achievement = getAchievementTemplate();
         this.keys = {
             left: false,
             right: false,

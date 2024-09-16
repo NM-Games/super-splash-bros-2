@@ -152,6 +152,15 @@ app.whenReady().then(() => {
     })
     ipcMain.on("delete-replay", (_e, name) => file.replays.delete(name));
 
+    const achievements = file.achievements.get();
+    ipcMain.on("can-grant-achievement", (_e, key) => {
+        if (!achievements.includes(key)) {
+            achievements.push(key);
+            file.achievements.set(achievements);
+            window.webContents.send("achievement-granted", key);
+        }
+    });
+
     ipcMain.on("discord-activity-update", (_e, state, playerIndex, playerName, partySize, partyMax, startTimestamp) => {
         discord({
             state,
