@@ -1,6 +1,6 @@
 /**
  * @typedef {{
- *  changeName: boolean,
+ *  changeName: boolean,                    // done
  *  remapKeybind: boolean,
  *  firstPowerup: boolean,
  *  maxDamage: boolean,
@@ -117,7 +117,7 @@ const renderer = {
     grant: function(key) {
         const { ipcRenderer } = require("electron");
         ipcRenderer.send("can-grant-achievement", key);
-        ipcRenderer.once("achievement-granted", (_e, k) => this.queue.push(list[k]))
+        ipcRenderer.once("achievement-granted", (_e, k) => this.queue.push(list[k]));
     },
     update: function() {
         const now = new Date().getTime();

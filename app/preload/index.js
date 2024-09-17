@@ -9,7 +9,7 @@ const theme = require("./theme");
 const socket = require("./socket");
 const gamepad = require("./gamepad");
 const network = require("../network");
-const { achievement } = require("../achievement");
+const { achievement, list: allAchievements } = require("../achievement");
 const Button = require("../class/ui/Button");
 const Input = require("../class/ui/Input");
 const MenuSprite = require("../class/ui/MenuSprite");
@@ -614,6 +614,8 @@ let banButton = {
     hoverIndex: -1,
     active: false
 };
+/** @type {import("../achievement").AchievementKeys} */
+let earnedAchievements;
 let freeDiskSpace = Infinity;
 let lastKeys = JSON.parse(JSON.stringify(keys));
 
@@ -670,6 +672,7 @@ Button.items = [
         height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
+            ipcRenderer.send("get-achievements");
             state.change.to(state.ACHIEVEMENTS, false);
         }
     }),
@@ -1957,6 +1960,7 @@ addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    ipcRenderer.on("achievement-list", (_e, achievements) => earnedAchievements = achievements);
     ipcRenderer.on("replay-list", (_e, replays) => {
         Replay.list = replays;
         for (let i=0; i<5; i++) {
@@ -2312,10 +2316,9 @@ addEventListener("DOMContentLoaded", () => {
             if (squashes.now > squashes.then) audio._play(audio.squash);
             if (game.fish.item && game.fish.item.y < 550 && lgame.fish.item && lgame.fish.item.y >= 550) audio._play(audio.fish);
 
-            for (let i=0; i<game.players.length; i++) {
-                if (!game.players[i]) continue;
-                for (let j in game.players[i].achievement) {
-                    if (game.players[i].achievement[j] && !lgame.players[i].achievement[j]) achievement.grant(j);
+            if (playerIndex) {
+                for (let i in game.players[playerIndex].achievement) {
+                    if (game.players[playerIndex].achievement[i] && !lgame.players[playerIndex].achievement[i]) achievement.grant(i);
                 }
             }
         } else parallellogram.hide();
@@ -2691,7 +2694,23 @@ addEventListener("DOMContentLoaded", () => {
         } else if (state.current === state.STATISTICS) {
             c.draw.text({text: "STATISTICS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}}); 
         } else if (state.current === state.ACHIEVEMENTS) {
-            c.draw.text({text: "ACHIEVEMENTS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}}); 
+            c.draw.text({text: "ACHIEVEMENTS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}});
+
+            const achievements = Object.keys(allAchievements);
+            const progress = `${earnedAchievements.length} / ${achievements.length} unlocked (${Math.round(earnedAchievements.length / achievements.length * 100)}%)`;
+            c.draw.text({text: progress, x: c.width() - 25 + state.change.x, y: 65, font: {size: 24, shadow: true}, alignment: "right"});
+            
+            for (let i=0; i<achievements.length; i++) {
+                const x = c.width(0.5) + (i % 2 - 0.5) * (c.width(0.4) + 25) + state.change.x;
+                const y = 130 + Math.floor(i / 2) * 85;
+
+                c.options.setShadow(theme.colors.text.light, 12, 0, 0);
+                c.draw.fill.rect(theme.colors.achievement[allAchievements[achievements[i]].rarity], x - c.width(0.2), y, c.width(0.4), 60, 12);
+                c.options.setShadow();
+                if (earnedAchievements.includes(achievements[i])) c.draw.stroke.rect(theme.colors.players[1], x - c.width(0.2), y, c.width(0.4), 60, 3, 12);
+                c.draw.text({text: allAchievements[achievements[i]].name, x, y: y + 29, color: theme.colors.text.light, font: {size: 28, style: "bold"}})
+                c.draw.text({text: allAchievements[achievements[i]].description, x, y: y + 52, color: theme.colors.text.light, font: {size: 18, style: "italic"}})
+            }
         } else if (state.current === state.REPLAYS_MENU) {
             c.draw.text({text: "REPLAYS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}});
             c.draw.text({text: "Look back at the games you played!", x: c.width(0.5) + state.change.x, y: c.height(0.125) + 30, font: {size: 18, shadow: true}});
@@ -2827,7 +2846,7 @@ addEventListener("DOMContentLoaded", () => {
 
             c.options.setShadow(theme.colors.text.light, 24, 0, 0);
             for (const sprite of achievement.sprites) c.draw.croppedImage(image.sprites, sprite.color * 128, Number(c.width(0.5) + sprite.x > c.width(0.5)) * 128, 128, 128, c.width(0.5) + sprite.x, c.height() - sprite.y, 48, 48);
-            c.draw.fill.rect(theme.colors.ui.primary, c.width(0.5) - width / 2, c.height() - achievement.y - 40, width, 80, 12);
+            c.draw.fill.rect(theme.colors.achievement[achievement.shown.rarity], c.width(0.5) - width / 2, c.height() - achievement.y - 40, width, 80, 12);
             c.options.setShadow();
 
             c.draw.text({text: "Achievement unlocked!", x: c.width(0.5), y: c.height() - achievement.y - 18, font: {size: 18, style: "bold"}, color: theme.colors.text.light});

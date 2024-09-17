@@ -12,6 +12,9 @@ let window;
 /** @type {Electron.UtilityProcess} */
 let gameserver;
 
+/** @type {import("./achievement").AchievementKeys[]} */
+let achievements;
+
 app.setName(displayName);
 if (process.platform === "darwin") {
     Menu.setApplicationMenu(Menu.buildFromTemplate([{
@@ -35,6 +38,7 @@ app.whenReady().then(() => {
         return;
     }
     file.init();
+    achievements = file.achievements.get();
 
     const toggleFullScreen = () => {
         window.setFullScreen(!window.isFullScreen());
@@ -152,7 +156,7 @@ app.whenReady().then(() => {
     })
     ipcMain.on("delete-replay", (_e, name) => file.replays.delete(name));
 
-    const achievements = file.achievements.get();
+    ipcMain.on("get-achievements", () => window.webContents.send("achievement-list", achievements = file.achievements.get()));
     ipcMain.on("can-grant-achievement", (_e, key) => {
         if (!achievements.includes(key)) {
             achievements.push(key);

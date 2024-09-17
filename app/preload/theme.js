@@ -24,6 +24,7 @@ const colors = {
     ],
     ui: {primary: "#42cbe0", secondary: "#32a4d9", indicator: "#800e00", highlight: "#df1"},
     bigNotification: {r: "red", o: "orange", y: "yellow", g: "green"},
+    achievement: ["#b75c40", "#b3b3b3", "#dfcc25"],
     error: {background: "#700", foreground: "#e00"},
     text: {dark: "#505050", light: "#fff"},
     overlay: "rgba(0, 0, 0, 0.75)",
