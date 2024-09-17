@@ -38,7 +38,6 @@ app.whenReady().then(() => {
         return;
     }
     file.init();
-    achievements = file.achievements.get();
 
     const toggleFullScreen = () => {
         window.setFullScreen(!window.isFullScreen());
@@ -72,7 +71,10 @@ app.whenReady().then(() => {
             file.space(),
             totalWidth
         );
-        
+
+        achievements = file.achievements.get();
+        console.log(achievements);
+
         window.webContents.send("fullscreen-status", window.isFullScreen());
         window.show();
     });

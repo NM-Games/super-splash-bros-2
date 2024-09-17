@@ -65,10 +65,14 @@ class Game {
         condition: (p) => Math.abs(p.vy) >= 1,
         conditionText: "Requires player to be in the air",
         duration: 10000,
-        /** @param {Player} p */
-        action: (p) => {
+        /**
+         * @param {Player} p
+         * @param {Game} g
+         */
+        action: (p, g) => {
             p.exclusivePlatform = new Exclusive(p.x, p.y, p.size);
             p.vx = p.vy = 0;
+            if (p.y >= 580 + g.floodLevel) p.achievement.exclusiveWaterSave = true;
         }
     }, {
         name: "Infinite Rockets",
@@ -413,6 +417,8 @@ class Game {
                 p1.powerup.active = true;
                 p1.powerup.lastActivated = this.ping;
                 if (Game.powerups[p1.powerup.selected].action) Game.powerups[p1.powerup.selected].action(p1, this);
+
+                p1.achievement.firstPowerup = true;
             }
             if (p1.powerup.active) {
                 if (!Game.powerups[p1.powerup.selected].duration && p1.powerup.selected !== Player.powerup.SQUASH)

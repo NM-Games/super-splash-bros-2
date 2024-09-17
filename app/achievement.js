@@ -1,19 +1,19 @@
 /**
  * @typedef {{
  *  changeName: boolean,                    // done
- *  remapKeybind: boolean,
- *  firstPowerup: boolean,
- *  maxDamage: boolean,
- *  leaveAfterRespawning: boolean,
- *  watchReplay: boolean,
- *  exportReplay: boolean,
+ *  remapKeybind: boolean,                  // done
+ *  firstPowerup: boolean,                  // done
+ *  maxDamage: boolean,                     // done
+ *  leaveAfterRespawning: boolean,          // done
+ *  watchReplay: boolean,                   // done
+ *  exportReplay: boolean,                  // done
  *  winLocal: boolean,
- *  winLAN: boolean,
+ *  winLAN: boolean,                        // done
  *  rocketRide: boolean,                    // done
  *  deflectWithForceField: boolean,         // done
  *  hitByOwnRocket: boolean,                // done
- *  exclusiveWaterSave: boolean,
- *  winFreeplayHard: boolean
+ *  exclusiveWaterSave: boolean,            // done
+ *  winFreeplayHard: boolean                // done
  * }} Achievements
  * 
  * @typedef {"changeName" |

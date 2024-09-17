@@ -139,7 +139,9 @@ class Player {
         this.hit.last = ping;
         this.hit.percentage += Math.random() * (max - min) + min;
         if (this.hit.percentage >= 500) this.hit.percentage = 500;
-        this.vx += knockback * (this.hit.percentage / 80 + 1)
+        this.vx += knockback * (this.hit.percentage / 80 + 1);
+
+        if (this.hit.percentage === 500) this.achievement.maxDamage = true;
     }
 
     /**

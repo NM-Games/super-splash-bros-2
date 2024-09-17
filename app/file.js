@@ -180,6 +180,7 @@ const init = () => {
 
     if (!existsSync(paths.mainFolder)) mkdirSync(paths.mainFolder);
     if (!existsSync(paths.replayFolder)) mkdirSync(paths.replayFolder);
+    if (!existsSync(paths.achievementsFile)) achievements.set();
 
     if (!existsSync(paths.settingsFile)) settings.set(); else {
         const config = settings.get();
@@ -192,7 +193,6 @@ const init = () => {
             settings.set(newConfig);
         }
     }
-    if (!existsSync(paths.achievementsFile)) achievements.set();
 };
 
 module.exports = {init, space, settings, achievements, replays};

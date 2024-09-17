@@ -269,8 +269,10 @@ const checkLANAvailability = () => {
 const keyChange = () => (JSON.stringify(keys) !== JSON.stringify(lastKeys));
 const keybindIDs = ["moveLeft", "moveRight", "jump", "attack", "launchRocket", "activatePowerup", "gameMenu"];
 const updateKeybinds = () => {
+    const oldControls = JSON.stringify(config.controls);
     for (const k of keybindIDs) config.controls[k] = Input.getInputById(`Keybind-${k}`).keybind;
     ipcRenderer.send("update-config", config);
+    if (JSON.stringify(config.controls) !== oldControls) achievement.grant("remapKeybind");
 };
 
 /**
@@ -537,6 +539,7 @@ const replayActions = {
                 water.flood.disable();
                 parallellogram.show();
                 isInGame = true;
+                achievement.grant("watchReplay");
             });
         });
     },
@@ -554,20 +557,23 @@ const replayActions = {
     export: (index) => {
         ipcRenderer.send("export-replay", Replay.list[index].name);
         ipcRenderer.once("replay-export-started", () => dialog.show("Exporting replay...", "This may take a while."));
-        ipcRenderer.once("replay-export-finished", (_e, path) => dialog.show("Replay exported!", "", new Button({
-            text: "Close",
-            x: () => c.width(0.35),
-            y: () => c.height(0.75),
-            onclick: () => dialog.close()
-        }), new Button({
-            text: "Show in folder",
-            x: () => c.width(0.65),
-            y: () => c.height(0.75),
-            onclick: () => {
-                dialog.close();
-                shell.showItemInFolder(path);
-            }
-        })));
+        ipcRenderer.once("replay-export-finished", (_e, path) => {
+            dialog.show("Replay exported!", "", new Button({
+                text: "Close",
+                x: () => c.width(0.35),
+                y: () => c.height(0.75),
+                onclick: () => dialog.close()
+            }), new Button({
+                text: "Show in folder",
+                x: () => c.width(0.65),
+                y: () => c.height(0.75),
+                onclick: () => {
+                    dialog.close();
+                    shell.showItemInFolder(path);
+                }
+            }));
+            achievement.grant("exportReplay");
+        });
     },
     /**
      * Delete a replay.
@@ -1638,7 +1644,11 @@ Button.gameMenuItems = [
                     x: () => c.width(0.35),
                     y: () => c.height(0.75),
                     danger: true,
-                    onclick: leave
+                    onclick: () => {
+                        if (game.ping - game.players[playerIndex].respawn < game.players[playerIndex].spawnProtection)
+                            achievement.grant("leaveAfterRespawning");
+                        leave();
+                    }
                 }), new Button({
                     text: "No",
                     x: () => c.width(0.65),
@@ -1805,8 +1815,9 @@ Input.items = [
         size: 25,
         onblur: function() {
             if (this.value.trim().length === 0) this.value = Player.generateName();
-            config.appearance.playerName = this.value.slice(0, this.maxLength);
-            achievement.grant("changeName");
+            const newName = this.value.slice(0, this.maxLength);
+            if (config.appearance.playerName !== newName) achievement.grant("changeName");
+            config.appearance.playerName = newName;
             ipcRenderer.send("update-config", config);
         }
     }),
@@ -2195,6 +2206,7 @@ addEventListener("DOMContentLoaded", () => {
                     message.text = (game.winner === playerIndex) ? "YOU WIN!" : "YOU LOSE";
                     message.color = (game.winner === playerIndex) ? "g" : "r";
                     message.size = 240;
+                    if (game.winner === playerIndex) achievement.grant("winLAN");
                 } else if (state.is(state.PLAYING_LOCAL, state.PLAYING_FREEPLAY)) {
                     message.text = "GAME ENDED";
                     message.color = "o";
@@ -2213,8 +2225,10 @@ addEventListener("DOMContentLoaded", () => {
                     bigNotification.show("GAME OVER", theme.colors.bigNotification.r, 200, 0.008);
 
                 if (state.is(state.PLAYING_FREEPLAY) && lgame.players.filter(p => p && p.lives > 0).length > 1 &&
-                 game.players.filter(p => p && p.lives > 0).length === 1 && game.players[playerIndex].lives > 0)
+                 game.players.filter(p => p && p.lives > 0).length === 1 && game.players[playerIndex].lives > 0) {
                     bigNotification.show("VICTORY!", theme.colors.bigNotification.g, 220, 0.008);
+                    if (instance.dummyDifficulty === 3) achievement.grant("winFreeplayHard");
+                }
             }
         }
 
@@ -2316,7 +2330,7 @@ addEventListener("DOMContentLoaded", () => {
             if (squashes.now > squashes.then) audio._play(audio.squash);
             if (game.fish.item && game.fish.item.y < 550 && lgame.fish.item && lgame.fish.item.y >= 550) audio._play(audio.fish);
 
-            if (playerIndex) {
+            if (playerIndex > -1) {
                 for (let i in game.players[playerIndex].achievement) {
                     if (game.players[playerIndex].achievement[i] && !lgame.players[playerIndex].achievement[i]) achievement.grant(i);
                 }
