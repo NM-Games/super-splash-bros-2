@@ -73,7 +73,6 @@ app.whenReady().then(() => {
         );
 
         achievements = file.achievements.get();
-        console.log(achievements);
 
         window.webContents.send("fullscreen-status", window.isFullScreen());
         window.show();

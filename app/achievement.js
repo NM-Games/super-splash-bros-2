@@ -7,8 +7,8 @@
  *  leaveAfterRespawning: boolean,          // done
  *  watchReplay: boolean,                   // done
  *  exportReplay: boolean,                  // done
- *  winLocal: boolean,
  *  winLAN: boolean,                        // done
+ *  maxLives: boolean,                      // done
  *  rocketRide: boolean,                    // done
  *  deflectWithForceField: boolean,         // done
  *  hitByOwnRocket: boolean,                // done
@@ -23,8 +23,8 @@
  *  "leaveAfterRespawning" |
  *  "watchReplay" |
  *  "exportReplay" |
- *  "winLocal" |
  *  "winLAN" |
+ *  "maxLives" |
  *  "rocketRide" |
  *  "deflectWithForceField" |
  *  "hitByOwnRocket" |
@@ -68,15 +68,15 @@ const list = {
         description: "Export a replay",
         rarity: 0
     },
-    winLocal: {
-        name: "Controller master",
-        description: "Win a game in Local mode",
-        rarity: 0,
-    },
     winLAN: {
         name: "Dominating the network",
         description: "Win a game in LAN mode",
         rarity: 0
+    },
+    maxLives: {
+        name: "Not losing today",
+        description: "Have 5 lives",
+        rarity: 1,
     },
     rocketRide: {
         name: "Free transport",
@@ -117,7 +117,7 @@ const renderer = {
     grant: function(key) {
         const { ipcRenderer } = require("electron");
         ipcRenderer.send("can-grant-achievement", key);
-        ipcRenderer.once("achievement-granted", (_e, k) => this.queue.push(list[k]));
+        ipcRenderer.once("achievement-granted", () => this.queue.push(list[key]));
     },
     update: function() {
         const now = new Date().getTime();

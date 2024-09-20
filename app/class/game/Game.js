@@ -49,7 +49,10 @@ class Game {
         condition: (p) => (p.connected && p.lives > 0 && p.lives < 5),
         conditionText: "Requires player to have less than 5 lives",
         /** @param {Player} p */
-        action: (p) => p.lives = Math.min(p.lives + ((Math.random() > 0.8) ? 2 : 1), 5),
+        action: (p) => {
+            p.lives = Math.min(p.lives + ((Math.random() > 0.8) ? 2 : 1), 5)
+            if (p.lives === 5) p.achievement.maxLives = true;
+        },
         duration: 0
     }, {
         name: "Poop Bomb",
