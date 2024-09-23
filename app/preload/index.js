@@ -250,6 +250,7 @@ const leave = (playAgain = false) => {
         konamiEasterEgg.deactivate();
         if (!playAgain && !water.flood.disabling) water.flood.disable();
     });
+    if (playerIndex > -1) ipcRenderer.send("update-stats", game.players[playerIndex].stats);
 };
 
 const stop = () => {

@@ -326,6 +326,7 @@ class Game {
                     p1.hit.percentage = 0;
                     p1.respawn = this.ping;
                     p1.powerup.available = p1.powerup.active = false;
+                    p1.stats.timesSplashed++;
                 }
                 if (p1.lives >= 1) {
                     const respawnCoordinates = (this.floodLevel < 0) ? {
@@ -342,6 +343,7 @@ class Game {
             if (p1.lives === 0) continue;
             if (p1.keys.attack && this.ping - p1.attacks.melee.lastPerformed >= p1.attacks.melee.cooldown) {
                 p1.attacks.melee.lastPerformed = this.ping;
+                p1.stats.meleeAttacks++;
                 this.attacks.push(new Attack(p1.index, p1.x + p1.size / 2, p1.y + p1.size / 2));
                 this.circles.push(new Circle({
                     color: colors.players[p1.index],
@@ -398,6 +400,7 @@ class Game {
             if (wantsToFireRocket && p1.attacks.rocket.count > 0 && this.ping - p1.attacks.rocket.lastPerformed >= rocketCooldown) {
                 p1.attacks.rocket.lastPerformed = this.ping;
                 p1.attacks.rocket.count--;
+                p1.stats.rocketsFired++;
                 this.rockets.push(new Rocket(p1.index, p1.x + Number(p1.facing === "r") * p1.size, p1.y, p1.facing));
             }
             if (this.ping - p1.attacks.rocket.lastRegenerated >= p1.attacks.rocket.regenerationInterval && p1.attacks.rocket.count < Player.maxRockets) {
@@ -535,6 +538,7 @@ class Game {
         if (this.fish.item && !this.fish.item.update(this.elapsed)) {
             if (this.fish.item.takeValue === 1) {
                 this.players[this.fish.item.takenBy].powerup.available = true;
+                this.players[this.fish.item.takenBy].stats.fishCollected++;
                 this.circles.push(new Circle({
                     color: colors.ui.primary,
                     x: this.fish.item.x + Fish.width / 2,

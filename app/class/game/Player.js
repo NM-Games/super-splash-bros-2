@@ -45,6 +45,7 @@ class Player {
     powerup;
     /** @type {Exclusive | null} */
     exclusivePlatform;
+    stats;
     achievement;
     keys;
     respawn;
@@ -52,6 +53,19 @@ class Player {
 
     static generateName() {
         return "Splasher" + ("000" + Math.ceil(Math.random() * 9999)).slice(-4);
+    }
+
+    /** @returns {import("../../file").Statistics} */
+    static getStatisticsTemplate() {
+        return {
+            meleeAttacks: 0,
+            rocketsFired: 0,
+            damageTaken: 0,
+            timesSplashed: 0,
+            fishCollected: 0,
+            traveledX: 0,
+            traveledY: 0
+        };
     }
 
     /**
@@ -101,6 +115,7 @@ class Player {
             lastActivated: -6e9
         };
         this.exclusivePlatform = null;
+        this.stats = Player.getStatisticsTemplate();
         this.achievement = getAchievementTemplate();
         this.keys = {
             left: false,
@@ -136,8 +151,10 @@ class Player {
         if (ping - this.respawn < this.spawnProtection ||
          this.hasPowerup(Player.powerup.FORCE_FIELD)) return;
 
+        const damageAmount = Math.random() * (max - min) + min;
         this.hit.last = ping;
-        this.hit.percentage += Math.random() * (max - min) + min;
+        this.hit.percentage += damageAmount;
+        this.stats.damageTaken += damageAmount;
         if (this.hit.percentage >= 500) this.hit.percentage = 500;
         this.vx += knockback * (this.hit.percentage / 80 + 1);
 
@@ -180,6 +197,9 @@ class Player {
                 this.vy = -Player.jumpForce * (this.hasPowerup(Player.powerup.POWER_JUMP) ? 1.5 : 1);
             }
             this.jump.heldKey = this.keys.jump;
+
+            this.stats.traveledX += Math.abs(this.lx - this.x);
+            this.stats.traveledY += Math.abs(this.ly - this.y);
         } else this.x = this.y = -1e8;
 
         for (const platform of Player.platforms) {

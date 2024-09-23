@@ -12,6 +12,8 @@ let window;
 /** @type {Electron.UtilityProcess} */
 let gameserver;
 
+/** @type {import("./file").Statistics} */
+let statistics;
 /** @type {import("./achievement").AchievementKeys[]} */
 let achievements;
 
@@ -72,6 +74,7 @@ app.whenReady().then(() => {
             totalWidth
         );
 
+        statistics = file.statistics.get();
         achievements = file.achievements.get();
 
         window.webContents.send("fullscreen-status", window.isFullScreen());
@@ -119,6 +122,12 @@ app.whenReady().then(() => {
     ipcMain.on("lan-unban", () => gameserver.postMessage("unban"));
     ipcMain.on("lan-ban", (_e, index) => gameserver.postMessage(`ban:${index}`));
     ipcMain.on("lan-start", () => gameserver.postMessage("start"));
+
+    ipcMain.on("get-stats", () => window.webContents.send("stats-list", statistics = file.statistics.get()));
+    ipcMain.on("update-stats", (_e, match) => {
+        for (const i of Object.keys(statistics)) statistics[i] += match[i] ?? 0;
+        file.statistics.set(statistics);
+    });
 
     ipcMain.on("get-replays", () => window.webContents.send("replay-list", file.replays.list()));
     ipcMain.on("load-replay", (_e, name) => {

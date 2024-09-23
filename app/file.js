@@ -6,10 +6,21 @@
  *  audio: {music: boolean, sfx: boolean},
  *  misc: {recordReplays: boolean}
  * }} Settings
+ * 
+ * @typedef {{
+ *  meleeAttacks: number,
+ *  rocketsFired: number,
+ *  damageTaken: number,
+ *  timesSplashed: number,
+ *  fishCollected: number,
+ *  traveledX: number,
+ *  traveledY: number
+ * }} Statistics
  *
  * @typedef {{
  *  mainFolder: string,
  *  settingsFile: string,
+ *  statisticsFile: string,
  *  achievementsFile: string,
  *  replayFolder: string
  * }} Paths
@@ -31,7 +42,7 @@ const {
 const { EOL } = require("os");
 const { join, parse } = require("path");
 
-const { generateName } = require("./class/game/Player");
+const { generateName, getStatisticsTemplate } = require("./class/game/Player");
 
 /** @type {Paths} */
 const paths = {};
@@ -101,6 +112,14 @@ const settings = {
     get: () => read(paths.settingsFile),
     /** @param {Settings} settings */
     set: (settings = template) => write(paths.settingsFile, settings)
+};
+
+// Statistics file
+const statistics = {
+    /** @returns {Statistics} */
+    get: () => read(paths.statisticsFile),
+    /** @param {Statistics} statistics */
+    set: (statistics = getStatisticsTemplate()) => write(paths.statisticsFile, statistics),
 };
 
 // Achievements file
@@ -175,11 +194,13 @@ const space = () => {
 const init = () => {
     paths.mainFolder = join(app.getPath("appData"), app.name);
     paths.settingsFile = join(paths.mainFolder, "settings.json");
+    paths.statisticsFile = join(paths.mainFolder, "statistics.json");
     paths.achievementsFile = join(paths.mainFolder, "achievements.json");
     paths.replayFolder = join(paths.mainFolder, "replays");
 
     if (!existsSync(paths.mainFolder)) mkdirSync(paths.mainFolder);
     if (!existsSync(paths.replayFolder)) mkdirSync(paths.replayFolder);
+    if (!existsSync(paths.statisticsFile)) statistics.set();
     if (!existsSync(paths.achievementsFile)) achievements.set();
 
     if (!existsSync(paths.settingsFile)) settings.set(); else {
@@ -195,4 +216,4 @@ const init = () => {
     }
 };
 
-module.exports = {init, space, settings, achievements, replays};
+module.exports = {init, space, settings, statistics, achievements, replays};
