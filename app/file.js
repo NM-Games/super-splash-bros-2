@@ -8,6 +8,7 @@
  * }} Settings
  * 
  * @typedef {{
+ *  gamesPlayed: number[],
  *  meleeAttacks: number,
  *  rocketsFired: number,
  *  damageTaken: number,

@@ -124,8 +124,11 @@ app.whenReady().then(() => {
     ipcMain.on("lan-start", () => gameserver.postMessage("start"));
 
     ipcMain.on("get-stats", () => window.webContents.send("stats-list", statistics = file.statistics.get()));
-    ipcMain.on("update-stats", (_e, match) => {
-        for (const i of Object.keys(statistics)) statistics[i] += match[i] ?? 0;
+    ipcMain.on("update-stats", (_e, match, color) => {
+        for (const i of Object.keys(statistics)) {
+            if (i === "gamesPlayed") statistics[i][color]++;
+            else statistics[i] += match[i] ?? 0;
+        }
         file.statistics.set(statistics);
     });
 

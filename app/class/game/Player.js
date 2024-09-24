@@ -58,6 +58,7 @@ class Player {
     /** @returns {import("../../file").Statistics} */
     static getStatisticsTemplate() {
         return {
+            gamesPlayed: new Array(8).fill(0),
             meleeAttacks: 0,
             rocketsFired: 0,
             damageTaken: 0,

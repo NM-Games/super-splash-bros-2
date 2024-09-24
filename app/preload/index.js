@@ -250,7 +250,7 @@ const leave = (playAgain = false) => {
         konamiEasterEgg.deactivate();
         if (!playAgain && !water.flood.disabling) water.flood.disable();
     });
-    if (playerIndex > -1) ipcRenderer.send("update-stats", game.players[playerIndex].stats);
+    if (playerIndex > -1) ipcRenderer.send("update-stats", game.players[playerIndex].stats, playerIndex);
 };
 
 const stop = () => {
@@ -621,6 +621,8 @@ let banButton = {
     hoverIndex: -1,
     active: false
 };
+/** @type {import("../file").Statistics} */
+let statistics;
 /** @type {import("../achievement").AchievementKeys} */
 let earnedAchievements;
 let freeDiskSpace = Infinity;
@@ -667,6 +669,7 @@ Button.items = [
         height: Button.height / 1.5,
         onclick: function() {
             this.hovering = false;
+            ipcRenderer.send("get-stats");
             state.change.to(state.STATISTICS, false);
         }
     }),
@@ -1972,6 +1975,7 @@ addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    ipcRenderer.on("stats-list", (_e, stats) => statistics = stats);
     ipcRenderer.on("achievement-list", (_e, achievements) => earnedAchievements = achievements);
     ipcRenderer.on("replay-list", (_e, replays) => {
         Replay.list = replays;
@@ -2707,7 +2711,34 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text({text: `There is NO WARRANTY, to the extent permitted by law.`, x: c.width(0.5) + state.change.x, y: c.height(0.7) + 25, font: {size: 20, shadow: true}, baseline: "bottom"});
             c.draw.text({text: `Read the GNU General Public License version 3 for further details.`, x: c.width(0.5) + state.change.x, y: c.height(0.7) + 50, font: {size: 20, shadow: true}, baseline: "bottom"});
         } else if (state.current === state.STATISTICS) {
-            c.draw.text({text: "STATISTICS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}}); 
+            c.draw.text({text: "STATISTICS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}});
+
+            c.draw.text({text: "MATCHES PLAYED", x: c.width(0.3) + state.change.x, y: 180, font: {size: 32, style: "bold", shadow: true}});
+            c.draw.text({text: "OTHER STATISTICS", x: c.width(0.7) + state.change.x, y: 180, font: {size: 32, style: "bold", shadow: true}});
+
+            let i;
+            let total = 0;
+            for (i=0; i<statistics.gamesPlayed.length; i++) {
+                c.draw.croppedImage(image.sprites, i * 128, 0, 128, 128, c.width(0.3) - 100 + state.change.x, 220 + i * 60, 48, 48);
+                c.draw.text({text: statistics.gamesPlayed[i], x: c.width(0.3) - 35 + state.change.x, y: 258 + i * 60, font: {size: 40, shadow: true}, alignment: "left"});
+                total += statistics.gamesPlayed[i];
+            }
+            c.draw.text({text: `Total: ${total}`, x: c.width(0.3) + state.change.x, y: 258 + i * 60, font: {size: 32, shadow: true}});
+
+            const statProperties = {
+                traveledX: {label: "X distance traveled", format: "* px", fix: 1},
+                traveledY: {label: "Y distance traveled", format: "* px", fix: 1},
+                meleeAttacks: {label: "Melee attacks performed", format: "*", fix: 0},
+                rocketsFired: {label: "Rockets fired", format: "*", fix: 0},
+                fishCollected: {label: "Fish collected", format: "*", fix: 0},
+                damageTaken: {label: "Damage taken", format: "*%", fix: 1},
+                timesSplashed: {label: "Times splashed", format: "*", fix: 0}
+            };
+            for (i=0; i<Object.keys(statProperties).length; i++) {
+                const stat = Object.keys(statProperties)[i];
+                c.draw.text({text: statProperties[stat].label, x: c.width(0.7) - 225 + state.change.x, y: 260 + i * 30, font: {size: 22, style: "bold", shadow: true}, alignment: "left"});
+                c.draw.text({text: statProperties[stat].format.replace(/^\*(.*)$/, statistics[stat].toFixed(statProperties[stat].fix) + "$1"), x: c.width(0.7) + 225 + state.change.x, y: 260 + i * 30, font: {size: 22, shadow: true}, alignment: "right"});
+            }
         } else if (state.current === state.ACHIEVEMENTS) {
             c.draw.text({text: "ACHIEVEMENTS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}});
 

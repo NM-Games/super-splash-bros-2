@@ -21,7 +21,7 @@
 - [ ] Steam Deck support (feat. @mmvanheusden)
 - [ ] Fix above-60-Hz-monitor issues
 - [x] Replay system
-- [ ] Tracking statistics
+- [x] Tracking statistics
 - [ ] Local 1v1 mode with keyboard
 - [ ] Tutorial mode
 - [ ] New music track
