@@ -24,4 +24,4 @@
 - [x] Tracking statistics
 - [ ] Local 1v1 mode with keyboard
 - [ ] Tutorial mode
-- [ ] New music track
+- [x] New music track
