@@ -14,7 +14,7 @@
 ## Also in next version, but it came to mind while working on it
 - [x] Fix freeplay CHAOS mode power-up issue
 - [x] Make appearance settings easier findable when navigating to the games
-- [ ] More sound effects
+- [x] More sound effects
 - [x] Achievements
 
 ## Possibly in next version, if it works out well

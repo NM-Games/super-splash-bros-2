@@ -2145,7 +2145,7 @@ addEventListener("DOMContentLoaded", () => {
         if (banButton.hoverIndex > -1 && banButton.active) {
             if (state.current === state.WAITING_LAN_HOST) ipcRenderer.send("lan-ban", banButton.hoverIndex);
             else if (state.current === state.WAITING_FREEPLAY) instance.ban(banButton.hoverIndex);
-            audio._play(audio.click);
+            audio._play(audio.ban);
         }
         banButton.hoverIndex = -1;
         banButton.active = false;
@@ -2211,11 +2211,17 @@ addEventListener("DOMContentLoaded", () => {
                     message.text = (game.winner === playerIndex) ? "YOU WIN!" : "YOU LOSE";
                     message.color = (game.winner === playerIndex) ? "g" : "r";
                     message.size = 240;
-                    if (game.winner === playerIndex) achievement.grant("winLAN");
+
+                    if (game.winner === playerIndex) {
+                        achievement.grant("winLAN");
+                        audio._play(audio.end_victory);
+                    } else audio._play(audio.end_defeat);
                 } else if (state.is(state.PLAYING_LOCAL, state.PLAYING_FREEPLAY)) {
                     message.text = "GAME ENDED";
                     message.color = "o";
                     message.size = 180;
+
+                    audio._play(audio.end_defeat);
                 }
                 bigNotification.show(message.text, theme.colors.bigNotification[message.color], message.size, 0.01);
             } else if (lgame.startState === 7 && game.startState === 8 && state.current !== state.WATCHING_REPLAY) leave(state.is(state.PLAYING_LAN));
@@ -2226,13 +2232,16 @@ addEventListener("DOMContentLoaded", () => {
                     bigNotification.show(`${powerupName} READY`, theme.colors.bigNotification.g, 120, 0.003);
                     audio._play(audio.powerup);
                 }
-                if (lgame.players[playerIndex].lives > 0 && game.players[playerIndex].lives === 0)
+                if (lgame.players[playerIndex].lives > 0 && game.players[playerIndex].lives === 0) {
                     bigNotification.show("GAME OVER", theme.colors.bigNotification.r, 200, 0.008);
+                    audio._play(audio.end_defeat);
+                }
 
                 if (state.is(state.PLAYING_FREEPLAY) && lgame.players.filter(p => p && p.lives > 0).length > 1 &&
                  game.players.filter(p => p && p.lives > 0).length === 1 && game.players[playerIndex].lives > 0) {
                     bigNotification.show("VICTORY!", theme.colors.bigNotification.g, 220, 0.008);
                     if (instance.dummyDifficulty === 3) achievement.grant("winFreeplayHard");
+                    audio._play(audio.end_victory);
                 }
             }
         }
@@ -2316,6 +2325,14 @@ addEventListener("DOMContentLoaded", () => {
                 now: game.rockets.filter(r => r.explosion.active && r.x > -r.explosion.size / 2 && r.x < c.width() + r.explosion.size / 2).length,
                 then: lgame.rockets.filter(r => r.explosion.active && r.x > -r.explosion.size / 2 && r.x < c.width() + r.explosion.size / 2).length
             };
+            const forceFields = {
+                now: game.players.filter(p => p && p.powerup.active && p.powerup.selected === Player.powerup.FORCE_FIELD).length,
+                then: lgame.players.filter(p => p && p.powerup.active && p.powerup.selected === Player.powerup.FORCE_FIELD).length
+            };
+            const lives = {
+                now: game.players.filter(p => p).map(p => p.lives),
+                then: lgame.players.filter(p => p).map(p => p.lives)
+            };
             const exclusives = {
                 now: game.players.filter(p => p && p.exclusivePlatform).length,
                 then: lgame.players.filter(p => p && p.exclusivePlatform).length
@@ -2330,10 +2347,14 @@ addEventListener("DOMContentLoaded", () => {
             if (game.poopBombs.length > lgame.poopBombs.length) audio._play(audio.poopbomb);
             if (game.geysers.length > lgame.geysers.length) audio._play(audio.geyser);
             if (game.splashes.length > lgame.splashes.length) audio._play((theme.filters[theme.current]) ? audio.splash_2 : audio.splash);
+            if (forceFields.now > forceFields.then) audio._play(audio.forcefield);
             if (explosions.now > explosions.then) audio._play(audio.explosion);
             if (exclusives.now > exclusives.then) audio._play(audio.exclusive);
             if (squashes.now > squashes.then) audio._play(audio.squash);
             if (game.fish.item && game.fish.item.y < 550 && lgame.fish.item && lgame.fish.item.y >= 550) audio._play(audio.fish);
+            for (let i=0; i<lives.then.length; i++) {
+                if (lives.now[i] > lives.then[i]) audio._play(audio.lifemender);
+            }
 
             if (playerIndex > -1) {
                 for (let i in game.players[playerIndex].achievement) {
@@ -2358,7 +2379,7 @@ addEventListener("DOMContentLoaded", () => {
             gameMenu.darkness = Math.max(0, gameMenu.darkness - 0.01);
         }
 
-        achievement.update();
+        if (achievement.update()) audio._play(audio.achievement);
         lgame = (game) ? JSON.parse(JSON.stringify(game)) : undefined;
         document.body.style.cursor = (hoverings.button > 0 || banButton.hoverIndex > -1) ? "pointer" : (hoverings.input > 0) ? "text" : "default";
     };

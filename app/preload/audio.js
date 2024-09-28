@@ -13,17 +13,23 @@ const muted = {music: false, sfx: false};
 
 /**
  * @type {{
+ *  achievement: HTMLAudioElement,
  *  attack: HTMLAudioElement,
+ *  ban: HTMLAudioElement,
  *  click: HTMLAudioElement,
  *  click_back: HTMLAudioElement,
  *  countdown: HTMLAudioElement,
  *  countdown_go: HTMLAudioElement,
+ *  end_defeat: HTMLAudioElement,
+ *  end_victory: HTMLAudioElement,
  *  exclusive: HTMLAudioElement,
  *  explosion: HTMLAudioElement,
  *  fish: HTMLAudioElement,
  *  flood: HTMLAudioElement,
+ *  forcefield: HTMLAudioElement,
  *  gamemenu: HTMLAudioElement,
  *  geyser: HTMLAudioElement,
+ *  lifemender: HTMLAudioElement,
  *  poopbomb: HTMLAudioElement,
  *  powerup: HTMLAudioElement,
  *  rocket: HTMLAudioElement,

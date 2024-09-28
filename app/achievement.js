@@ -119,12 +119,16 @@ const renderer = {
         ipcRenderer.send("can-grant-achievement", key);
         ipcRenderer.once("achievement-granted", () => this.queue.push(list[key]));
     },
+    /** @returns {boolean} - whether a sound effect should be played. */
     update: function() {
+        let newOnScreen = false;
         const now = new Date().getTime();
-        if (!this.shown) {
+        if (!this.shown && this.queue.length > 0) {
             this.shown = this.queue.shift();
             this.shownAt = now;
             this.vy = 15;
+            newOnScreen = true;
+            console.log("bla");
         } else if (now - this.shownAt >= this.duration && this.y < -100) {
             this.shown = null;
             this.sprites.splice(0, this.sprites.length);
@@ -147,6 +151,7 @@ const renderer = {
                 sprite.vy -= 0.2;
             }
         }
+        return newOnScreen;
     }
 };
 
