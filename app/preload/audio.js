@@ -13,7 +13,6 @@ const muted = {music: false, sfx: false};
 
 /**
  * @type {{
- *  achievement: HTMLAudioElement,
  *  attack: HTMLAudioElement,
  *  ban: HTMLAudioElement,
  *  click: HTMLAudioElement,

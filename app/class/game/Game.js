@@ -49,10 +49,7 @@ class Game {
         condition: (p) => (p.connected && p.lives > 0 && p.lives < 5),
         conditionText: "Requires player to have less than 5 lives",
         /** @param {Player} p */
-        action: (p) => {
-            p.lives = Math.min(p.lives + ((Math.random() > 0.8) ? 2 : 1), 5)
-            if (p.lives === 5) p.achievement.maxLives = true;
-        },
+        action: (p) => p.lives = Math.min(p.lives + ((Math.random() > 0.8) ? 2 : 1), 5),
         duration: 0
     }, {
         name: "Poop Bomb",
@@ -75,7 +72,6 @@ class Game {
         action: (p, g) => {
             p.exclusivePlatform = new Exclusive(p.x, p.y, p.size);
             p.vx = p.vy = 0;
-            if (p.y >= 580 + g.floodLevel) p.achievement.exclusiveWaterSave = true;
         }
     }, {
         name: "Infinite Rockets",
@@ -423,8 +419,6 @@ class Game {
                 p1.powerup.active = true;
                 p1.powerup.lastActivated = this.ping;
                 if (Game.powerups[p1.powerup.selected].action) Game.powerups[p1.powerup.selected].action(p1, this);
-
-                p1.achievement.firstPowerup = true;
             }
             if (p1.powerup.active) {
                 if (!Game.powerups[p1.powerup.selected].duration && p1.powerup.selected !== Player.powerup.SQUASH)
@@ -476,12 +470,9 @@ class Game {
                         p.y = rocket.y - p.size;
                         p.jump.used = p.vy = 0;
                         p.jump.active = false;
-                        p.achievement.rocketRide = true;
                     } else if (p.hasPowerup(Player.powerup.FORCE_FIELD)) {
                         rocket.bounce();
-                        p.achievement.deflectWithForceField = true;
                     } else {
-                        if (rocket.player === p.index) p.achievement.hitByOwnRocket = true;
                         p.damage(this.ping, 30, 50, (rocket.direction === "r" ? Rocket.impact : -Rocket.impact));
                         rocket.explode();
                     }

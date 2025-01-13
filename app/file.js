@@ -22,7 +22,6 @@
  *  mainFolder: string,
  *  settingsFile: string,
  *  statisticsFile: string,
- *  achievementsFile: string,
  *  replayFolder: string
  * }} Paths
  */
@@ -123,14 +122,6 @@ const statistics = {
     set: (statistics = getStatisticsTemplate()) => write(paths.statisticsFile, statistics),
 };
 
-// Achievements file
-const achievements = {
-    /** @returns {import("./achievement").AchievementKeys[]} */
-    get: () => read(paths.achievementsFile),
-    /** @param {import("./achievement").AchievementKeys[]} settings */
-    set: (achievements = []) => write(paths.achievementsFile, achievements, 0)
-};
-
 // Replay files
 const replays = {
     list: () => {
@@ -196,13 +187,11 @@ const init = () => {
     paths.mainFolder = join(app.getPath("appData"), app.name);
     paths.settingsFile = join(paths.mainFolder, "settings.json");
     paths.statisticsFile = join(paths.mainFolder, "statistics.json");
-    paths.achievementsFile = join(paths.mainFolder, "achievements.json");
     paths.replayFolder = join(paths.mainFolder, "replays");
 
     if (!existsSync(paths.mainFolder)) mkdirSync(paths.mainFolder);
     if (!existsSync(paths.replayFolder)) mkdirSync(paths.replayFolder);
     if (!existsSync(paths.statisticsFile)) statistics.set();
-    if (!existsSync(paths.achievementsFile)) achievements.set();
 
     if (!existsSync(paths.settingsFile)) settings.set(); else {
         const config = settings.get();
@@ -217,4 +206,4 @@ const init = () => {
     }
 };
 
-module.exports = {init, space, settings, statistics, achievements, replays};
+module.exports = {init, space, settings, statistics, replays};

@@ -9,7 +9,6 @@ const theme = require("./theme");
 const socket = require("./socket");
 const gamepad = require("./gamepad");
 const network = require("../network");
-const { achievement, list: allAchievements } = require("../achievement");
 const Button = require("../class/ui/Button");
 const Input = require("../class/ui/Input");
 const MenuSprite = require("../class/ui/MenuSprite");
@@ -34,9 +33,8 @@ const state = {
     SETTINGS: 10,
     ABOUT: 11,
     STATISTICS: 12,
-    ACHIEVEMENTS: 13,
-    REPLAYS_MENU: 14,
-    WATCHING_REPLAY: 15,
+    REPLAYS_MENU: 13,
+    WATCHING_REPLAY: 14,
 
     current: 0,
     change: {
@@ -73,7 +71,7 @@ const state = {
      * @returns {boolean}
      */
     isMenu: () => {
-        return state.is(state.MAIN_MENU, state.PLAY_MENU, state.SETTINGS, state.ABOUT, state.STATISTICS, state.ACHIEVEMENTS, state.REPLAYS_MENU, state.WAITING_LOCAL, state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY);
+        return state.is(state.MAIN_MENU, state.PLAY_MENU, state.SETTINGS, state.ABOUT, state.STATISTICS, state.REPLAYS_MENU, state.WAITING_LOCAL, state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY);
     }
 };
 
@@ -270,10 +268,8 @@ const checkLANAvailability = () => {
 const keyChange = () => (JSON.stringify(keys) !== JSON.stringify(lastKeys));
 const keybindIDs = ["moveLeft", "moveRight", "jump", "attack", "launchRocket", "activatePowerup", "gameMenu"];
 const updateKeybinds = () => {
-    const oldControls = JSON.stringify(config.controls);
     for (const k of keybindIDs) config.controls[k] = Input.getInputById(`Keybind-${k}`).keybind;
     ipcRenderer.send("update-config", config);
-    if (JSON.stringify(config.controls) !== oldControls) achievement.grant("remapKeybind");
 };
 
 /**
@@ -540,7 +536,6 @@ const replayActions = {
                 water.flood.disable();
                 parallellogram.show();
                 isInGame = true;
-                achievement.grant("watchReplay");
             });
         });
     },
@@ -573,7 +568,6 @@ const replayActions = {
                     shell.showItemInFolder(path);
                 }
             }));
-            achievement.grant("exportReplay");
         });
     },
     /**
@@ -623,8 +617,6 @@ let banButton = {
 };
 /** @type {import("../file").Statistics} */
 let statistics;
-/** @type {import("../achievement").AchievementKeys} */
-let earnedAchievements;
 let freeDiskSpace = Infinity;
 let lastKeys = JSON.parse(JSON.stringify(keys));
 
@@ -671,19 +663,6 @@ Button.items = [
             this.hovering = false;
             ipcRenderer.send("get-stats");
             state.change.to(state.STATISTICS, false);
-        }
-    }),
-    new Button({
-        text: "Achievements",
-        state: state.MAIN_MENU,
-        x: () => c.width(1/2),
-        y: () => c.height(4/5),
-        width: Button.width / 1.5,
-        height: Button.height / 1.5,
-        onclick: function() {
-            this.hovering = false;
-            ipcRenderer.send("get-achievements");
-            state.change.to(state.ACHIEVEMENTS, false);
         }
     }),
     new Button({
@@ -1148,20 +1127,6 @@ Button.items = [
         id: `Back-${state.STATISTICS}`,
         text: "◂ Back",
         state: state.STATISTICS,
-        x: () => Button.width / 3 + 20,
-        y: () => Button.height / 3 + 20,
-        width: Button.width / 1.5,
-        height: Button.height / 1.5,
-        onclick: function() {
-            this.hovering = false;
-            state.change.to(state.MAIN_MENU, true);
-        }
-    }),
-    // Achievements menu
-    new Button({
-        id: `Back-${state.ACHIEVEMENTS}`,
-        text: "◂ Back",
-        state: state.ACHIEVEMENTS,
         x: () => Button.width / 3 + 20,
         y: () => Button.height / 3 + 20,
         width: Button.width / 1.5,
@@ -1648,11 +1613,7 @@ Button.gameMenuItems = [
                     x: () => c.width(0.35),
                     y: () => c.height(0.75),
                     danger: true,
-                    onclick: () => {
-                        if (game.ping - game.players[playerIndex].respawn < game.players[playerIndex].spawnProtection)
-                            achievement.grant("leaveAfterRespawning");
-                        leave();
-                    }
+                    onclick: leave
                 }), new Button({
                     text: "No",
                     x: () => c.width(0.65),
@@ -1819,9 +1780,7 @@ Input.items = [
         size: 25,
         onblur: function() {
             if (this.value.trim().length === 0) this.value = Player.generateName();
-            const newName = this.value.slice(0, this.maxLength);
-            if (config.appearance.playerName !== newName) achievement.grant("changeName");
-            config.appearance.playerName = newName;
+            config.appearance.playerName = this.value.slice(0, this.maxLength);
             ipcRenderer.send("update-config", config);
         }
     }),
@@ -1976,7 +1935,6 @@ addEventListener("DOMContentLoaded", () => {
     });
 
     ipcRenderer.on("stats-list", (_e, stats) => statistics = stats);
-    ipcRenderer.on("achievement-list", (_e, achievements) => earnedAchievements = achievements);
     ipcRenderer.on("replay-list", (_e, replays) => {
         Replay.list = replays;
         for (let i=0; i<5; i++) {
@@ -2213,7 +2171,6 @@ addEventListener("DOMContentLoaded", () => {
                     message.size = 240;
 
                     if (game.winner === playerIndex) {
-                        achievement.grant("winLAN");
                         audio._play(audio.end_victory);
                     } else audio._play(audio.end_defeat);
                 } else if (state.is(state.PLAYING_LOCAL, state.PLAYING_FREEPLAY)) {
@@ -2240,7 +2197,6 @@ addEventListener("DOMContentLoaded", () => {
                 if (state.is(state.PLAYING_FREEPLAY) && lgame.players.filter(p => p && p.lives > 0).length > 1 &&
                  game.players.filter(p => p && p.lives > 0).length === 1 && game.players[playerIndex].lives > 0) {
                     bigNotification.show("VICTORY!", theme.colors.bigNotification.g, 220, 0.008);
-                    if (instance.dummyDifficulty === 3) achievement.grant("winFreeplayHard");
                     audio._play(audio.end_victory);
                 }
             }
@@ -2356,11 +2312,6 @@ addEventListener("DOMContentLoaded", () => {
                 if (lives.now[i] > lives.then[i]) audio._play(audio.lifemender);
             }
 
-            if (playerIndex > -1) {
-                for (let i in game.players[playerIndex].achievement) {
-                    if (game.players[playerIndex].achievement[i] && !lgame.players[playerIndex].achievement[i]) achievement.grant(i);
-                }
-            }
         } else parallellogram.hide();
         if (parallellogram.visible && parallellogram.moving) {
             parallellogram.y = Math.max(c.height() + 20 - parallellogram.offset, parallellogram.y - parallellogram.vy);
@@ -2379,7 +2330,6 @@ addEventListener("DOMContentLoaded", () => {
             gameMenu.darkness = Math.max(0, gameMenu.darkness - 0.01);
         }
 
-        if (achievement.update()) audio._play(audio.achievement);
         lgame = (game) ? JSON.parse(JSON.stringify(game)) : undefined;
         document.body.style.cursor = (hoverings.button > 0 || banButton.hoverIndex > -1) ? "pointer" : (hoverings.input > 0) ? "text" : "default";
     };
@@ -2760,24 +2710,6 @@ addEventListener("DOMContentLoaded", () => {
                 c.draw.text({text: statProperties[stat].label, x: c.width(0.7) - 225 + state.change.x, y: 260 + i * 30, font: {size: 22, style: "bold", shadow: true}, alignment: "left"});
                 c.draw.text({text: statProperties[stat].format.replace(/^\*(.*)$/, statistics[stat].toFixed(statProperties[stat].fix) + "$1"), x: c.width(0.7) + 225 + state.change.x, y: 260 + i * 30, font: {size: 22, shadow: true}, alignment: "right"});
             }
-        } else if (state.current === state.ACHIEVEMENTS) {
-            c.draw.text({text: "ACHIEVEMENTS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}});
-
-            const achievements = Object.keys(allAchievements);
-            const progress = `${earnedAchievements.length} / ${achievements.length} unlocked (${Math.round(earnedAchievements.length / achievements.length * 100)}%)`;
-            c.draw.text({text: progress, x: c.width() - 25 + state.change.x, y: 65, font: {size: 24, shadow: true}, alignment: "right"});
-            
-            for (let i=0; i<achievements.length; i++) {
-                const x = c.width(0.5) + (i % 2 - 0.5) * (c.width(0.4) + 25) + state.change.x;
-                const y = 130 + Math.floor(i / 2) * 85;
-
-                c.options.setShadow(theme.colors.text.light, 12, 0, 0);
-                c.draw.fill.rect(theme.colors.achievement[allAchievements[achievements[i]].rarity], x - c.width(0.2), y, c.width(0.4), 60, 12);
-                c.options.setShadow();
-                if (earnedAchievements.includes(achievements[i])) c.draw.stroke.rect(theme.colors.players[1], x - c.width(0.2), y, c.width(0.4), 60, 3, 12);
-                c.draw.text({text: allAchievements[achievements[i]].name, x, y: y + 29, color: theme.colors.text.light, font: {size: 28, style: "bold"}})
-                c.draw.text({text: allAchievements[achievements[i]].description, x, y: y + 52, color: theme.colors.text.light, font: {size: 18, style: "italic"}})
-            }
         } else if (state.current === state.REPLAYS_MENU) {
             c.draw.text({text: "REPLAYS", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}});
             c.draw.text({text: "Look back at the games you played!", x: c.width(0.5) + state.change.x, y: c.height(0.125) + 30, font: {size: 18, shadow: true}});
@@ -2904,22 +2836,6 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.croppedImage(image.sprites, gamepad.playerIndexes[i] * 128, 0, 128, 128, gamepadAlert.x + i * 50 + gamepadAlert.offset, gamepadAlert.y + gamepadAlert.height - 65, 36, 36);
         }
         c.options.setOpacity();
-
-        if (achievement.shown) {
-            const width = Math.max(
-                c.draw.text({text: achievement.shown.name, font: {size: 28, style: "bold"}, measure: true}),
-                c.draw.text({text: achievement.shown.description, font: {size: 18, style: "italic"}, measure: true}),
-            ) + 50;
-
-            c.options.setShadow(theme.colors.text.light, 24, 0, 0);
-            for (const sprite of achievement.sprites) c.draw.croppedImage(image.sprites, sprite.color * 128, Number(c.width(0.5) + sprite.x > c.width(0.5)) * 128, 128, 128, c.width(0.5) + sprite.x, c.height() - sprite.y, 48, 48);
-            c.draw.fill.rect(theme.colors.achievement[achievement.shown.rarity], c.width(0.5) - width / 2, c.height() - achievement.y - 40, width, 80, 12);
-            c.options.setShadow();
-
-            c.draw.text({text: "Achievement unlocked!", x: c.width(0.5), y: c.height() - achievement.y - 18, font: {size: 18, style: "bold"}, color: theme.colors.text.light});
-            c.draw.text({text: achievement.shown.name, x: c.width(0.5), y: c.height() - achievement.y + 10, font: {size: 28, style: "bold"}, color: theme.colors.text.light});
-            c.draw.text({text: achievement.shown.description, x: c.width(0.5), y: c.height() - achievement.y + 30, font: {size: 18, style: "italic"}, color: theme.colors.text.light});
-        }
 
         if (dialog.visible) {
             c.draw.fill.rect(theme.colors.overlay, 0, 0, c.width(), c.height());

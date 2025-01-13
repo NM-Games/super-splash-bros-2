@@ -15,7 +15,7 @@
 - [x] Fix freeplay CHAOS mode power-up issue
 - [x] Make appearance settings easier findable when navigating to the games
 - [x] More sound effects
-- [x] Achievements
+- [x] ~~Achievements~~ WAY too unstable, perhaps in next version
 
 ## Possibly in next version, if it works out well
 - [ ] Steam Deck support (feat. @mmvanheusden)

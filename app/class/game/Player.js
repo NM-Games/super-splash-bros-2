@@ -1,5 +1,4 @@
 const Exclusive = require("./Exclusive");
-const { getAchievementTemplate } = require("../../achievement");
 
 class Player {
     static g = 0.6;
@@ -46,7 +45,6 @@ class Player {
     /** @type {Exclusive | null} */
     exclusivePlatform;
     stats;
-    achievement;
     keys;
     respawn;
     spawnProtection;
@@ -117,7 +115,6 @@ class Player {
         };
         this.exclusivePlatform = null;
         this.stats = Player.getStatisticsTemplate();
-        this.achievement = getAchievementTemplate();
         this.keys = {
             left: false,
             right: false,
@@ -158,8 +155,6 @@ class Player {
         this.stats.damageTaken += damageAmount;
         if (this.hit.percentage >= 500) this.hit.percentage = 500;
         this.vx += knockback * (this.hit.percentage / 80 + 1);
-
-        if (this.hit.percentage === 500) this.achievement.maxDamage = true;
     }
 
     /**

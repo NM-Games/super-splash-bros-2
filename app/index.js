@@ -14,8 +14,6 @@ let gameserver;
 
 /** @type {import("./file").Statistics} */
 let statistics;
-/** @type {import("./achievement").AchievementKeys[]} */
-let achievements;
 
 app.setName(displayName);
 if (process.platform === "darwin") {
@@ -75,7 +73,6 @@ app.whenReady().then(() => {
         );
 
         statistics = file.statistics.get();
-        achievements = file.achievements.get();
 
         window.webContents.send("fullscreen-status", window.isFullScreen());
         window.show();
@@ -168,15 +165,6 @@ app.whenReady().then(() => {
         });
     })
     ipcMain.on("delete-replay", (_e, name) => file.replays.delete(name));
-
-    ipcMain.on("get-achievements", () => window.webContents.send("achievement-list", achievements = file.achievements.get()));
-    ipcMain.on("can-grant-achievement", (_e, key) => {
-        if (!achievements.includes(key)) {
-            achievements.push(key);
-            file.achievements.set(achievements);
-            window.webContents.send("achievement-granted", key);
-        }
-    });
 
     ipcMain.on("discord-activity-update", (_e, state, playerIndex, playerName, partySize, partyMax, startTimestamp) => {
         discord({
