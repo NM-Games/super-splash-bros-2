@@ -15,10 +15,10 @@
 - [x] Fix freeplay CHAOS mode power-up issue
 - [x] Make appearance settings easier findable when navigating to the games
 - [x] More sound effects
-- [x] ~~Achievements~~ WAY too unstable, perhaps in next version
+- [x] ~~Achievements~~ **WAY too unstable, perhaps in next version**
 
 ## Possibly in next version, if it works out well
-- [ ] Steam Deck support (feat. @mmvanheusden)
+- [ ] ~~Steam Deck support (feat. @mmvanheusden)~~ **he already hacked his way into it**
 - [ ] Fix above-60-Hz-monitor issues
 - [x] Replay system
 - [x] Tracking statistics

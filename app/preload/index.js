@@ -635,8 +635,8 @@ Button.items = [
     new Button({
         text: "Settings",
         state: state.MAIN_MENU,
-        x: () => c.width(1/3),
-        y: () => c.height(3/4) - 150,
+        x: () => c.width(1/3) + 55,
+        y: () => c.height(3/4) - 120,
         onclick: function() {
             this.hovering = false;
             state.change.to(state.SETTINGS, false);
@@ -645,8 +645,8 @@ Button.items = [
     new Button({
         text: "About",
         state: state.MAIN_MENU,
-        x: () => c.width(2/3),
-        y: () => c.height(3/4) - 150,
+        x: () => c.width(2/3) - 55,
+        y: () => c.height(3/4) - 120,
         onclick: function() {
             this.hovering = false;
             state.change.to(state.ABOUT, false);
@@ -655,10 +655,10 @@ Button.items = [
     new Button({
         text: "Statistics",
         state: state.MAIN_MENU,
-        x: () => c.width(1/4) + Button.width / 3,
-        y: () => c.height(4/5),
-        width: Button.width / 1.5,
-        height: Button.height / 1.5,
+        x: () => c.width(1/4),
+        y: () => c.height(3/4),
+        width: Button.width,
+        height: Button.height,
         onclick: function() {
             this.hovering = false;
             ipcRenderer.send("get-stats");
@@ -668,10 +668,10 @@ Button.items = [
     new Button({
         text: "Replays",
         state: state.MAIN_MENU,
-        x: () => c.width(3/4) - Button.width / 3,
-        y: () => c.height(4/5),
-        width: Button.width / 1.5,
-        height: Button.height / 1.5,
+        x: () => c.width(1/2),
+        y: () => c.height(3/4),
+        width: Button.width,
+        height: Button.height,
         onclick: function() {
             this.hovering = false;
             ipcRenderer.send("get-replays");
@@ -681,10 +681,10 @@ Button.items = [
     new Button({
         text: "Quit game",
         state: state.MAIN_MENU,
-        x: () => Button.width / 3 + 20,
-        y: () => Button.height / 3 + 20,
-        width: Button.width / 1.5,
-        height: Button.height / 1.5,
+        x: () => c.width(3/4),
+        y: () => c.height(3/4),
+        width: Button.width,
+        height: Button.height,
         danger: true,
         onclick: function() {
             this.hovering = false;
