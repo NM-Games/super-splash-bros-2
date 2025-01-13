@@ -2582,7 +2582,7 @@ addEventListener("DOMContentLoaded", () => {
 
             const m = Math.max(0, Math.floor(game.remaining / 60));
             const s = ("0" + Math.max(0, game.remaining % 60)).slice(-2);
-            const liquid = (theme.current === "lava") ? "Lava" : "Water";
+            const liquid = (theme.current === "slime") ? "Slime" : (theme.current === "lava") ? "Lava" : "Water";
             const text = (game.winner !== null) ? `Returning to menu in ${m}:${s}`
              : (game.remaining >= 0) ? `${liquid} starts rising in ${m}:${s}`
              : (!game.flooded) ? `${liquid} is rising!`
