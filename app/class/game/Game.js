@@ -1,5 +1,5 @@
 /**
- * @typedef {"local" | "lan" | "freeplay"} Modes
+ * @typedef {"local" | "lan" | "freeplay" | "tutorial"} Modes
  * @typedef {import("../../preload/theme").Themes} Themes
  * @typedef {import("../../file").Settings["appearance"]} Appearance
  */
@@ -154,18 +154,36 @@ class Game {
         this.winner = null;
         this.ping = new Date().getTime();
 
-        this.spawnCoordinates = [
-            {x: 393, y: 25},
-            {x: 593, y: -25},
-            {x: 793, y: 75},
-            {x: 353, y: 450},
-            {x: 593, y: 350},
-            {x: 833, y: 400},
-            {x: 83, y: 250},
-            {x: 1103, y: 250}
-        ].map(x => ({x, sortKey: Math.random()}))
-        .sort((a, b) => a.sortKey - b.sortKey)
-        .map(({x}) => x);
+        if (mode === "tutorial") {
+            this.spawnCoordinates = new Array(8).fill({x: -1e8, y: -1e8});
+            this.tutorialPhase = 0;
+
+            const playerIndex = 0;
+            const enemyIndex = 2;
+            this.join({playerName: "You", preferredColor: playerIndex, powerup: 0}, "tutorial::player");
+            this.join({playerName: "Enemy", preferredColor: enemyIndex, powerup: 0}, "tutorial::dummy");
+            this.spawnCoordinates[playerIndex] = {x: 593, y: 350};
+            this.spawnCoordinates[enemyIndex] = {x: 593, y: -25};
+            this.players[playerIndex].x = this.spawnCoordinates[playerIndex].x;
+            this.players[playerIndex].y = this.spawnCoordinates[playerIndex].y;
+            this.players[enemyIndex].x = this.spawnCoordinates[enemyIndex].x;
+            this.players[enemyIndex].y = this.spawnCoordinates[enemyIndex].y;
+            this.players[enemyIndex].lives = 1;
+            this.hostIndex = playerIndex;
+        } else {
+            this.spawnCoordinates = [
+                {x: 393, y: 25},
+                {x: 593, y: -25},
+                {x: 793, y: 75},
+                {x: 353, y: 450},
+                {x: 593, y: 350},
+                {x: 833, y: 400},
+                {x: 83, y: 250},
+                {x: 1103, y: 250}
+            ].map(x => ({x, sortKey: Math.random()}))
+            .sort((a, b) => a.sortKey - b.sortKey)
+            .map(({x}) => x);
+        }
     }
 
     /**
@@ -539,6 +557,20 @@ class Game {
                 }));
             }
             this.fish.item = null;
+        }
+        if (this.mode === "tutorial") {
+            this.floodLevel = 0;
+            this.players[this.hostIndex].lives = 1;
+
+            if (this.tutorialPhase === 0) {
+                this.fish.item = null;
+                for (const p of this.getPlayers()) {
+                    p.attacks.rocket.count = 0;
+                    p.attacks.rocket.lastPerformed = this.ping;
+                }
+            } else if (this.tutorialPhase === 1) {
+                this.attacks.splice(0, this.attacks.length);
+            }
         }
 
         for (const p of this.getPlayers()) {

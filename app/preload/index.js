@@ -35,6 +35,9 @@ const state = {
     STATISTICS: 12,
     REPLAYS_MENU: 13,
     WATCHING_REPLAY: 14,
+    TUTORIAL_PROMPT: 15,
+    TUTORIAL_INTRO: 16,
+    TUTORIAL_GAME: 17,
 
     current: 0,
     change: {
@@ -71,7 +74,21 @@ const state = {
      * @returns {boolean}
      */
     isMenu: () => {
-        return state.is(state.MAIN_MENU, state.PLAY_MENU, state.SETTINGS, state.ABOUT, state.STATISTICS, state.REPLAYS_MENU, state.WAITING_LOCAL, state.LAN_GAME_MENU, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY);
+        return state.is(
+            state.MAIN_MENU,
+            state.PLAY_MENU,
+            state.SETTINGS,
+            state.ABOUT,
+            state.STATISTICS,
+            state.REPLAYS_MENU,
+            state.WAITING_LOCAL,
+            state.LAN_GAME_MENU,
+            state.WAITING_LAN_GUEST,
+            state.WAITING_LAN_HOST,
+            state.WAITING_FREEPLAY,
+            state.TUTORIAL_PROMPT,
+            state.TUTORIAL_INTRO
+        );
     }
 };
 
@@ -1583,7 +1600,53 @@ Button.items = [
             banButton.hoverIndex = -1;
             instance.start();
         }
-    })
+    }),
+    // Tutorial
+    new Button({
+        text: "Quit",
+        state: state.TUTORIAL_PROMPT,
+        x: () => Button.width / 3 + 20,
+        y: () => Button.height / 3 + 20,
+        width: Button.width / 1.5,
+        height: Button.height / 1.5,
+        danger: true,
+        onclick: function() {
+            this.hovering = false;
+            ipcRenderer.send("quit");
+        }
+    }),
+    new Button({
+        text: "Yes",
+        state: state.TUTORIAL_PROMPT,
+        x: () => c.width(0.35),
+        y: () => c.height(0.75),
+        onclick: function() {
+            this.hovering = false;
+            state.change.to(state.TUTORIAL_INTRO, false, () => {
+                instance = new Game("tutorial");
+                playerIndex = instance.hostIndex;
+            });
+        }
+    }),
+    new Button({
+        text: "No",
+        state: state.TUTORIAL_PROMPT,
+        x: () => c.width(0.65),
+        y: () => c.height(0.75),
+        onclick: function() {
+            config.misc.tutorialPrompt = false;
+            ipcRenderer.send("update-config", config);
+            state.change.to(state.MAIN_MENU);
+        }
+    }),
+    new Button({
+        text: "Next",
+        state: state.TUTORIAL_INTRO,
+        x: () => c.width(0.5),
+        y: () => c.height(0.75),
+        onclick: () => instance.start()
+    }),
+ 
 ];
 Button.gameMenuItems = [
     new Button({
@@ -1895,6 +1958,7 @@ addEventListener("DOMContentLoaded", () => {
         for (let i in ver) versions[i] = ver[i];
         freeDiskSpace = diskSpace;
         MenuSprite.generate(maxWidth);
+        if (config.misc.tutorialPrompt) state.current = state.TUTORIAL_PROMPT;
 
         Input.getInputById("Username").value = config.appearance.playerName;
 
@@ -2008,7 +2072,7 @@ addEventListener("DOMContentLoaded", () => {
             }
             if (keyChange()) {
                 if (state.current === state.PLAYING_LAN) socket.sendKeys(keys);
-                else if (state.current === state.PLAYING_FREEPLAY) instance.players[instance.hostIndex].setKeys(keys);
+                else if (state.is(state.PLAYING_FREEPLAY, state.TUTORIAL_GAME)) instance.players[instance.hostIndex].setKeys(keys);
             }
             lastKeys = JSON.parse(JSON.stringify(keys));
         }
@@ -2024,7 +2088,7 @@ addEventListener("DOMContentLoaded", () => {
             }
             if (keyChange()) {
                 if (state.current === state.PLAYING_LAN) socket.sendKeys(keys);
-                else if (state.current === state.PLAYING_FREEPLAY) instance.players[instance.hostIndex].setKeys(keys);
+                else if (state.is(state.PLAYING_FREEPLAY, state.TUTORIAL_GAME)) instance.players[instance.hostIndex].setKeys(keys);
             }
             lastKeys = JSON.parse(JSON.stringify(keys));
         }
@@ -2123,7 +2187,7 @@ addEventListener("DOMContentLoaded", () => {
         if (socket.isOpen()) {
             game = socket.getGame();
             if (replay && config.misc.recordReplays) replay.recordFrame(game);
-        } else if (state.is(state.WAITING_LOCAL, state.PLAYING_LOCAL, state.WAITING_FREEPLAY, state.PLAYING_FREEPLAY)) {
+        } else if (state.is(state.WAITING_LOCAL, state.PLAYING_LOCAL, state.WAITING_FREEPLAY, state.PLAYING_FREEPLAY, state.TUTORIAL_INTRO, state.TUTORIAL_GAME)) {
             instance.update();
             game = instance.export();
             if (replay && config.misc.recordReplays) replay.recordFrame(game);
@@ -2141,11 +2205,12 @@ addEventListener("DOMContentLoaded", () => {
             Button.getButtonById(`Back-${state.WAITING_LAN_HOST}`).danger = (game.connected > 1);
 
             if (lgame.startState === 0 && game.startState === 1) {
-                water.flood.enable(false, true);
+                water.flood.enable(false, !state.is(state.TUTORIAL_INTRO, state.TUTORIAL_GAME));
             } else if (lgame.startState === 1 && game.startState === 2) {
                 state.current = (state.current === state.WAITING_LOCAL) ? state.PLAYING_LOCAL
                 : (state.current === state.WAITING_FREEPLAY) ? state.PLAYING_FREEPLAY
                 : (state.is(state.WAITING_LAN_HOST, state.WAITING_LAN_GUEST)) ? state.PLAYING_LAN
+                : (state.current === state.TUTORIAL_INTRO) ? state.TUTORIAL_GAME
                 : state.current;
                 isInGame = true;
                 water.flood.disable();
@@ -2384,7 +2449,7 @@ addEventListener("DOMContentLoaded", () => {
                 if (sprite.visible) c.draw.croppedImage(image.sprites, sprite.color * 128, sprite.facing * 128, 128, 128, sprite.x, sprite.y, 96, 96);
             }
             drawWater();
-        } else if (state.is(state.PLAYING_LOCAL, state.PLAYING_LAN, state.PLAYING_FREEPLAY, state.WATCHING_REPLAY) && game) {
+        } else if (state.is(state.PLAYING_LOCAL, state.PLAYING_LAN, state.PLAYING_FREEPLAY, state.WATCHING_REPLAY, state.TUTORIAL_GAME) && game) {
             const offset = {x: (c.width() - image.platforms.width) / 2 + screenShake.x, y: c.height() - image.platforms.height + screenShake.y};
 
             if (theme.current === "foggy") c.options.filter.add("sepia(1)", "hue-rotate(150deg)", "brightness(1.5)");
@@ -2583,7 +2648,10 @@ addEventListener("DOMContentLoaded", () => {
             const m = Math.max(0, Math.floor(game.remaining / 60));
             const s = ("0" + Math.max(0, game.remaining % 60)).slice(-2);
             const liquid = (theme.current === "slime") ? "Slime" : (theme.current === "lava") ? "Lava" : "Water";
-            const text = (game.winner !== null) ? `Returning to menu in ${m}:${s}`
+            const text = (state.current === state.TUTORIAL_GAME) ? (
+                (instance.tutorialPhase === 0) ? "Push the enemy off the edge!"
+                : "Fire a rocket at the enemy to make him fall of the edge!")
+             : (game.winner !== null) ? `Returning to menu in ${m}:${s}`
              : (game.remaining >= 0) ? `${liquid} starts rising in ${m}:${s}`
              : (!game.flooded) ? `${liquid} is rising!`
              : (state.is(state.PLAYING_FREEPLAY) && game.players.filter(p => p && p.lives > 0).length === 1 && game.players[playerIndex].lives > 0) ? "Congratulations!"
@@ -2600,7 +2668,7 @@ addEventListener("DOMContentLoaded", () => {
             else if (state.current === state.WATCHING_REPLAY && replay) c.draw.text({text: `${replay.playbackRate}x`, x: c.width() - 525, y: 60, font: {size: 32, style: "bold", shadow: true}});
         } else drawWater();
 
-        if (state.current === state.MAIN_MENU) {
+        if (state.is(state.MAIN_MENU, state.ABOUT, state.TUTORIAL_PROMPT)) {
             if (theme.isDark()) {
                 c.options.filter.add("brightness(100)");
                 c.options.setShadow(theme.colors.shadow, 4, 1, 1);
@@ -2608,7 +2676,9 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.change.x, 25, image.logo.width, image.logo.height);
             c.options.filter.remove("brightness");
             c.options.setShadow();
-        } else if (state.current === state.PLAY_MENU) {
+        }
+        
+        if (state.current === state.PLAY_MENU) {
             c.draw.text({text: "PLAY GAME", x: c.width(0.5) + state.change.x, y: 80, font: {size: 58, style: "bold", shadow: true}});
 
             c.draw.text({text: "APPEARANCE", x: c.width(0.3) + state.change.x, y: 180, font: {size: 32, style: "bold", shadow: true}});
@@ -2665,14 +2735,6 @@ addEventListener("DOMContentLoaded", () => {
             for (let i=0; i<keybinds.length; i++)
                 c.draw.text({text: keybinds[i], x: c.width(0.7) - Button.width / 2 - 25 + state.change.x, y: 250 + i * 60, font: {size: 24, shadow: true}, alignment: "left"});
         } else if (state.current === state.ABOUT) {
-            if (theme.isDark()) {
-                c.options.filter.add("brightness(100)");
-                c.options.setShadow(theme.colors.shadow, 4, 1, 1);
-            }
-            c.draw.image(image.logo, c.width(0.5) - image.logo.width / 2 + state.change.x, 25, image.logo.width, image.logo.height);
-            c.options.filter.remove("brightness");
-            c.options.setShadow();
-
             c.draw.text({text: "by", x: c.width(0.5) + state.change.x, y: c.height(0.37) - 10, font: {size: 24, style: "bold", shadow: true}, baseline: "bottom"});
             c.draw.image(image.logo_nmgames, c.width(0.5) - image.logo_nmgames.width / 4 + state.change.x, c.height(0.37), image.logo_nmgames.width / 2, image.logo_nmgames.height / 2);
             c.draw.text({text: `Version ${versions.game}`, x: c.width(0.5) + state.change.x, y: c.height(0.5) + 50, font: {size: 36, style: "bold", shadow: true}, baseline: "bottom"});
@@ -2722,6 +2784,17 @@ addEventListener("DOMContentLoaded", () => {
                     c.draw.text({text: subtitle, x: c.width(1/2) - 580 + state.change.x, y: c.height(1/2) - 15 + i * 80, alignment: "left", font: {size: 18, shadow: true}});
                 } else c.draw.text({text: "Empty", x: c.width(1/2) - 580 + state.change.x, y: c.height(1/2) - 30 + i * 80, alignment: "left", font: {size: 36, style: "italic", shadow: true}});
             } 
+        } else if (state.current === state.TUTORIAL_PROMPT) {
+            c.draw.text({text: "Welcome to Super Splash Bros 2!", x: c.width(0.5) + state.change.x, y: 350, font: {size: 58, style: "bold", shadow: true}});
+            c.draw.text({text: "Would you like to follow a brief tutorial of this game?", x: c.width(0.5) + state.change.x, y: c.height(0.125) + 330, font: {size: 36, style: "bold", shadow: true}});
+        } else if (state.current === state.TUTORIAL_INTRO) {
+            c.draw.text({text: "In this game, you compete against up to 7 other players", x: c.width(0.5) + state.change.x, y: 100, font: {size: 30, style: "bold", shadow: true}});
+            c.draw.text({text: "on a few platforms above water. Your goal is to be the last one standing.", x: c.width(0.5) + state.change.x, y: 140, font: {size: 30, style: "bold", shadow: true}});
+
+            c.draw.text({text: "To take out your opponents, you have several attack methods:", x: c.width(0.5) + state.change.x, y: 220, font: {size: 30, style: "bold", shadow: true}});
+            c.draw.text({text: "ordinary melee attacks, rockets and power-ups.", x: c.width(0.5) + state.change.x, y: 260, font: {size: 30, style: "bold", shadow: true}});
+
+            c.draw.text({text: "When clicking [Next], you will enter a game, where you can practice everything.", x: c.width(0.5) + state.change.x, y: 340, font: {size: 30, style: "bold", shadow: true}});
         } else if (state.is(state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY) && game) {
             const ips = network.getIPs();
             const mainIP = ips.shift();

@@ -4,7 +4,7 @@
  *  graphics: {theme: import("./preload/theme").Themes, fullScreen: boolean, waterFlow: boolean, menuSprites: boolean},
  *  controls: {moveLeft: string, moveRight: string, jump: string, attack: string, launchRocket: string, activatePowerup: string, gameMenu: string},
  *  audio: {music: boolean, sfx: boolean},
- *  misc: {recordReplays: boolean}
+ *  misc: {recordReplays: boolean, tutorialPrompt: boolean}
  * }} Settings
  * 
  * @typedef {{
@@ -74,7 +74,8 @@ const template = {
         sfx: true
     },
     misc: {
-        recordReplays: false
+        recordReplays: false,
+        tutorialPrompt: true,
     }
 };
 
