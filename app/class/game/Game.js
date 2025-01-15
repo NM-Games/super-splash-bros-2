@@ -164,11 +164,17 @@ class Game {
             this.join({playerName: "Enemy", preferredColor: enemyIndex, powerup: 0}, "tutorial::dummy");
             this.spawnCoordinates[playerIndex] = {x: 593, y: 350};
             this.spawnCoordinates[enemyIndex] = {x: 593, y: -25};
+
             this.players[playerIndex].x = this.spawnCoordinates[playerIndex].x;
             this.players[playerIndex].y = this.spawnCoordinates[playerIndex].y;
+            this.players[playerIndex].lives = 1;
+            this.players[playerIndex].attacks.rocket.count = 0;
+            
             this.players[enemyIndex].x = this.spawnCoordinates[enemyIndex].x;
-            this.players[enemyIndex].y = this.spawnCoordinates[enemyIndex].y;
-            this.players[enemyIndex].lives = 1;
+            this.players[enemyIndex].y = -5e3;
+            this.players[enemyIndex].lives = 3;
+            this.players[enemyIndex].attacks.rocket.count = 0;
+            
             this.hostIndex = playerIndex;
         } else {
             this.spawnCoordinates = [
@@ -341,6 +347,11 @@ class Game {
                     p1.respawn = this.ping;
                     p1.powerup.available = p1.powerup.active = false;
                     p1.stats.timesSplashed++;
+
+                    if (this.mode === "tutorial") {
+                        if (this.hostIndex === p1.index) p1.lives = 1;
+                        else this.tutorialPhase++;
+                    }
                 }
                 if (p1.lives >= 1) {
                     const respawnCoordinates = (this.floodLevel < 0) ? {
@@ -355,7 +366,7 @@ class Game {
             }
 
             if (p1.lives === 0) continue;
-            if (p1.keys.attack && this.ping - p1.attacks.melee.lastPerformed >= p1.attacks.melee.cooldown) {
+            if (p1.keys.attack && this.ping - p1.attacks.melee.lastPerformed >= p1.attacks.melee.cooldown && !(this.mode === "tutorial" && this.tutorialPhase !== 1)) {
                 p1.attacks.melee.lastPerformed = this.ping;
                 p1.stats.meleeAttacks++;
                 this.attacks.push(new Attack(p1.index, p1.x + p1.size / 2, p1.y + p1.size / 2));
@@ -560,16 +571,25 @@ class Game {
         }
         if (this.mode === "tutorial") {
             this.floodLevel = 0;
-            this.players[this.hostIndex].lives = 1;
+            this.fish.item = null;
+            this.players[this.hostIndex].attacks.rocket.cooldown = 1000;
+            Player.maxRockets = 0;
 
-            if (this.tutorialPhase === 0) {
-                this.fish.item = null;
+            if (this.tutorialPhase === 0) { // free phase
+                this.players[this.hostIndex].attacks.rocket.count = 0;
                 for (const p of this.getPlayers()) {
-                    p.attacks.rocket.count = 0;
-                    p.attacks.rocket.lastPerformed = this.ping;
+                    if (p.index !== this.hostIndex) {
+                        p.vy = 2;
+                        if (p.y > -500) this.tutorialPhase = 1;
+                    }
                 }
-            } else if (this.tutorialPhase === 1) {
-                this.attacks.splice(0, this.attacks.length);
+            } else if (this.tutorialPhase === 1) { // melee attack phase
+                this.players[this.hostIndex].attacks.rocket.count = 0;
+            } else if (this.tutorialPhase === 2) { // rocket phase
+                this.players[this.hostIndex].attacks.rocket.count = Infinity;
+            } else if (this.tutorialPhase === 3) { // power-up phase
+                this.players[this.hostIndex].attacks.rocket.count = 0;
+                if (this.ping - this.players[this.hostIndex].powerup.lastActivated > 1000) this.players[this.hostIndex].powerup.available = true;
             }
         }
 

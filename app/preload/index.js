@@ -2487,7 +2487,7 @@ addEventListener("DOMContentLoaded", () => {
                     c.draw.fill.rect(theme.colors.players[p.index], c.width() - p.size - 45, offScreen.y - 10, p.size + 20, p.size + 20, 8);
                     c.draw.fill.triangleLR(theme.colors.players[p.index], c.width() - 25, offScreen.triangleY + p.size / 2, 20, 30);
                     c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, c.width() - p.size - 35, offScreen.y, p.size, p.size);
-                } else if (p.y + offset.y < -p.size && p.lives > 0 && p.connected) {
+                } else if (p.y + offset.y < -p.size && p.lives > 0 && p.connected && state.current !== state.TUTORIAL_GAME) {
                     c.draw.fill.rect(theme.colors.players[p.index], offScreen.x - 10, 25, p.size + 20, p.size + 20, 8);
                     c.draw.fill.triangleUD(theme.colors.players[p.index], offScreen.triangleX + p.size / 2, 25, 30, -20);
                     c.draw.croppedImage(image.sprites, p.index * 128, Number(p.facing === "l") * 128, 128, 128, offScreen.x, 35, p.size, p.size);
@@ -2648,9 +2648,7 @@ addEventListener("DOMContentLoaded", () => {
             const m = Math.max(0, Math.floor(game.remaining / 60));
             const s = ("0" + Math.max(0, game.remaining % 60)).slice(-2);
             const liquid = (theme.current === "slime") ? "Slime" : (theme.current === "lava") ? "Lava" : "Water";
-            const text = (state.current === state.TUTORIAL_GAME) ? (
-                (instance.tutorialPhase === 0) ? "Push the enemy off the edge!"
-                : "Fire a rocket at the enemy to make him fall of the edge!")
+            const text = (state.current === state.TUTORIAL_GAME) ? ""
              : (game.winner !== null) ? `Returning to menu in ${m}:${s}`
              : (game.remaining >= 0) ? `${liquid} starts rising in ${m}:${s}`
              : (!game.flooded) ? `${liquid} is rising!`
@@ -2795,6 +2793,16 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text({text: "ordinary melee attacks, rockets and power-ups.", x: c.width(0.5) + state.change.x, y: 260, font: {size: 30, style: "bold", shadow: true}});
 
             c.draw.text({text: "When clicking [Next], you will enter a game, where you can practice everything.", x: c.width(0.5) + state.change.x, y: 340, font: {size: 30, style: "bold", shadow: true}});
+        } else if (state.current === state.TUTORIAL_GAME) {
+            const texts = [
+                `Move with [${Input.displayKeybind(config.controls.moveLeft)}] and [${Input.displayKeybind(config.controls.moveRight)}], jump with [${Input.displayKeybind(config.controls.jump)}]`,
+                `Use [${Input.displayKeybind(config.controls.attack)}] to activate your attack`,
+                `Use [${Input.displayKeybind(config.controls.launchRocket)}] to launch a rocket`,
+                `Jump and use [${Input.displayKeybind(config.controls.activatePowerup)}] to activate your power-up`,
+                "Well done! Let's move on with the tutorial."
+            ];
+
+            c.draw.text({text: texts[instance.tutorialPhase], x: c.width(0.5) + state.change.x, y: 60, font: {size: 42, style: "bold", shadow: true}});
         } else if (state.is(state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_FREEPLAY) && game) {
             const ips = network.getIPs();
             const mainIP = ips.shift();
