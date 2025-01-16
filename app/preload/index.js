@@ -38,6 +38,7 @@ const state = {
     TUTORIAL_PROMPT: 15,
     TUTORIAL_INTRO: 16,
     TUTORIAL_GAME: 17,
+    TUTORIAL_POST_GAME: 18,
 
     current: 0,
     change: {
@@ -259,6 +260,10 @@ const leave = (playAgain = false) => {
             stop();
         } else if (state.current === state.WATCHING_REPLAY) {
             state.current = state.REPLAYS_MENU;
+            water.flood.disable();
+            stop();
+        } else if (state.current === state.TUTORIAL_GAME) {
+            state.current = state.TUTORIAL_POST_GAME;
             water.flood.disable();
             stop();
         }
@@ -1634,6 +1639,7 @@ Button.items = [
         x: () => c.width(0.65),
         y: () => c.height(0.75),
         onclick: function() {
+            this.hovering = false;
             config.misc.tutorialPrompt = false;
             ipcRenderer.send("update-config", config);
             state.change.to(state.MAIN_MENU);
@@ -1644,9 +1650,23 @@ Button.items = [
         state: state.TUTORIAL_INTRO,
         x: () => c.width(0.5),
         y: () => c.height(0.75),
-        onclick: () => instance.start()
+        onclick: function() {
+            this.hovering = false;
+            instance.start();
+        }
     }),
- 
+    new Button({
+        text: "Let's go!",
+        state: state.TUTORIAL_POST_GAME,
+        x: () => c.width(0.5),
+        y: () => c.height(0.75),
+        onclick: function() {
+            this.hovering = false;
+            config.misc.tutorialPrompt = false;
+            ipcRenderer.send("update-config", config);
+            state.change.to(state.MAIN_MENU);
+        }
+    })
 ];
 Button.gameMenuItems = [
     new Button({
@@ -2015,6 +2035,7 @@ addEventListener("DOMContentLoaded", () => {
         : (state.current === state.PLAYING_LAN) ? "LAN mode"
         : (state.current === state.PLAYING_FREEPLAY) ? "Freeplay mode"
         : (state.current === state.WATCHING_REPLAY) ? "Watching a replay"
+        : (state.is(state.TUTORIAL_INTRO, state.TUTORIAL_GAME, state.TUTORIAL_POST_GAME)) ? "Following the tutorial"
         : (state.is(state.WAITING_FREEPLAY, state.WAITING_LAN_GUEST, state.WAITING_LAN_HOST, state.WAITING_LOCAL)) ? "Waiting for start"
         : undefined;
 
@@ -2787,12 +2808,25 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text({text: "Would you like to follow a brief tutorial of this game?", x: c.width(0.5) + state.change.x, y: c.height(0.125) + 330, font: {size: 36, style: "bold", shadow: true}});
         } else if (state.current === state.TUTORIAL_INTRO) {
             c.draw.text({text: "In this game, you compete against up to 7 other players", x: c.width(0.5) + state.change.x, y: 100, font: {size: 30, style: "bold", shadow: true}});
-            c.draw.text({text: "on a few platforms above water. Your goal is to be the last one standing.", x: c.width(0.5) + state.change.x, y: 140, font: {size: 30, style: "bold", shadow: true}});
+            c.draw.text({text: "on a few platforms above water. Your goal is to get the other players", x: c.width(0.5) + state.change.x, y: 140, font: {size: 30, style: "bold", shadow: true}});
+            c.draw.text({text: "into the water, make them lose their lives, and be the last one standing.", x: c.width(0.5) + state.change.x, y: 180, font: {size: 30, style: "bold", shadow: true}});
 
-            c.draw.text({text: "To take out your opponents, you have several attack methods:", x: c.width(0.5) + state.change.x, y: 220, font: {size: 30, style: "bold", shadow: true}});
-            c.draw.text({text: "ordinary melee attacks, rockets and power-ups.", x: c.width(0.5) + state.change.x, y: 260, font: {size: 30, style: "bold", shadow: true}});
+            c.draw.text({text: "You can play in several gamemodes: Local (up to 4 players with controllers on 1 device),", x: c.width(0.5) + state.change.x, y: 240, font: {size: 30, style: "bold", shadow: true}});
+            c.draw.text({text: "LAN (up to 8 players on 8 devices) and Freeplay (1 player against up to 7 dummies).", x: c.width(0.5) + state.change.x, y: 280, font: {size: 30, style: "bold", shadow: true}});
 
-            c.draw.text({text: "When clicking [Next], you will enter a game, where you can practice everything.", x: c.width(0.5) + state.change.x, y: 340, font: {size: 30, style: "bold", shadow: true}});
+            c.draw.text({text: "To take out your opponents, you have several attack methods:", x: c.width(0.5) + state.change.x, y: 340, font: {size: 30, style: "bold", shadow: true}});
+            c.draw.text({text: "ordinary melee attacks, rockets and power-ups.", x: c.width(0.5) + state.change.x, y: 380, font: {size: 30, style: "bold", shadow: true}});
+
+            c.draw.text({text: "Let's practice a little bit by entering a special tutorial game!", x: c.width(0.5) + state.change.x, y: 440, font: {size: 30, style: "bold", shadow: true}});
+        } else if (state.current === state.TUTORIAL_POST_GAME) {
+            c.draw.text({text: "You have finished the tutorial game, but you can still practice", x: c.width(0.5) + state.change.x, y: 100, font: {size: 30, style: "bold", shadow: true}});
+            c.draw.text({text: "whenever you want to in a Freeplay game.", x: c.width(0.5) + state.change.x, y: 140, font: {size: 30, style: "bold", shadow: true}});
+
+            c.draw.text({text: "Furthermore, you just practiced with the Squash power-up, but", x: c.width(0.5) + state.change.x, y: 200, font: {size: 30, style: "bold", shadow: true}});
+            c.draw.text({text: "we got way more power-ups available. You should try those too!", x: c.width(0.5) + state.change.x, y: 240, font: {size: 30, style: "bold", shadow: true}});
+
+            c.draw.text({text: "Last, but not least: do not forget to change your name and player color!", x: c.width(0.5) + state.change.x, y: 300, font: {size: 30, style: "bold", shadow: true}});
+            c.draw.text({text: "Have fun!", x: c.width(0.5) + state.change.x, y: 380, font: {size: 30, style: "bold", shadow: true}});
         } else if (state.current === state.TUTORIAL_GAME) {
             const texts = [
                 `Move with [${Input.displayKeybind(config.controls.moveLeft)}] and [${Input.displayKeybind(config.controls.moveRight)}], jump with [${Input.displayKeybind(config.controls.jump)}]`,
