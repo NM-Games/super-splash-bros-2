@@ -8,10 +8,8 @@
     "start": "electron app",
     "update": "npx -y Jelmerro/nus",
     "build-windows": "electron-builder -w",
-    "build-mac": "electron-builder -m dmg",
-    "build-mac-zip": "electron-builder -m zip",
-    "build-linux": "electron-builder -l",
-    "build-all": "electron-builder -w -l -m zip"
+    "build-mac": "electron-builder -m",
+    "build-linux": "electron-builder -l"
   },
   "repository": {
     "type": "git",

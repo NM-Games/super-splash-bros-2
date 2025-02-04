@@ -24,8 +24,30 @@ Over there, you can easily download the game for your operating system, and foll
 > Hint for Linux users: be sure to choose the right architecture as well!
 > Common PCs and laptops often require the x64 build, microcontrollers like Raspberry Pi and Odroid mostly require the arm64 build.
 ### macOS users
-Mac users have to sign the app themselves by running `sudo codesign --force --deep --sign - /Applications/Super Splash Bros 2.app`.  
-If that does not work, try building the app yourself by running `npm install && npm run build-mac`, assuming that npm is installed.
+Mac users have to build the app from source themselves. For instructions on how to do so, scroll down below.
+
+## Building from source
+1. Download and install [NodeJS](https://nodejs.org/en/download), if you don't have it already.
+2. Clone the Git repository and navigate into it:
+    ```bash
+    git clone https://github.com/NM-Games/super-splash-bros-2
+    cd super-splash-bros-2
+    ```
+3. Install the required dependencies:
+    ```bash
+    npm install
+    ```
+4. Build Super Splash Bros 2 for your operating system:
+    ```bash
+    npm run build-[OPERATING SYSTEM]
+    ```
+    where `[OPERATING SYSTEM]` should be replaced by `windows`, `mac` or `linux`.
+
+    > If you encounter issues here, performing a rebuild can help:
+    > ```bash
+    > npx electron-rebuild
+    > ```
+5. Locate the executables in the `dist` directory, and you are good to go!
 
 ## Known issues
 - There might be a chance that the game will not load on startup and show a white screen instead. Restarting the game solves that.
