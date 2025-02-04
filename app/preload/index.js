@@ -88,7 +88,8 @@ const state = {
             state.WAITING_LAN_HOST,
             state.WAITING_FREEPLAY,
             state.TUTORIAL_PROMPT,
-            state.TUTORIAL_INTRO
+            state.TUTORIAL_INTRO,
+            state.TUTORIAL_POST_GAME
         );
     }
 };
@@ -1646,7 +1647,7 @@ Button.items = [
         }
     }),
     new Button({
-        text: "Next",
+        text: "Next ▸",
         state: state.TUTORIAL_INTRO,
         x: () => c.width(0.5),
         y: () => c.height(0.75),
@@ -2825,8 +2826,12 @@ addEventListener("DOMContentLoaded", () => {
             c.draw.text({text: "Furthermore, you just practiced with the Squash power-up, but", x: c.width(0.5) + state.change.x, y: 200, font: {size: 30, style: "bold", shadow: true}});
             c.draw.text({text: "we got way more power-ups available. You should try those too!", x: c.width(0.5) + state.change.x, y: 240, font: {size: 30, style: "bold", shadow: true}});
 
-            c.draw.text({text: "Last, but not least: do not forget to change your name and player color!", x: c.width(0.5) + state.change.x, y: 300, font: {size: 30, style: "bold", shadow: true}});
-            c.draw.text({text: "Have fun!", x: c.width(0.5) + state.change.x, y: 380, font: {size: 30, style: "bold", shadow: true}});
+            c.draw.text({text: "Want to know more about all the features of this game?", x: c.width(0.5) + state.change.x, y: 300, font: {size: 30, style: "bold", shadow: true}});
+            c.draw.text({text: "On GitHub, there is a detailed explanation page available.", x: c.width(0.5) + state.change.x, y: 340, font: {size: 30, style: "bold", shadow: true}});
+            c.draw.text({text: "You can always visit it easily by pressing your F1 key.", x: c.width(0.5) + state.change.x, y: 380, font: {size: 30, style: "bold", shadow: true}});
+
+            c.draw.text({text: "Last, but not least: do not forget to change your name and player color!", x: c.width(0.5) + state.change.x, y: 440, font: {size: 30, style: "bold", shadow: true}});
+            c.draw.text({text: "Have fun!", x: c.width(0.5) + state.change.x, y: 500, font: {size: 30, style: "bold", shadow: true}});
         } else if (state.current === state.TUTORIAL_GAME) {
             const texts = [
                 `Move with [${Input.displayKeybind(config.controls.moveLeft)}] and [${Input.displayKeybind(config.controls.moveRight)}], jump with [${Input.displayKeybind(config.controls.jump)}]`,

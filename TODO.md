@@ -23,5 +23,5 @@
 - [x] Replay system
 - [x] Tracking statistics
 - [ ] Local 1v1 mode with keyboard
-- [ ] Tutorial mode
+- [x] Tutorial mode
 - [x] New music track
