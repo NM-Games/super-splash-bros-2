@@ -12,7 +12,7 @@ Compared to Super Splash Bros, the following has been changed/improved:
 - Added several power-ups in addition to shields (now known as *force fields*) and squashes. Power-ups can now be achieved from item boxes which look like fish.
 - Player appearance is now customizable! Players can determine their own name, color and power-up.
 - Added the option to remove dummies in Freeplay mode.
-- Added synthwave, foggy and lava themes!
+- Added synthwave, foggy, lava and slime themes!
 - Added music and sound effects! If you want, you can turn these off in the Settings menu and in the in-game menu.
 - Keybinds can be remapped! Only for keyboards, not for controllers, maybe later :)
 - If you press the right buttons in the right order, something festive might happen on menu screens...
@@ -85,9 +85,10 @@ Super Splash Bros 2 can be played in 6 various themes:
 - Daylight (the original Splash theme);
 - Sunset;
 - Night;
-- Synthwave (new!);
-- Foggy (new!);
-- Lava (new!).
+- Synthwave;
+- Foggy;
+- Lava;
+- Slime (new!).
 
 Note that the default theme should be changed in the Settings menu. When you are about to start a game, you can also change the theme, but it will only apply to that game and will switch back to the default theme when the game has ended. 
 
