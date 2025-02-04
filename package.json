@@ -1,7 +1,7 @@
 {
   "name": "supersplashbros2",
   "displayName": "Super Splash Bros 2",
-  "version": "1.1.0-dev",
+  "version": "1.1.0",
   "description": "Be the last player standing above the water!",
   "main": "app/index.js",
   "scripts": {
@@ -30,8 +30,8 @@
   },
   "homepage": "https://github.com/NM-Games/super-splash-bros-2#readme",
   "devDependencies": {
-    "electron": "31.3.0",
-    "electron-builder": "24.13.3"
+    "electron": "34.0.2",
+    "electron-builder": "25.1.8"
   },
   "dependencies": {
     "discord-rpc": "4.0.1",
